@@ -3,6 +3,7 @@
 Простой Telegram-бот на Python с Gemini API. Поддерживает:
 - выбор текстовой модели через `/model`:
   - `Gemini 2.5 Flash`
+  - `Gemini 3 Flash`
   - `Qwen Next 80B`
   - `Kimi K2 Thinking`
   - `MiniMax M2.1`

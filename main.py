@@ -3,6 +3,7 @@ import base64
 import json
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -33,7 +34,8 @@ ALLOWED_USER_IDS = os.getenv("ALLOWED_USER_IDS", "").strip()
 ALLOWLIST_FILE = os.getenv("ALLOWLIST_FILE", "allowlist.json").strip()
 MODEL_PREFS_FILE = os.getenv("MODEL_PREFS_FILE", "model_prefs.json").strip()
 
-TEXT_MODEL_GEMINI = "gemini-2.5-flash"
+TEXT_MODEL_GEMINI_25 = os.getenv("TEXT_MODEL_GEMINI_25", "gemini-2.5-flash").strip()
+TEXT_MODEL_GEMINI_3 = os.getenv("TEXT_MODEL_GEMINI_3", "gemini-3-flash-preview").strip()
 IMAGE_MODEL = os.getenv("IMAGE_MODEL", "gemini-2.0-flash-preview-image-generation").strip()
 
 NVIDIA_API_BASE = os.getenv("NVIDIA_API_BASE", "https://integrate.api.nvidia.com/v1").strip().rstrip("/")
@@ -47,6 +49,7 @@ MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "1024") or "1024")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 MODEL_GEMINI = "gemini"
+MODEL_GEMINI_3 = "gemini3"
 MODEL_QWEN = "qwen"
 MODEL_KIMI = "kimi"
 MODEL_MINIMAX = "minimax"
@@ -59,6 +62,7 @@ NVIDIA_MODEL_NAMES = {
 
 MODEL_LABELS = {
     MODEL_GEMINI: "Gemini 2.5 Flash",
+    MODEL_GEMINI_3: "Gemini 3 Flash",
     MODEL_QWEN: "Qwen Next 80B",
     MODEL_KIMI: "Kimi K2 Thinking",
     MODEL_MINIMAX: "MiniMax M2.1",
@@ -237,8 +241,25 @@ def mask_key(value: str) -> str:
     return f"{value[:8]}...{value[-4:]}"
 
 
-def generate_text_gemini(prompt: str) -> Tuple[str, str]:
-    model = genai.GenerativeModel(TEXT_MODEL_GEMINI)
+def strip_reasoning(text: str) -> str:
+    if not text:
+        return text
+
+    cleaned = text
+    # Remove explicit reasoning blocks used by thinking models.
+    cleaned = re.sub(r"<think>[\s\S]*?</think>", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"<reasoning>[\s\S]*?</reasoning>", "", cleaned, flags=re.IGNORECASE)
+
+    # Remove common leading markers if model still outputs reasoning inline.
+    cleaned = re.sub(r"^\s*Reasoning:\s*", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"^\s*Chain of thought:\s*", "", cleaned, flags=re.IGNORECASE)
+
+    cleaned = cleaned.strip()
+    return cleaned or text
+
+
+def generate_text_gemini(prompt: str, model_name: str) -> Tuple[str, str]:
+    model = genai.GenerativeModel(model_name)
     response = model.generate_content(
         prompt,
         generation_config={
@@ -248,8 +269,8 @@ def generate_text_gemini(prompt: str) -> Tuple[str, str]:
     )
     text = extract_text(response)
     if not text:
-        raise RuntimeError("Gemini returned an empty response.")
-    return text, TEXT_MODEL_GEMINI
+        raise RuntimeError(f"{model_name} returned an empty response.")
+    return strip_reasoning(text), model_name
 
 
 def generate_text_nvidia(prompt: str, model_key: str) -> Tuple[str, str]:
@@ -291,6 +312,7 @@ def generate_text_nvidia(prompt: str, model_key: str) -> Tuple[str, str]:
         .get("content", "")
         .strip()
     )
+    text = strip_reasoning(text)
     if not text:
         raise RuntimeError(f"{model_name} returned an empty response.")
     return text, model_name
@@ -298,7 +320,9 @@ def generate_text_nvidia(prompt: str, model_key: str) -> Tuple[str, str]:
 
 def generate_text(prompt: str, model_key: str) -> Tuple[str, str]:
     if model_key == MODEL_GEMINI:
-        return generate_text_gemini(prompt)
+        return generate_text_gemini(prompt, TEXT_MODEL_GEMINI_25)
+    if model_key == MODEL_GEMINI_3:
+        return generate_text_gemini(prompt, TEXT_MODEL_GEMINI_3)
     return generate_text_nvidia(prompt, model_key)
 
 
@@ -324,6 +348,7 @@ def build_model_keyboard(selected_key: str) -> InlineKeyboardMarkup:
 
     rows = [
         [InlineKeyboardButton(label(MODEL_GEMINI, "Gemini 2.5 Flash"), callback_data="model:gemini")],
+        [InlineKeyboardButton(label(MODEL_GEMINI_3, "Gemini 3 Flash"), callback_data="model:gemini3")],
         [InlineKeyboardButton(label(MODEL_QWEN, "Qwen Next 80B"), callback_data="model:qwen")],
         [InlineKeyboardButton(label(MODEL_KIMI, "Kimi K2 Thinking"), callback_data="model:kimi")],
         [InlineKeyboardButton(label(MODEL_MINIMAX, "MiniMax M2.1"), callback_data="model:minimax")],
