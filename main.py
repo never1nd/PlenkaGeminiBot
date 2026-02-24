@@ -40,15 +40,14 @@ MEMORY_CONTEXT_MESSAGES = int(os.getenv("MEMORY_CONTEXT_MESSAGES", "20") or "20"
 
 TEXT_MODEL_GEMINI_25 = os.getenv("TEXT_MODEL_GEMINI_25", "gemini-2.5-flash").strip()
 TEXT_MODEL_GEMINI_3 = os.getenv("TEXT_MODEL_GEMINI_3", "gemini-3-flash-preview").strip()
-GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image-preview").strip()
-IMAGEN_MODEL = os.getenv("IMAGEN_MODEL", "google/imagen-4-fast-generate").strip()
+GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image").strip()
+IMAGEN_MODEL = os.getenv("IMAGEN_MODEL", "imagen-4.0-generate-001").strip()
 
 NVIDIA_API_BASE = os.getenv("NVIDIA_API_BASE", "https://integrate.api.nvidia.com/v1").strip().rstrip("/")
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "").strip()
 NVIDIA_API_KEY_QWEN = os.getenv("NVIDIA_API_KEY_QWEN", os.getenv("QWEN_API_KEY", "")).strip()
 NVIDIA_API_KEY_KIMI = os.getenv("NVIDIA_API_KEY_KIMI", os.getenv("KIMI_API_KEY", "")).strip()
 NVIDIA_API_KEY_MINIMAX = os.getenv("NVIDIA_API_KEY_MINIMAX", os.getenv("MINIMAX_API_KEY", "")).strip()
-NVIDIA_API_KEY_IMAGEN = os.getenv("NVIDIA_API_KEY_IMAGEN", os.getenv("IMAGEN_API_KEY", "")).strip()
 
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7") or "0.7")
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "1024") or "1024")
@@ -549,17 +548,11 @@ def generate_image(prompt: str) -> Tuple[bytes, str]:
 
 
 def generate_image_imagen(prompt: str) -> Tuple[bytes, str]:
-    api_key = NVIDIA_API_KEY_IMAGEN or NVIDIA_API_KEY
-    if not api_key:
-        raise RuntimeError("NVIDIA API key is not configured for imagen.")
-    payload = {
-        "model": IMAGEN_MODEL,
-        "prompt": prompt,
-    }
+    payload = {"instances": [{"prompt": prompt}], "parameters": {"sampleCount": 1}}
     resp = requests.post(
-        f"{NVIDIA_API_BASE}/images/generations",
+        f"https://generativelanguage.googleapis.com/v1beta/models/{IMAGEN_MODEL}:predict",
         headers={
-            "Authorization": f"Bearer {api_key}",
+            "x-goog-api-key": GEMINI_API_KEY,
             "Content-Type": "application/json",
             "Accept": "application/json",
         },
@@ -569,8 +562,15 @@ def generate_image_imagen(prompt: str) -> Tuple[bytes, str]:
     if not resp.ok:
         raise RuntimeError(f"Imagen API error: {resp.status_code} {resp.text[:300]}")
     data = resp.json()
-    first = (data.get("data") or [{}])[0]
-    b64_value = first.get("b64_json") or first.get("image_base64") or first.get("base64")
+    predictions = data.get("predictions") or []
+    first = predictions[0] if predictions else {}
+    b64_value = (
+        first.get("bytesBase64Encoded")
+        or first.get("b64_json")
+        or first.get("imageBase64")
+        or first.get("image_base64")
+        or first.get("base64")
+    )
     if not b64_value:
         raise RuntimeError("Imagen API returned no image payload.")
     return base64.b64decode(b64_value), "image/png"
@@ -740,7 +740,6 @@ async def keys_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         f"NVIDIA_API_KEY_QWEN: {mask_key(NVIDIA_API_KEY_QWEN)}",
         f"NVIDIA_API_KEY_KIMI: {mask_key(NVIDIA_API_KEY_KIMI)}",
         f"NVIDIA_API_KEY_MINIMAX: {mask_key(NVIDIA_API_KEY_MINIMAX)}",
-        f"NVIDIA_API_KEY_IMAGEN: {mask_key(NVIDIA_API_KEY_IMAGEN)}",
     ]
     await update.message.reply_text("\n".join(lines))
 
