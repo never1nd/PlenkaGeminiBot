@@ -3,7 +3,7 @@ import logging
 import base64
 import json
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 from dotenv import load_dotenv
 from telegram import Update
@@ -23,7 +23,7 @@ OWNER_USERNAME = os.getenv("OWNER_USERNAME", DEFAULT_OWNER_USERNAME).lstrip("@")
 
 ALLOWED_USER_IDS = os.getenv("ALLOWED_USER_IDS", "").strip()
 ALLOWLIST_FILE = os.getenv("ALLOWLIST_FILE", "allowlist.json").strip()
-TEXT_MODELS = os.getenv("TEXT_MODELS", "gemini-2.5-pro,gemini-2.5-flash,gemini-2.0-flash").strip()
+TEXT_MODEL = "gemini-2.5-flash"
 IMAGE_MODEL = os.getenv("IMAGE_MODEL", "gemini-2.0-flash-preview-image-generation").strip()
 
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7") or "0.7")
@@ -78,11 +78,6 @@ def save_allowlist(ids: set[int]) -> None:
 
 
 allowed_user_ids = load_allowlist()
-
-text_models: List[str] = [m.strip() for m in TEXT_MODELS.split(",") if m.strip()]
-
-if not text_models:
-    raise SystemExit("TEXT_MODELS is empty. Provide at least one model name.")
 
 if not IMAGE_MODEL:
     raise SystemExit("IMAGE_MODEL is empty. Provide an image-capable model name.")
@@ -151,27 +146,19 @@ def extract_image_bytes(response) -> Optional[Tuple[bytes, str]]:
     return None
 
 
-def generate_text_with_fallback(prompt: str) -> Tuple[str, str]:
-    last_error = None
-    for model_name in text_models:
-        try:
-            model = genai.GenerativeModel(model_name)
-            response = model.generate_content(
-                prompt,
-                generation_config={
-                    "temperature": TEMPERATURE,
-                    "max_output_tokens": MAX_OUTPUT_TOKENS,
-                },
-            )
-            text = extract_text(response)
-            if text:
-                return text, model_name
-        except Exception as exc:
-            last_error = exc
-            logger.warning("Model %s failed: %s", model_name, exc)
-            continue
-
-    raise RuntimeError(f"All models failed. Last error: {last_error}")
+def generate_text(prompt: str) -> Tuple[str, str]:
+    model = genai.GenerativeModel(TEXT_MODEL)
+    response = model.generate_content(
+        prompt,
+        generation_config={
+            "temperature": TEMPERATURE,
+            "max_output_tokens": MAX_OUTPUT_TOKENS,
+        },
+    )
+    text = extract_text(response)
+    if not text:
+        raise RuntimeError("Text model returned an empty response.")
+    return text, TEXT_MODEL
 
 
 def generate_image(prompt: str) -> Tuple[bytes, str]:
@@ -292,7 +279,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
     await update.message.chat.send_action(action="typing")
     try:
-        answer, used_model = generate_text_with_fallback(prompt)
+        answer, used_model = generate_text(prompt)
         await update.message.reply_text(f"{answer}\n\n[model: {used_model}]")
     except Exception as exc:
         logger.exception("Text generation failed")
