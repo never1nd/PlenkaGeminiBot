@@ -90,6 +90,11 @@ if not GEMINI_API_KEY:
 if not GEMINI_IMAGE_MODEL:
     raise SystemExit("GEMINI_IMAGE_MODEL is empty. Provide an image-capable model name.")
 
+# Self-heal older env value to prevent 404 after model deprecations.
+if GEMINI_IMAGE_MODEL == "gemini-2.5-flash-image-preview":
+    logger.warning("GEMINI_IMAGE_MODEL was deprecated preview; auto-switching to gemini-2.5-flash-image")
+    GEMINI_IMAGE_MODEL = "gemini-2.5-flash-image"
+
 allowlist_path = Path(ALLOWLIST_FILE)
 users_db_path = Path(USERS_DB_FILE)
 model_prefs_path = Path(MODEL_PREFS_FILE)
@@ -560,6 +565,11 @@ def generate_image_imagen(prompt: str) -> Tuple[bytes, str]:
         timeout=120,
     )
     if not resp.ok:
+        if resp.status_code == 404:
+            raise RuntimeError(
+                "Imagen API error: 404. Model/tier is unavailable for this project. "
+                "Try Gemini Image or enable access/billing for Imagen."
+            )
         raise RuntimeError(f"Imagen API error: {resp.status_code} {resp.text[:300]}")
     data = resp.json()
     predictions = data.get("predictions") or []
