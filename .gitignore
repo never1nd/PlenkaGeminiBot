@@ -1,0 +1,5 @@
+.env
+allowlist.json
+__pycache__/
+*.pyc
+.venv/
