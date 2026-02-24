@@ -94,6 +94,9 @@ if not GEMINI_IMAGE_MODEL:
 if GEMINI_IMAGE_MODEL == "gemini-2.5-flash-image-preview":
     logger.warning("GEMINI_IMAGE_MODEL was deprecated preview; auto-switching to gemini-2.5-flash-image")
     GEMINI_IMAGE_MODEL = "gemini-2.5-flash-image"
+if IMAGEN_MODEL == "google/imagen-4-fast-generate":
+    logger.warning("IMAGEN_MODEL was legacy value; auto-switching to imagen-4.0-generate-001")
+    IMAGEN_MODEL = "imagen-4.0-generate-001"
 
 allowlist_path = Path(ALLOWLIST_FILE)
 users_db_path = Path(USERS_DB_FILE)
