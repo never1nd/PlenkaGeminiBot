@@ -1,5 +1,8 @@
 .env
+.env.*
+!.env.example
 allowlist.json
+model_prefs.json
 __pycache__/
 *.pyc
 .venv/
