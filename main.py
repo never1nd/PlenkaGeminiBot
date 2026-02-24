@@ -90,10 +90,14 @@ if not IMAGE_MODEL:
 genai.configure(api_key=GEMINI_API_KEY)
 
 
-def is_allowed(user_id: Optional[int]) -> bool:
-    if user_id is None:
+def is_allowed(user) -> bool:
+    if not user:
         return False
-    return user_id in allowed_user_ids
+    if user.id in allowed_user_ids:
+        return True
+    if OWNER_USERNAME and user.username and user.username.lower() == OWNER_USERNAME.lower():
+        return True
+    return False
 
 
 def is_owner(user) -> bool:
@@ -188,7 +192,7 @@ def generate_image(prompt: str) -> Tuple[bytes, str]:
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not is_allowed(update.effective_user.id if update.effective_user else None):
+    if not is_allowed(update.effective_user):
         await update.message.reply_text("Доступ запрещен. Попросите владельца добавить вас.")
         return
     await update.message.reply_text(
@@ -279,8 +283,7 @@ async def deny(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user_id = update.effective_user.id if update.effective_user else None
-    if not is_allowed(user_id):
+    if not is_allowed(update.effective_user):
         await update.message.reply_text("Доступ запрещен.")
         return
     prompt = update.message.text.strip() if update.message and update.message.text else ""
@@ -297,8 +300,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 
 async def handle_img(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user_id = update.effective_user.id if update.effective_user else None
-    if not is_allowed(user_id):
+    if not is_allowed(update.effective_user):
         await update.message.reply_text("Доступ запрещен.")
         return
     if not context.args:
