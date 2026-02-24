@@ -35,17 +35,20 @@ ALLOWED_USER_IDS = os.getenv("ALLOWED_USER_IDS", "").strip()
 ALLOWLIST_FILE = os.getenv("ALLOWLIST_FILE", "allowlist.json").strip()
 USERS_DB_FILE = os.getenv("USERS_DB_FILE", "users.db").strip()
 MODEL_PREFS_FILE = os.getenv("MODEL_PREFS_FILE", "model_prefs.json").strip()
+IMAGE_PREFS_FILE = os.getenv("IMAGE_PREFS_FILE", "image_prefs.json").strip()
 MEMORY_CONTEXT_MESSAGES = int(os.getenv("MEMORY_CONTEXT_MESSAGES", "20") or "20")
 
 TEXT_MODEL_GEMINI_25 = os.getenv("TEXT_MODEL_GEMINI_25", "gemini-2.5-flash").strip()
 TEXT_MODEL_GEMINI_3 = os.getenv("TEXT_MODEL_GEMINI_3", "gemini-3-flash-preview").strip()
-IMAGE_MODEL = os.getenv("IMAGE_MODEL", "gemini-2.0-flash-preview-image-generation").strip()
+GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image-preview").strip()
+IMAGEN_MODEL = os.getenv("IMAGEN_MODEL", "google/imagen-4-fast-generate").strip()
 
 NVIDIA_API_BASE = os.getenv("NVIDIA_API_BASE", "https://integrate.api.nvidia.com/v1").strip().rstrip("/")
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "").strip()
 NVIDIA_API_KEY_QWEN = os.getenv("NVIDIA_API_KEY_QWEN", os.getenv("QWEN_API_KEY", "")).strip()
 NVIDIA_API_KEY_KIMI = os.getenv("NVIDIA_API_KEY_KIMI", os.getenv("KIMI_API_KEY", "")).strip()
 NVIDIA_API_KEY_MINIMAX = os.getenv("NVIDIA_API_KEY_MINIMAX", os.getenv("MINIMAX_API_KEY", "")).strip()
+NVIDIA_API_KEY_IMAGEN = os.getenv("NVIDIA_API_KEY_IMAGEN", os.getenv("IMAGEN_API_KEY", "")).strip()
 
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7") or "0.7")
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "1024") or "1024")
@@ -56,6 +59,8 @@ MODEL_GEMINI_3 = "gemini3"
 MODEL_QWEN = "qwen"
 MODEL_KIMI = "kimi"
 MODEL_MINIMAX = "minimax"
+IMAGE_PROVIDER_GEMINI = "img_gemini"
+IMAGE_PROVIDER_IMAGEN = "img_imagen"
 
 NVIDIA_MODEL_NAMES = {
     MODEL_QWEN: "qwen/qwen3-next-80b-a3b-instruct",
@@ -83,12 +88,13 @@ if not TELEGRAM_BOT_TOKEN:
     raise SystemExit("TELEGRAM_BOT_TOKEN is required")
 if not GEMINI_API_KEY:
     raise SystemExit("GEMINI_API_KEY is required")
-if not IMAGE_MODEL:
-    raise SystemExit("IMAGE_MODEL is empty. Provide an image-capable model name.")
+if not GEMINI_IMAGE_MODEL:
+    raise SystemExit("GEMINI_IMAGE_MODEL is empty. Provide an image-capable model name.")
 
 allowlist_path = Path(ALLOWLIST_FILE)
 users_db_path = Path(USERS_DB_FILE)
 model_prefs_path = Path(MODEL_PREFS_FILE)
+image_prefs_path = Path(IMAGE_PREFS_FILE)
 
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -251,6 +257,11 @@ def migrate_legacy_allowlist_to_db() -> None:
         add_allowed_user_to_db(uid)
 
 
+def write_allowlist_backup(ids: set[int]) -> None:
+    data = {"user_ids": sorted(ids)}
+    allowlist_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def load_model_prefs() -> dict[str, str]:
     if not model_prefs_path.exists():
         return {}
@@ -274,13 +285,38 @@ def save_model_prefs(prefs: dict[str, str]) -> None:
     model_prefs_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def load_image_prefs() -> dict[str, str]:
+    if not image_prefs_path.exists():
+        return {}
+    try:
+        data = json.loads(image_prefs_path.read_text(encoding="utf-8"))
+        prefs = data.get("prefs", {})
+        if isinstance(prefs, dict):
+            normalized = {}
+            for k, v in prefs.items():
+                provider = str(v)
+                if provider in {IMAGE_PROVIDER_GEMINI, IMAGE_PROVIDER_IMAGEN}:
+                    normalized[str(k)] = provider
+            return normalized
+    except Exception as exc:
+        logger.warning("Failed to read image prefs file: %s", exc)
+    return {}
+
+
+def save_image_prefs(prefs: dict[str, str]) -> None:
+    data = {"prefs": prefs}
+    image_prefs_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 init_users_db()
 migrate_legacy_allowlist_to_db()
 allowed_user_ids = load_allowed_user_ids_from_db()
 # Owner is always allowed even if not present in DB.
 if OWNER_USER_ID:
     allowed_user_ids.add(OWNER_USER_ID)
+write_allowlist_backup(allowed_user_ids)
 user_model_prefs = load_model_prefs()
+user_image_prefs = load_image_prefs()
 
 
 def is_allowed(user) -> bool:
@@ -355,6 +391,19 @@ def set_user_model_key(user_id: int, model_key: str) -> None:
         raise ValueError("Unsupported model key")
     user_model_prefs[str(user_id)] = model_key
     save_model_prefs(user_model_prefs)
+
+
+def get_user_image_provider(user_id: Optional[int]) -> str:
+    if user_id is None:
+        return IMAGE_PROVIDER_GEMINI
+    return user_image_prefs.get(str(user_id), IMAGE_PROVIDER_GEMINI)
+
+
+def set_user_image_provider(user_id: int, provider: str) -> None:
+    if provider not in {IMAGE_PROVIDER_GEMINI, IMAGE_PROVIDER_IMAGEN}:
+        raise ValueError("Unsupported image provider")
+    user_image_prefs[str(user_id)] = provider
+    save_image_prefs(user_image_prefs)
 
 
 def get_nvidia_key(model_key: str) -> str:
@@ -484,7 +533,7 @@ def generate_text(prompt: str, model_key: str, history: list[dict[str, str]]) ->
 
 
 def generate_image(prompt: str) -> Tuple[bytes, str]:
-    model = genai.GenerativeModel(IMAGE_MODEL)
+    model = genai.GenerativeModel(GEMINI_IMAGE_MODEL)
     response = model.generate_content(
         prompt,
         generation_config={
@@ -496,7 +545,41 @@ def generate_image(prompt: str) -> Tuple[bytes, str]:
     if image:
         return image
     text = extract_text(response)
-    raise RuntimeError(f"Image model returned no image. Text: {text}")
+    raise RuntimeError(f"Gemini image model returned no image. Text: {text}")
+
+
+def generate_image_imagen(prompt: str) -> Tuple[bytes, str]:
+    api_key = NVIDIA_API_KEY_IMAGEN or NVIDIA_API_KEY
+    if not api_key:
+        raise RuntimeError("NVIDIA API key is not configured for imagen.")
+    payload = {
+        "model": IMAGEN_MODEL,
+        "prompt": prompt,
+    }
+    resp = requests.post(
+        f"{NVIDIA_API_BASE}/images/generations",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        json=payload,
+        timeout=120,
+    )
+    if not resp.ok:
+        raise RuntimeError(f"Imagen API error: {resp.status_code} {resp.text[:300]}")
+    data = resp.json()
+    first = (data.get("data") or [{}])[0]
+    b64_value = first.get("b64_json") or first.get("image_base64") or first.get("base64")
+    if not b64_value:
+        raise RuntimeError("Imagen API returned no image payload.")
+    return base64.b64decode(b64_value), "image/png"
+
+
+def generate_image_by_provider(prompt: str, provider: str) -> Tuple[bytes, str]:
+    if provider == IMAGE_PROVIDER_IMAGEN:
+        return generate_image_imagen(prompt)
+    return generate_image(prompt)
 
 
 def build_model_keyboard(selected_key: str) -> InlineKeyboardMarkup:
@@ -509,6 +592,17 @@ def build_model_keyboard(selected_key: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(label(MODEL_QWEN, "Qwen Next 80B"), callback_data="model:qwen")],
         [InlineKeyboardButton(label(MODEL_KIMI, "Kimi K2 Thinking"), callback_data="model:kimi")],
         [InlineKeyboardButton(label(MODEL_MINIMAX, "MiniMax M2.1"), callback_data="model:minimax")],
+    ]
+    return InlineKeyboardMarkup(rows)
+
+
+def build_img_model_keyboard(selected_key: str) -> InlineKeyboardMarkup:
+    def label(provider: str, title: str) -> str:
+        return f"* {title}" if selected_key == provider else title
+
+    rows = [
+        [InlineKeyboardButton(label(IMAGE_PROVIDER_GEMINI, "Gemini Image"), callback_data="imgmodel:img_gemini")],
+        [InlineKeyboardButton(label(IMAGE_PROVIDER_IMAGEN, "Imagen"), callback_data="imgmodel:img_imagen")],
     ]
     return InlineKeyboardMarkup(rows)
 
@@ -537,6 +631,19 @@ async def model_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     )
 
 
+async def img_model_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not is_allowed(update.effective_user):
+        await update.message.reply_text("Access denied.")
+        return
+    user_id = update.effective_user.id if update.effective_user else None
+    provider = get_user_image_provider(user_id)
+    label = "Gemini Image" if provider == IMAGE_PROVIDER_GEMINI else "Imagen"
+    await update.message.reply_text(
+        f"Current image model: {label}\nSelect image model:",
+        reply_markup=build_img_model_keyboard(provider),
+    )
+
+
 async def on_model_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     if not query:
@@ -561,6 +668,31 @@ async def on_model_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     )
 
 
+async def on_img_model_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    if not query:
+        return
+    user = query.from_user
+    if not is_allowed(user):
+        await query.answer("Access denied.", show_alert=True)
+        return
+    data = query.data or ""
+    if not data.startswith("imgmodel:"):
+        await query.answer()
+        return
+    provider = data.split(":", 1)[1]
+    if provider not in {IMAGE_PROVIDER_GEMINI, IMAGE_PROVIDER_IMAGEN}:
+        await query.answer("Unknown image model.", show_alert=True)
+        return
+    set_user_image_provider(user.id, provider)
+    label = "Gemini Image" if provider == IMAGE_PROVIDER_GEMINI else "Imagen"
+    await query.answer(f"Selected: {label}")
+    await query.edit_message_text(
+        f"Current image model: {label}\nSelect image model:",
+        reply_markup=build_img_model_keyboard(provider),
+    )
+
+
 async def whoami(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     if not user:
@@ -579,6 +711,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/start - start bot",
         "/whoami - show your user_id",
         "/model - choose text model",
+        "/imgmodel - choose image model",
         "/img <prompt> - generate image",
         "/memory on|off|status - toggle memory for this chat",
         "/clear - clear chat memory",
@@ -598,12 +731,16 @@ async def keys_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
     lines = [
         f"USERS_DB_FILE: {users_db_path}",
+        f"ALLOWLIST_FILE: {allowlist_path}",
         f"MEMORY_CONTEXT_MESSAGES: {MEMORY_CONTEXT_MESSAGES}",
+        f"GEMINI_IMAGE_MODEL: {GEMINI_IMAGE_MODEL}",
+        f"IMAGEN_MODEL: {IMAGEN_MODEL}",
         f"NVIDIA_API_BASE: {NVIDIA_API_BASE or 'missing'}",
         f"NVIDIA_API_KEY: {mask_key(NVIDIA_API_KEY)}",
         f"NVIDIA_API_KEY_QWEN: {mask_key(NVIDIA_API_KEY_QWEN)}",
         f"NVIDIA_API_KEY_KIMI: {mask_key(NVIDIA_API_KEY_KIMI)}",
         f"NVIDIA_API_KEY_MINIMAX: {mask_key(NVIDIA_API_KEY_MINIMAX)}",
+        f"NVIDIA_API_KEY_IMAGEN: {mask_key(NVIDIA_API_KEY_IMAGEN)}",
     ]
     await update.message.reply_text("\n".join(lines))
 
@@ -690,6 +827,7 @@ async def allow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             return
     allowed_user_ids.add(uid)
     add_allowed_user_to_db(uid)
+    write_allowlist_backup(allowed_user_ids)
     await update.message.reply_text(f"Added user_id {uid}.")
 
 
@@ -724,6 +862,7 @@ async def deny(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     allowed_user_ids.discard(uid)
     remove_allowed_user_from_db(uid)
+    write_allowlist_backup(allowed_user_ids)
     await update.message.reply_text(f"Removed user_id {uid}.")
 
 
@@ -768,7 +907,9 @@ async def handle_img(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         return
     await update.message.chat.send_action(action="upload_photo")
     try:
-        image_bytes, mime = await asyncio.to_thread(generate_image, prompt)
+        user_id = update.effective_user.id if update.effective_user else None
+        provider = get_user_image_provider(user_id)
+        image_bytes, mime = await asyncio.to_thread(generate_image_by_provider, prompt, provider)
         filename = "image.png" if mime == "image/png" else "image.jpg"
         await update.message.reply_photo(photo=image_bytes, filename=filename, caption="Done.")
     except Exception as exc:
@@ -788,8 +929,10 @@ def build_app():
     app.add_handler(CommandHandler("allow", allow))
     app.add_handler(CommandHandler("deny", deny))
     app.add_handler(CommandHandler("model", model_menu))
+    app.add_handler(CommandHandler("imgmodel", img_model_menu))
     app.add_handler(CommandHandler("img", handle_img))
     app.add_handler(CallbackQueryHandler(on_model_callback, pattern=r"^model:"))
+    app.add_handler(CallbackQueryHandler(on_img_model_callback, pattern=r"^imgmodel:"))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     return app
 
