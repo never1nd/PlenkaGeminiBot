@@ -3,9 +3,9 @@
 Простой Telegram-бот на Python с Gemini API. Поддерживает:
 - выбор текстовой модели через `/model`:
   - `Gemini 2.5 Flash`
-  - `Qwen 3.5`
-  - `Kimi 2.5`
-  - `GLM 5 (лучшая)`
+  - `Qwen Next 80B`
+  - `Kimi K2 Thinking`
+  - `MiniMax M2.1`
 - генерацию картинок через `/img`
 - доступ только для владельца и добавленных пользователей (список хранится в `allowlist.json`)
 

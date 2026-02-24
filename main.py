@@ -40,7 +40,7 @@ NVIDIA_API_BASE = os.getenv("NVIDIA_API_BASE", "https://integrate.api.nvidia.com
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "").strip()
 NVIDIA_API_KEY_QWEN = os.getenv("NVIDIA_API_KEY_QWEN", os.getenv("QWEN_API_KEY", "")).strip()
 NVIDIA_API_KEY_KIMI = os.getenv("NVIDIA_API_KEY_KIMI", os.getenv("KIMI_API_KEY", "")).strip()
-NVIDIA_API_KEY_GLM = os.getenv("NVIDIA_API_KEY_GLM", os.getenv("GLM_API_KEY", "")).strip()
+NVIDIA_API_KEY_MINIMAX = os.getenv("NVIDIA_API_KEY_MINIMAX", os.getenv("MINIMAX_API_KEY", "")).strip()
 
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7") or "0.7")
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "1024") or "1024")
@@ -49,19 +49,19 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 MODEL_GEMINI = "gemini"
 MODEL_QWEN = "qwen"
 MODEL_KIMI = "kimi"
-MODEL_GLM = "glm"
+MODEL_MINIMAX = "minimax"
 
 NVIDIA_MODEL_NAMES = {
-    MODEL_QWEN: "qwen/qwen3.5-397b-a17b",
-    MODEL_KIMI: "moonshotai/kimi-k2.5",
-    MODEL_GLM: "z-ai/glm5",
+    MODEL_QWEN: "qwen/qwen3-next-80b-a3b-instruct",
+    MODEL_KIMI: "moonshotai/kimi-k2-thinking",
+    MODEL_MINIMAX: "minimaxai/minimax-m2.1",
 }
 
 MODEL_LABELS = {
     MODEL_GEMINI: "Gemini 2.5 Flash",
-    MODEL_QWEN: "Qwen 3.5",
-    MODEL_KIMI: "Kimi 2.5",
-    MODEL_GLM: "GLM 5 (лучшая)",
+    MODEL_QWEN: "Qwen Next 80B",
+    MODEL_KIMI: "Kimi K2 Thinking",
+    MODEL_MINIMAX: "MiniMax M2.1",
 }
 
 DEFAULT_TEXT_PROVIDER = MODEL_GEMINI
@@ -224,8 +224,8 @@ def get_nvidia_key(model_key: str) -> str:
         return NVIDIA_API_KEY_QWEN or NVIDIA_API_KEY
     if model_key == MODEL_KIMI:
         return NVIDIA_API_KEY_KIMI or NVIDIA_API_KEY
-    if model_key == MODEL_GLM:
-        return NVIDIA_API_KEY_GLM or NVIDIA_API_KEY
+    if model_key == MODEL_MINIMAX:
+        return NVIDIA_API_KEY_MINIMAX or NVIDIA_API_KEY
     return ""
 
 
@@ -266,15 +266,11 @@ def generate_text_nvidia(prompt: str, model_key: str) -> Tuple[str, str]:
         "stream": False,
     }
     if model_key == MODEL_QWEN:
-        payload["top_p"] = 0.95
-        payload["top_k"] = 20
-        payload["chat_template_kwargs"] = {"enable_thinking": True}
+        payload["top_p"] = 0.7
     elif model_key == MODEL_KIMI:
-        payload["top_p"] = 1.0
-        payload["chat_template_kwargs"] = {"thinking": True}
-    elif model_key == MODEL_GLM:
-        payload["top_p"] = 1.0
-        payload["chat_template_kwargs"] = {"enable_thinking": True, "clear_thinking": False}
+        payload["top_p"] = 0.9
+    elif model_key == MODEL_MINIMAX:
+        payload["top_p"] = 0.7
 
     resp = requests.post(
         f"{NVIDIA_API_BASE}/chat/completions",
@@ -328,9 +324,9 @@ def build_model_keyboard(selected_key: str) -> InlineKeyboardMarkup:
 
     rows = [
         [InlineKeyboardButton(label(MODEL_GEMINI, "Gemini 2.5 Flash"), callback_data="model:gemini")],
-        [InlineKeyboardButton(label(MODEL_QWEN, "Qwen 3.5"), callback_data="model:qwen")],
-        [InlineKeyboardButton(label(MODEL_KIMI, "Kimi 2.5"), callback_data="model:kimi")],
-        [InlineKeyboardButton(label(MODEL_GLM, "GLM 5 (лучшая)"), callback_data="model:glm")],
+        [InlineKeyboardButton(label(MODEL_QWEN, "Qwen Next 80B"), callback_data="model:qwen")],
+        [InlineKeyboardButton(label(MODEL_KIMI, "Kimi K2 Thinking"), callback_data="model:kimi")],
+        [InlineKeyboardButton(label(MODEL_MINIMAX, "MiniMax M2.1"), callback_data="model:minimax")],
     ]
     return InlineKeyboardMarkup(rows)
 
@@ -401,7 +397,7 @@ async def keys_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         f"NVIDIA_API_KEY: {mask_key(NVIDIA_API_KEY)}",
         f"NVIDIA_API_KEY_QWEN: {mask_key(NVIDIA_API_KEY_QWEN)}",
         f"NVIDIA_API_KEY_KIMI: {mask_key(NVIDIA_API_KEY_KIMI)}",
-        f"NVIDIA_API_KEY_GLM: {mask_key(NVIDIA_API_KEY_GLM)}",
+        f"NVIDIA_API_KEY_MINIMAX: {mask_key(NVIDIA_API_KEY_MINIMAX)}",
     ]
     await update.message.reply_text("\n".join(lines))
 
