@@ -3,6 +3,9 @@
 !.env.example
 allowlist.json
 model_prefs.json
+users.db
+users.db-shm
+users.db-wal
 __pycache__/
 *.pyc
 .venv/

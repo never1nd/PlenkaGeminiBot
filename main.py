@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import re
+import sqlite3
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -32,6 +33,7 @@ OWNER_USERNAME = os.getenv("OWNER_USERNAME", DEFAULT_OWNER_USERNAME).lstrip("@")
 
 ALLOWED_USER_IDS = os.getenv("ALLOWED_USER_IDS", "").strip()
 ALLOWLIST_FILE = os.getenv("ALLOWLIST_FILE", "allowlist.json").strip()
+USERS_DB_FILE = os.getenv("USERS_DB_FILE", "users.db").strip()
 MODEL_PREFS_FILE = os.getenv("MODEL_PREFS_FILE", "model_prefs.json").strip()
 
 TEXT_MODEL_GEMINI_25 = os.getenv("TEXT_MODEL_GEMINI_25", "gemini-2.5-flash").strip()
@@ -84,42 +86,81 @@ if not IMAGE_MODEL:
     raise SystemExit("IMAGE_MODEL is empty. Provide an image-capable model name.")
 
 allowlist_path = Path(ALLOWLIST_FILE)
+users_db_path = Path(USERS_DB_FILE)
 model_prefs_path = Path(MODEL_PREFS_FILE)
 
 genai.configure(api_key=GEMINI_API_KEY)
 
 
-def load_allowlist() -> set[int]:
-    ids: set[int] = set()
-    if ALLOWED_USER_IDS:
-        for raw in ALLOWED_USER_IDS.split(","):
-            raw = raw.strip()
-            if not raw:
-                continue
-            try:
-                ids.add(int(raw))
-            except ValueError:
-                logger.warning("Skipping invalid user id in ALLOWED_USER_IDS: %s", raw)
+def _parse_ids(raw_csv: str) -> list[int]:
+    result: list[int] = []
+    if not raw_csv:
+        return result
+    for raw in raw_csv.split(","):
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            result.append(int(raw))
+        except ValueError:
+            logger.warning("Skipping invalid user id in ALLOWED_USER_IDS: %s", raw)
+    return result
 
+
+def init_users_db() -> None:
+    with sqlite3.connect(users_db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS allowed_users (
+                user_id INTEGER PRIMARY KEY,
+                added_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        conn.commit()
+
+
+def add_allowed_user_to_db(user_id: int) -> None:
+    with sqlite3.connect(users_db_path) as conn:
+        conn.execute("INSERT OR IGNORE INTO allowed_users(user_id) VALUES (?)", (user_id,))
+        conn.commit()
+
+
+def remove_allowed_user_from_db(user_id: int) -> None:
+    with sqlite3.connect(users_db_path) as conn:
+        conn.execute("DELETE FROM allowed_users WHERE user_id = ?", (user_id,))
+        conn.commit()
+
+
+def load_allowed_user_ids_from_db() -> set[int]:
+    with sqlite3.connect(users_db_path) as conn:
+        rows = conn.execute("SELECT user_id FROM allowed_users").fetchall()
+    return {int(row[0]) for row in rows}
+
+
+def list_allowed_users_from_db() -> list[tuple[int, str]]:
+    with sqlite3.connect(users_db_path) as conn:
+        rows = conn.execute(
+            "SELECT user_id, added_at FROM allowed_users ORDER BY added_at DESC, user_id DESC"
+        ).fetchall()
+    return [(int(row[0]), str(row[1])) for row in rows]
+
+
+def migrate_legacy_allowlist_to_db() -> None:
+    ids_to_add = _parse_ids(ALLOWED_USER_IDS)
     if allowlist_path.exists():
         try:
             data = json.loads(allowlist_path.read_text(encoding="utf-8"))
             for raw in data.get("user_ids", []):
                 try:
-                    ids.add(int(raw))
+                    ids_to_add.append(int(raw))
                 except ValueError:
                     logger.warning("Skipping invalid user id in allowlist file: %s", raw)
         except Exception as exc:
             logger.warning("Failed to read allowlist file: %s", exc)
 
-    if OWNER_USER_ID:
-        ids.add(OWNER_USER_ID)
-    return ids
-
-
-def save_allowlist(ids: set[int]) -> None:
-    data = {"user_ids": sorted(ids)}
-    allowlist_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    for uid in ids_to_add:
+        add_allowed_user_to_db(uid)
 
 
 def load_model_prefs() -> dict[str, str]:
@@ -145,7 +186,12 @@ def save_model_prefs(prefs: dict[str, str]) -> None:
     model_prefs_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-allowed_user_ids = load_allowlist()
+init_users_db()
+migrate_legacy_allowlist_to_db()
+allowed_user_ids = load_allowed_user_ids_from_db()
+# Owner is always allowed even if not present in DB.
+if OWNER_USER_ID:
+    allowed_user_ids.add(OWNER_USER_ID)
 user_model_prefs = load_model_prefs()
 
 
@@ -418,12 +464,28 @@ async def keys_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await update.message.reply_text("Owner only command.")
         return
     lines = [
+        f"USERS_DB_FILE: {users_db_path}",
         f"NVIDIA_API_BASE: {NVIDIA_API_BASE or 'missing'}",
         f"NVIDIA_API_KEY: {mask_key(NVIDIA_API_KEY)}",
         f"NVIDIA_API_KEY_QWEN: {mask_key(NVIDIA_API_KEY_QWEN)}",
         f"NVIDIA_API_KEY_KIMI: {mask_key(NVIDIA_API_KEY_KIMI)}",
         f"NVIDIA_API_KEY_MINIMAX: {mask_key(NVIDIA_API_KEY_MINIMAX)}",
     ]
+    await update.message.reply_text("\n".join(lines))
+
+
+async def list_allowed(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.effective_user
+    if not is_owner(user):
+        await update.message.reply_text("Owner only command.")
+        return
+    rows = list_allowed_users_from_db()
+    if not rows:
+        await update.message.reply_text("Allow list is empty.")
+        return
+    lines = ["Allowed users:"]
+    for uid, added_at in rows:
+        lines.append(f"- {uid} (added: {added_at})")
     await update.message.reply_text("\n".join(lines))
 
 
@@ -454,7 +516,7 @@ async def allow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text("Invalid user_id.")
             return
     allowed_user_ids.add(uid)
-    save_allowlist(allowed_user_ids)
+    add_allowed_user_to_db(uid)
     await update.message.reply_text(f"Added user_id {uid}.")
 
 
@@ -488,7 +550,7 @@ async def deny(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text("Cannot remove owner.")
         return
     allowed_user_ids.discard(uid)
-    save_allowlist(allowed_user_ids)
+    remove_allowed_user_from_db(uid)
     await update.message.reply_text(f"Removed user_id {uid}.")
 
 
@@ -537,6 +599,7 @@ def build_app():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("whoami", whoami))
     app.add_handler(CommandHandler("keys", keys_status))
+    app.add_handler(CommandHandler("list", list_allowed))
     app.add_handler(CommandHandler("allow", allow))
     app.add_handler(CommandHandler("deny", deny))
     app.add_handler(CommandHandler("model", model_menu))
