@@ -279,8 +279,8 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
     await update.message.chat.send_action(action="typing")
     try:
-        answer, used_model = generate_text(prompt)
-        await update.message.reply_text(f"{answer}\n\n[model: {used_model}]")
+        answer, _ = generate_text(prompt)
+        await update.message.reply_text(answer)
     except Exception as exc:
         logger.exception("Text generation failed")
         await update.message.reply_text(f"Ошибка генерации: {exc}")
