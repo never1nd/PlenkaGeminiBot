@@ -35,6 +35,7 @@ ALLOWED_USER_IDS = os.getenv("ALLOWED_USER_IDS", "").strip()
 ALLOWLIST_FILE = os.getenv("ALLOWLIST_FILE", "allowlist.json").strip()
 USERS_DB_FILE = os.getenv("USERS_DB_FILE", "users.db").strip()
 MODEL_PREFS_FILE = os.getenv("MODEL_PREFS_FILE", "model_prefs.json").strip()
+MEMORY_CONTEXT_MESSAGES = int(os.getenv("MEMORY_CONTEXT_MESSAGES", "20") or "20")
 
 TEXT_MODEL_GEMINI_25 = os.getenv("TEXT_MODEL_GEMINI_25", "gemini-2.5-flash").strip()
 TEXT_MODEL_GEMINI_3 = os.getenv("TEXT_MODEL_GEMINI_3", "gemini-3-flash-preview").strip()
@@ -117,6 +118,26 @@ def init_users_db() -> None:
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS chat_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                chat_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                role TEXT NOT NULL,
+                content_enc TEXT NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS memory_settings (
+                chat_id INTEGER PRIMARY KEY,
+                enabled INTEGER NOT NULL DEFAULT 1
+            )
+            """
+        )
         conn.commit()
 
 
@@ -144,6 +165,73 @@ def list_allowed_users_from_db() -> list[tuple[int, str]]:
             "SELECT user_id, added_at FROM allowed_users ORDER BY added_at DESC, user_id DESC"
         ).fetchall()
     return [(int(row[0]), str(row[1])) for row in rows]
+
+
+def encrypt_text(plain: str) -> str:
+    return plain
+
+
+def decrypt_text(cipher: str) -> str:
+    return cipher
+
+
+def is_memory_enabled(chat_id: int) -> bool:
+    with sqlite3.connect(users_db_path) as conn:
+        row = conn.execute("SELECT enabled FROM memory_settings WHERE chat_id = ?", (chat_id,)).fetchone()
+    if row is None:
+        return True
+    return bool(int(row[0]))
+
+
+def set_memory_enabled(chat_id: int, enabled: bool) -> None:
+    with sqlite3.connect(users_db_path) as conn:
+        conn.execute(
+            """
+            INSERT INTO memory_settings(chat_id, enabled)
+            VALUES(?, ?)
+            ON CONFLICT(chat_id) DO UPDATE SET enabled = excluded.enabled
+            """,
+            (chat_id, 1 if enabled else 0),
+        )
+        conn.commit()
+
+
+def add_history_message(chat_id: int, user_id: int, role: str, content: str) -> None:
+    if role not in {"user", "assistant"}:
+        return
+    enc = encrypt_text(content)
+    with sqlite3.connect(users_db_path) as conn:
+        conn.execute(
+            "INSERT INTO chat_history(chat_id, user_id, role, content_enc) VALUES (?, ?, ?, ?)",
+            (chat_id, user_id, role, enc),
+        )
+        conn.commit()
+
+
+def clear_chat_history(chat_id: int) -> None:
+    with sqlite3.connect(users_db_path) as conn:
+        conn.execute("DELETE FROM chat_history WHERE chat_id = ?", (chat_id,))
+        conn.commit()
+
+
+def get_recent_history(chat_id: int, limit: int) -> list[dict[str, str]]:
+    with sqlite3.connect(users_db_path) as conn:
+        rows = conn.execute(
+            """
+            SELECT role, content_enc
+            FROM chat_history
+            WHERE chat_id = ?
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (chat_id, limit),
+        ).fetchall()
+    history: list[dict[str, str]] = []
+    for role, content_enc in reversed(rows):
+        content = decrypt_text(content_enc)
+        if content:
+            history.append({"role": str(role), "content": content})
+    return history
 
 
 def migrate_legacy_allowlist_to_db() -> None:
@@ -304,10 +392,23 @@ def strip_reasoning(text: str) -> str:
     return cleaned or text
 
 
-def generate_text_gemini(prompt: str, model_name: str) -> Tuple[str, str]:
+def generate_text_gemini(prompt: str, model_name: str, history: list[dict[str, str]]) -> Tuple[str, str]:
+    if history:
+        lines = ["Conversation history:"]
+        for msg in history:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            if content:
+                lines.append(f"{role}: {content}")
+        lines.append(f"user: {prompt}")
+        lines.append("assistant:")
+        full_prompt = "\n".join(lines)
+    else:
+        full_prompt = prompt
+
     model = genai.GenerativeModel(model_name)
     response = model.generate_content(
-        prompt,
+        full_prompt,
         generation_config={
             "temperature": TEMPERATURE,
             "max_output_tokens": MAX_OUTPUT_TOKENS,
@@ -319,15 +420,25 @@ def generate_text_gemini(prompt: str, model_name: str) -> Tuple[str, str]:
     return strip_reasoning(text), model_name
 
 
-def generate_text_nvidia(prompt: str, model_key: str) -> Tuple[str, str]:
+def generate_text_nvidia(prompt: str, model_key: str, history: list[dict[str, str]]) -> Tuple[str, str]:
     api_key = get_nvidia_key(model_key)
     if not api_key:
         raise RuntimeError(f"NVIDIA API key is not configured for {model_key}.")
     model_name = NVIDIA_MODEL_NAMES[model_key]
 
+    messages = []
+    for msg in history:
+        role = msg.get("role", "user")
+        if role not in {"user", "assistant"}:
+            continue
+        content = msg.get("content", "")
+        if content:
+            messages.append({"role": role, "content": content})
+    messages.append({"role": "user", "content": prompt})
+
     payload = {
         "model": model_name,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": messages,
         "max_tokens": MAX_OUTPUT_TOKENS,
         "temperature": TEMPERATURE,
         "stream": False,
@@ -364,12 +475,12 @@ def generate_text_nvidia(prompt: str, model_key: str) -> Tuple[str, str]:
     return text, model_name
 
 
-def generate_text(prompt: str, model_key: str) -> Tuple[str, str]:
+def generate_text(prompt: str, model_key: str, history: list[dict[str, str]]) -> Tuple[str, str]:
     if model_key == MODEL_GEMINI:
-        return generate_text_gemini(prompt, TEXT_MODEL_GEMINI_25)
+        return generate_text_gemini(prompt, TEXT_MODEL_GEMINI_25, history)
     if model_key == MODEL_GEMINI_3:
-        return generate_text_gemini(prompt, TEXT_MODEL_GEMINI_3)
-    return generate_text_nvidia(prompt, model_key)
+        return generate_text_gemini(prompt, TEXT_MODEL_GEMINI_3, history)
+    return generate_text_nvidia(prompt, model_key, history)
 
 
 def generate_image(prompt: str) -> Tuple[bytes, str]:
@@ -465,6 +576,7 @@ async def keys_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
     lines = [
         f"USERS_DB_FILE: {users_db_path}",
+        f"MEMORY_CONTEXT_MESSAGES: {MEMORY_CONTEXT_MESSAGES}",
         f"NVIDIA_API_BASE: {NVIDIA_API_BASE or 'missing'}",
         f"NVIDIA_API_KEY: {mask_key(NVIDIA_API_KEY)}",
         f"NVIDIA_API_KEY_QWEN: {mask_key(NVIDIA_API_KEY_QWEN)}",
@@ -487,6 +599,45 @@ async def list_allowed(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     for uid, added_at in rows:
         lines.append(f"- {uid} (added: {added_at})")
     await update.message.reply_text("\n".join(lines))
+
+
+async def clear_memory(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not is_allowed(update.effective_user):
+        await update.message.reply_text("Access denied.")
+        return
+    if not update.effective_chat:
+        await update.message.reply_text("Chat not found.")
+        return
+    clear_chat_history(update.effective_chat.id)
+    await update.message.reply_text("Memory cleared for this chat.")
+
+
+async def memory_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not is_allowed(update.effective_user):
+        await update.message.reply_text("Access denied.")
+        return
+    if not update.effective_chat:
+        await update.message.reply_text("Chat not found.")
+        return
+    chat_id = update.effective_chat.id
+    if not context.args:
+        state = "on" if is_memory_enabled(chat_id) else "off"
+        await update.message.reply_text(f"Memory is {state}. Usage: /memory on|off|status")
+        return
+    arg = context.args[0].lower().strip()
+    if arg == "status":
+        state = "on" if is_memory_enabled(chat_id) else "off"
+        await update.message.reply_text(f"Memory is {state}.")
+        return
+    if arg == "on":
+        set_memory_enabled(chat_id, True)
+        await update.message.reply_text("Memory enabled for this chat.")
+        return
+    if arg == "off":
+        set_memory_enabled(chat_id, False)
+        await update.message.reply_text("Memory disabled for this chat.")
+        return
+    await update.message.reply_text("Usage: /memory on|off|status")
 
 
 async def allow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -565,8 +716,17 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     await update.message.chat.send_action(action="typing")
     try:
         user_id = update.effective_user.id if update.effective_user else None
+        chat_id = update.effective_chat.id if update.effective_chat else user_id
+        if chat_id is None or user_id is None:
+            await update.message.reply_text("Chat/user not found.")
+            return
+        memory_on = is_memory_enabled(chat_id)
+        history = get_recent_history(chat_id, MEMORY_CONTEXT_MESSAGES) if memory_on else []
         model_key = get_user_model_key(user_id)
-        answer, _ = await asyncio.to_thread(generate_text, prompt, model_key)
+        answer, _ = await asyncio.to_thread(generate_text, prompt, model_key, history)
+        if memory_on:
+            add_history_message(chat_id, user_id, "user", prompt)
+            add_history_message(chat_id, user_id, "assistant", answer)
         await update.message.reply_text(answer)
     except Exception as exc:
         logger.exception("Text generation failed")
@@ -600,6 +760,8 @@ def build_app():
     app.add_handler(CommandHandler("whoami", whoami))
     app.add_handler(CommandHandler("keys", keys_status))
     app.add_handler(CommandHandler("list", list_allowed))
+    app.add_handler(CommandHandler("clear", clear_memory))
+    app.add_handler(CommandHandler("memory", memory_command))
     app.add_handler(CommandHandler("allow", allow))
     app.add_handler(CommandHandler("deny", deny))
     app.add_handler(CommandHandler("model", model_menu))
