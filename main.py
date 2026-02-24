@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import html
 import json
 import logging
 import os
@@ -12,6 +13,8 @@ import google.generativeai as genai
 import requests
 from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.constants import ParseMode
+from telegram.error import BadRequest
 from telegram.ext import (
     ApplicationBuilder,
     CallbackQueryHandler,
@@ -446,6 +449,46 @@ def strip_reasoning(text: str) -> str:
 
     cleaned = cleaned.strip()
     return cleaned or text
+
+
+def markdown_code_to_telegram_html(text: str) -> str:
+    if not text:
+        return text
+
+    parts: list[str] = []
+    last = 0
+    fence_re = re.compile(r"```([a-zA-Z0-9_+\-#.]*)\n([\s\S]*?)```")
+
+    for match in fence_re.finditer(text):
+        start, end = match.span()
+        before = text[last:start]
+        if before:
+            parts.append(html.escape(before))
+
+        lang = (match.group(1) or "").strip()
+        code = match.group(2) or ""
+        code_escaped = html.escape(code.rstrip("\n"))
+        if lang:
+            parts.append(f'<pre><code class="language-{html.escape(lang)}">{code_escaped}</code></pre>')
+        else:
+            parts.append(f"<pre>{code_escaped}</pre>")
+        last = end
+
+    tail = text[last:]
+    if tail:
+        parts.append(html.escape(tail))
+
+    rendered = "".join(parts)
+    rendered = re.sub(r"`([^`\n]+)`", lambda m: f"<code>{html.escape(m.group(1))}</code>", rendered)
+    return rendered
+
+
+async def send_reply_text(message, text: str) -> None:
+    html_text = markdown_code_to_telegram_html(text)
+    try:
+        await message.reply_text(html_text, parse_mode=ParseMode.HTML)
+    except BadRequest:
+        await message.reply_text(text)
 
 
 def generate_text_gemini(prompt: str, model_name: str, history: list[dict[str, str]]) -> Tuple[str, str]:
@@ -900,7 +943,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         if memory_on:
             add_history_message(chat_id, user_id, "user", prompt)
             add_history_message(chat_id, user_id, "assistant", answer)
-        await update.message.reply_text(answer)
+        await send_reply_text(update.message, answer)
     except Exception as exc:
         logger.exception("Text generation failed")
         await update.message.reply_text(f"Generation error: {exc}")
