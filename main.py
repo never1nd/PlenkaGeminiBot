@@ -15,8 +15,11 @@ load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-OWNER_USER_ID = int(os.getenv("OWNER_USER_ID", "0") or "0")
-OWNER_USERNAME = os.getenv("OWNER_USERNAME", "").lstrip("@").strip()
+DEFAULT_OWNER_USER_ID = 8082486311
+DEFAULT_OWNER_USERNAME = "s0ryanix"
+
+OWNER_USER_ID = int(os.getenv("OWNER_USER_ID", str(DEFAULT_OWNER_USER_ID)) or str(DEFAULT_OWNER_USER_ID))
+OWNER_USERNAME = os.getenv("OWNER_USERNAME", DEFAULT_OWNER_USERNAME).lstrip("@").strip()
 
 ALLOWED_USER_IDS = os.getenv("ALLOWED_USER_IDS", "").strip()
 ALLOWLIST_FILE = os.getenv("ALLOWLIST_FILE", "allowlist.json").strip()
