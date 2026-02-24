@@ -569,6 +569,28 @@ async def whoami(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(f"Your user_id: {user.id}")
 
 
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.effective_user
+    if not is_owner(user):
+        await update.message.reply_text("Owner only command.")
+        return
+    lines = [
+        "Owner commands:",
+        "/start - start bot",
+        "/whoami - show your user_id",
+        "/model - choose text model",
+        "/img <prompt> - generate image",
+        "/memory on|off|status - toggle memory for this chat",
+        "/clear - clear chat memory",
+        "/allow <user_id> - grant access",
+        "/deny <user_id> - revoke access",
+        "/list - list allowed users",
+        "/keys - show key status",
+        "/help - show this help",
+    ]
+    await update.message.reply_text("\n".join(lines))
+
+
 async def keys_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     if not is_owner(user):
@@ -757,6 +779,7 @@ async def handle_img(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 def build_app():
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("whoami", whoami))
     app.add_handler(CommandHandler("keys", keys_status))
     app.add_handler(CommandHandler("list", list_allowed))
