@@ -38,9 +38,9 @@ IMAGE_MODEL = os.getenv("IMAGE_MODEL", "gemini-2.0-flash-preview-image-generatio
 
 NVIDIA_API_BASE = os.getenv("NVIDIA_API_BASE", "https://integrate.api.nvidia.com/v1").strip().rstrip("/")
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "").strip()
-NVIDIA_API_KEY_QWEN = os.getenv("NVIDIA_API_KEY_QWEN", "").strip()
-NVIDIA_API_KEY_KIMI = os.getenv("NVIDIA_API_KEY_KIMI", "").strip()
-NVIDIA_API_KEY_GLM = os.getenv("NVIDIA_API_KEY_GLM", "").strip()
+NVIDIA_API_KEY_QWEN = os.getenv("NVIDIA_API_KEY_QWEN", os.getenv("QWEN_API_KEY", "")).strip()
+NVIDIA_API_KEY_KIMI = os.getenv("NVIDIA_API_KEY_KIMI", os.getenv("KIMI_API_KEY", "")).strip()
+NVIDIA_API_KEY_GLM = os.getenv("NVIDIA_API_KEY_GLM", os.getenv("GLM_API_KEY", "")).strip()
 
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7") or "0.7")
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "1024") or "1024")
@@ -229,6 +229,14 @@ def get_nvidia_key(model_key: str) -> str:
     return ""
 
 
+def mask_key(value: str) -> str:
+    if not value:
+        return "missing"
+    if len(value) <= 10:
+        return "set"
+    return f"{value[:8]}...{value[-4:]}"
+
+
 def generate_text_gemini(prompt: str) -> Tuple[str, str]:
     model = genai.GenerativeModel(TEXT_MODEL_GEMINI)
     response = model.generate_content(
@@ -383,6 +391,21 @@ async def whoami(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(f"Your user_id: {user.id}")
 
 
+async def keys_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.effective_user
+    if not is_owner(user):
+        await update.message.reply_text("Owner only command.")
+        return
+    lines = [
+        f"NVIDIA_API_BASE: {NVIDIA_API_BASE or 'missing'}",
+        f"NVIDIA_API_KEY: {mask_key(NVIDIA_API_KEY)}",
+        f"NVIDIA_API_KEY_QWEN: {mask_key(NVIDIA_API_KEY_QWEN)}",
+        f"NVIDIA_API_KEY_KIMI: {mask_key(NVIDIA_API_KEY_KIMI)}",
+        f"NVIDIA_API_KEY_GLM: {mask_key(NVIDIA_API_KEY_GLM)}",
+    ]
+    await update.message.reply_text("\n".join(lines))
+
+
 async def allow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     if not is_owner(user):
@@ -492,6 +515,7 @@ def build_app():
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("whoami", whoami))
+    app.add_handler(CommandHandler("keys", keys_status))
     app.add_handler(CommandHandler("allow", allow))
     app.add_handler(CommandHandler("deny", deny))
     app.add_handler(CommandHandler("model", model_menu))
