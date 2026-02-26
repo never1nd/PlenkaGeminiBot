@@ -1,0 +1,2702 @@
+{
+  "version": 1,
+  "updated_at": 1772138724,
+  "capabilities": {
+    "orbit::gemini-claude-sonnet-4-6-thinking": {
+      "provider_id": "orbit",
+      "model_name": "gemini-claude-sonnet-4-6-thinking",
+      "status": "available",
+      "checked_at": 1772135926,
+      "expires_at": 1772157526,
+      "error": ""
+    },
+    "orbit::gemini-3-flash-preview": {
+      "provider_id": "orbit",
+      "model_name": "gemini-3-flash-preview",
+      "status": "available",
+      "checked_at": 1772135930,
+      "expires_at": 1772157530,
+      "error": ""
+    },
+    "orbit::gemini-2.5-flash-lite": {
+      "provider_id": "orbit",
+      "model_name": "gemini-2.5-flash-lite",
+      "status": "available",
+      "checked_at": 1772135932,
+      "expires_at": 1772157532,
+      "error": ""
+    },
+    "orbit::gemini-claude-opus-4-6-thinking": {
+      "provider_id": "orbit",
+      "model_name": "gemini-claude-opus-4-6-thinking",
+      "status": "available",
+      "checked_at": 1772135926,
+      "expires_at": 1772157526,
+      "error": ""
+    },
+    "void::gpt-4.1-nano": {
+      "provider_id": "void",
+      "model_name": "gpt-4.1-nano",
+      "status": "available",
+      "checked_at": 1772132538,
+      "expires_at": 1772154138,
+      "error": ""
+    },
+    "nvidia::qwen/qwen3-next-80b-a3b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen3-next-80b-a3b-instruct",
+      "status": "transient",
+      "checked_at": 1772138645,
+      "expires_at": 1772138945,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::gpt-4o-mini": {
+      "provider_id": "void",
+      "model_name": "gpt-4o-mini",
+      "status": "available",
+      "checked_at": 1772132539,
+      "expires_at": 1772154139,
+      "error": ""
+    },
+    "google::gemini-2.5-flash-lite": {
+      "provider_id": "google",
+      "model_name": "gemini-2.5-flash-lite",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\nPlease retry in 26.250459375s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash-lite\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 26\n}\n]"
+    },
+    "google::gemini-2.5-flash-lite-preview-09-2025": {
+      "provider_id": "google",
+      "model_name": "gemini-2.5-flash-lite-preview-09-2025",
+      "status": "available",
+      "checked_at": 1772133096,
+      "expires_at": 1772154696,
+      "error": ""
+    },
+    "google::gemini-flash-lite-latest": {
+      "provider_id": "google",
+      "model_name": "gemini-flash-lite-latest",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash-lite\nPlease retry in 26.068903759s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash-lite\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 26\n}\n]"
+    },
+    "google::gemma-3-1b-it": {
+      "provider_id": "google",
+      "model_name": "gemma-3-1b-it",
+      "status": "available",
+      "checked_at": 1772133097,
+      "expires_at": 1772154697,
+      "error": ""
+    },
+    "google::gemma-3n-e2b-it": {
+      "provider_id": "google",
+      "model_name": "gemma-3n-e2b-it",
+      "status": "available",
+      "checked_at": 1772133097,
+      "expires_at": 1772154697,
+      "error": ""
+    },
+    "nvidia::01-ai/yi-large": {
+      "provider_id": "nvidia",
+      "model_name": "01-ai/yi-large",
+      "status": "unsupported",
+      "checked_at": 1772133097,
+      "expires_at": 1772219497,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '23bd454d-b225-49a3-8118-582a62fc51b8': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "google::gemma-3-4b-it": {
+      "provider_id": "google",
+      "model_name": "gemma-3-4b-it",
+      "status": "available",
+      "checked_at": 1772133097,
+      "expires_at": 1772154697,
+      "error": ""
+    },
+    "nvidia::abacusai/dracarys-llama-3.1-70b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "abacusai/dracarys-llama-3.1-70b-instruct",
+      "status": "available",
+      "checked_at": 1772133097,
+      "expires_at": 1772154697,
+      "error": ""
+    },
+    "google::gemma-3n-e4b-it": {
+      "provider_id": "google",
+      "model_name": "gemma-3n-e4b-it",
+      "status": "available",
+      "checked_at": 1772133097,
+      "expires_at": 1772154697,
+      "error": ""
+    },
+    "nvidia::adept/fuyu-8b": {
+      "provider_id": "nvidia",
+      "model_name": "adept/fuyu-8b",
+      "status": "unsupported",
+      "checked_at": 1772133097,
+      "expires_at": 1772219497,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'e598bfc1-b058-41af-869d-556d3c7e1b48': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::ai21labs/jamba-1.5-large-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "ai21labs/jamba-1.5-large-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133098,
+      "expires_at": 1772219498,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '6497fc2b-7ff8-4019-8946-123dccbfc863': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::ai21labs/jamba-1.5-mini-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "ai21labs/jamba-1.5-mini-instruct",
+      "status": "available",
+      "checked_at": 1772133098,
+      "expires_at": 1772154698,
+      "error": ""
+    },
+    "nvidia::aisingapore/sea-lion-7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "aisingapore/sea-lion-7b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133098,
+      "expires_at": 1772219498,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function id '02f84bf4-c1a1-489b-a9de-ac3e8dcdec14' version 'null': Specified function in account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0' is not found\"}"
+    },
+    "nvidia::baai/bge-m3": {
+      "provider_id": "nvidia",
+      "model_name": "baai/bge-m3",
+      "status": "unsupported",
+      "checked_at": 1772133098,
+      "expires_at": 1772219498,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::baichuan-inc/baichuan2-13b-chat": {
+      "provider_id": "nvidia",
+      "model_name": "baichuan-inc/baichuan2-13b-chat",
+      "status": "available",
+      "checked_at": 1772133098,
+      "expires_at": 1772154698,
+      "error": ""
+    },
+    "nvidia::bigcode/starcoder2-15b": {
+      "provider_id": "nvidia",
+      "model_name": "bigcode/starcoder2-15b",
+      "status": "unsupported",
+      "checked_at": 1772133098,
+      "expires_at": 1772219498,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::bigcode/starcoder2-7b": {
+      "provider_id": "nvidia",
+      "model_name": "bigcode/starcoder2-7b",
+      "status": "unsupported",
+      "checked_at": 1772133098,
+      "expires_at": 1772219498,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::databricks/dbrx-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "databricks/dbrx-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133098,
+      "expires_at": 1772219498,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '3d6c2ff8-8bfc-4d10-8fd0-b7337288e869': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::deepseek-ai/deepseek-coder-6.7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "deepseek-ai/deepseek-coder-6.7b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133098,
+      "expires_at": 1772219498,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'e503b15c-62b0-4d69-b532-a88f0bfa2656': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::deepseek-ai/deepseek-r1-distill-llama-8b": {
+      "provider_id": "nvidia",
+      "model_name": "deepseek-ai/deepseek-r1-distill-llama-8b",
+      "status": "available",
+      "checked_at": 1772133098,
+      "expires_at": 1772154698,
+      "error": ""
+    },
+    "nvidia::google/codegemma-1.1-7b": {
+      "provider_id": "nvidia",
+      "model_name": "google/codegemma-1.1-7b",
+      "status": "unsupported",
+      "checked_at": 1772133099,
+      "expires_at": 1772219499,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'e2d298c5-204e-4213-b921-9f492cc9011b': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::google/codegemma-7b": {
+      "provider_id": "nvidia",
+      "model_name": "google/codegemma-7b",
+      "status": "unsupported",
+      "checked_at": 1772133099,
+      "expires_at": 1772219499,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '7dfc10a8-3cc4-448e-97c1-2213308dc222': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::google/deplot": {
+      "provider_id": "nvidia",
+      "model_name": "google/deplot",
+      "status": "unsupported",
+      "checked_at": 1772133100,
+      "expires_at": 1772219500,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '784a8ca4-ea7d-4c93-bb46-ec027c3fae47': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::google/gemma-2-27b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-2-27b-it",
+      "status": "available",
+      "checked_at": 1772133100,
+      "expires_at": 1772154700,
+      "error": ""
+    },
+    "nvidia::google/gemma-2-2b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-2-2b-it",
+      "status": "available",
+      "checked_at": 1772133101,
+      "expires_at": 1772154701,
+      "error": ""
+    },
+    "nvidia::google/gemma-2-9b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-2-9b-it",
+      "status": "available",
+      "checked_at": 1772133101,
+      "expires_at": 1772154701,
+      "error": ""
+    },
+    "nvidia::google/gemma-2b": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-2b",
+      "status": "unsupported",
+      "checked_at": 1772133102,
+      "expires_at": 1772219502,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '04174188-f742-4069-9e72-d77c2b77d3cb': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "google::gemma-3-27b-it": {
+      "provider_id": "google",
+      "model_name": "gemma-3-27b-it",
+      "status": "available",
+      "checked_at": 1772133103,
+      "expires_at": 1772154703,
+      "error": ""
+    },
+    "nvidia::google/gemma-3-1b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-3-1b-it",
+      "status": "available",
+      "checked_at": 1772133104,
+      "expires_at": 1772154704,
+      "error": ""
+    },
+    "nvidia::google/gemma-3-27b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-3-27b-it",
+      "status": "available",
+      "checked_at": 1772133104,
+      "expires_at": 1772154704,
+      "error": ""
+    },
+    "nvidia::google/gemma-3n-e2b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-3n-e2b-it",
+      "status": "available",
+      "checked_at": 1772133105,
+      "expires_at": 1772154705,
+      "error": ""
+    },
+    "nvidia::google/gemma-3n-e4b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-3n-e4b-it",
+      "status": "available",
+      "checked_at": 1772133105,
+      "expires_at": 1772154705,
+      "error": ""
+    },
+    "nvidia::google/gemma-7b": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-7b",
+      "status": "available",
+      "checked_at": 1772133106,
+      "expires_at": 1772154706,
+      "error": ""
+    },
+    "nvidia::google/recurrentgemma-2b": {
+      "provider_id": "nvidia",
+      "model_name": "google/recurrentgemma-2b",
+      "status": "unsupported",
+      "checked_at": 1772133106,
+      "expires_at": 1772219506,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '2f495340-a99f-4b4b-89bd-1beb003dd896': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::google/shieldgemma-9b": {
+      "provider_id": "nvidia",
+      "model_name": "google/shieldgemma-9b",
+      "status": "available",
+      "checked_at": 1772133107,
+      "expires_at": 1772154707,
+      "error": ""
+    },
+    "nvidia::gotocompany/gemma-2-9b-cpt-sahabatai-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "gotocompany/gemma-2-9b-cpt-sahabatai-instruct",
+      "status": "available",
+      "checked_at": 1772133107,
+      "expires_at": 1772154707,
+      "error": ""
+    },
+    "nvidia::ibm/granite-3.0-3b-a800m-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "ibm/granite-3.0-3b-a800m-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133107,
+      "expires_at": 1772219507,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '67324577-3f91-4aa6-b750-97468262530d': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::ibm/granite-3.0-8b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "ibm/granite-3.0-8b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133107,
+      "expires_at": 1772219507,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '5a24a4f0-2d59-46b3-ac65-42307f2633d1': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::ibm/granite-34b-code-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "ibm/granite-34b-code-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133107,
+      "expires_at": 1772219507,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '4df48b4f-e3c5-4ade-82c7-c06b65e25d18': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::ibm/granite-8b-code-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "ibm/granite-8b-code-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133107,
+      "expires_at": 1772219507,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'af7b6f03-f615-4c5f-86c6-388bd35cede0': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::ibm/granite-guardian-3.0-8b": {
+      "provider_id": "nvidia",
+      "model_name": "ibm/granite-guardian-3.0-8b",
+      "status": "available",
+      "checked_at": 1772133107,
+      "expires_at": 1772154707,
+      "error": ""
+    },
+    "nvidia::igenius/italia_10b_instruct_16k": {
+      "provider_id": "nvidia",
+      "model_name": "igenius/italia_10b_instruct_16k",
+      "status": "available",
+      "checked_at": 1772133107,
+      "expires_at": 1772154707,
+      "error": ""
+    },
+    "nvidia::institute-of-science-tokyo/llama-3.1-swallow-8b-instruct-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "institute-of-science-tokyo/llama-3.1-swallow-8b-instruct-v0.1",
+      "status": "available",
+      "checked_at": 1772133108,
+      "expires_at": 1772154708,
+      "error": ""
+    },
+    "nvidia::institute-of-science-tokyo/llama-3.1-swallow-70b-instruct-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "institute-of-science-tokyo/llama-3.1-swallow-70b-instruct-v0.1",
+      "status": "available",
+      "checked_at": 1772133108,
+      "expires_at": 1772154708,
+      "error": ""
+    },
+    "nvidia::marin/marin-8b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "marin/marin-8b-instruct",
+      "status": "available",
+      "checked_at": 1772133108,
+      "expires_at": 1772154708,
+      "error": ""
+    },
+    "nvidia::mediatek/breeze-7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "mediatek/breeze-7b-instruct",
+      "status": "available",
+      "checked_at": 1772133108,
+      "expires_at": 1772154708,
+      "error": ""
+    },
+    "nvidia::meta/llama-3.1-405b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-3.1-405b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133108,
+      "expires_at": 1772219508,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function id '7c79b6d5-3552-41e7-8574-c4d431548d8e' version 'null': Specified function in account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0' is not found\"}"
+    },
+    "nvidia::meta/codellama-70b": {
+      "provider_id": "nvidia",
+      "model_name": "meta/codellama-70b",
+      "status": "unsupported",
+      "checked_at": 1772133108,
+      "expires_at": 1772219508,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'f6b06895-d073-4714-8bb2-26c09e9f6597': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::meta/llama-3.1-70b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-3.1-70b-instruct",
+      "status": "available",
+      "checked_at": 1772133109,
+      "expires_at": 1772154709,
+      "error": ""
+    },
+    "nvidia::meta/llama-3.2-11b-vision-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-3.2-11b-vision-instruct",
+      "status": "available",
+      "checked_at": 1772133109,
+      "expires_at": 1772154709,
+      "error": ""
+    },
+    "nvidia::meta/llama-3.1-8b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-3.1-8b-instruct",
+      "status": "available",
+      "checked_at": 1772133109,
+      "expires_at": 1772154709,
+      "error": ""
+    },
+    "nvidia::meta/llama-3.2-3b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-3.2-3b-instruct",
+      "status": "available",
+      "checked_at": 1772133109,
+      "expires_at": 1772154709,
+      "error": ""
+    },
+    "nvidia::meta/llama-3.3-70b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-3.3-70b-instruct",
+      "status": "available",
+      "checked_at": 1772133109,
+      "expires_at": 1772154709,
+      "error": ""
+    },
+    "nvidia::meta/llama-4-scout-17b-16e-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-4-scout-17b-16e-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133110,
+      "expires_at": 1772219510,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'b6bb6e01-780e-4ba0-a5b8-379f00ed9b1c': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::meta/llama2-70b": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama2-70b",
+      "status": "unsupported",
+      "checked_at": 1772133110,
+      "expires_at": 1772219510,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '2fddadfb-7e76-4c8a-9b82-f7d3fab94471': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::meta/llama-guard-4-12b": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-guard-4-12b",
+      "status": "available",
+      "checked_at": 1772133110,
+      "expires_at": 1772154710,
+      "error": ""
+    },
+    "nvidia::meta/llama3-70b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama3-70b-instruct",
+      "status": "available",
+      "checked_at": 1772133111,
+      "expires_at": 1772154711,
+      "error": ""
+    },
+    "nvidia::meta/llama3-8b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama3-8b-instruct",
+      "status": "available",
+      "checked_at": 1772133111,
+      "expires_at": 1772154711,
+      "error": ""
+    },
+    "nvidia::microsoft/kosmos-2": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/kosmos-2",
+      "status": "unsupported",
+      "checked_at": 1772133111,
+      "expires_at": 1772219511,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '6018fed7-f227-48dc-99bc-3fd4264d5037': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::microsoft/phi-3-medium-128k-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3-medium-128k-instruct",
+      "status": "available",
+      "checked_at": 1772133111,
+      "expires_at": 1772154711,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-3-medium-4k-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3-medium-4k-instruct",
+      "status": "available",
+      "checked_at": 1772133111,
+      "expires_at": 1772154711,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-3-mini-128k-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3-mini-128k-instruct",
+      "status": "available",
+      "checked_at": 1772133111,
+      "expires_at": 1772154711,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-3-mini-4k-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3-mini-4k-instruct",
+      "status": "available",
+      "checked_at": 1772133112,
+      "expires_at": 1772154712,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-3-small-128k-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3-small-128k-instruct",
+      "status": "available",
+      "checked_at": 1772133112,
+      "expires_at": 1772154712,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-3-small-8k-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3-small-8k-instruct",
+      "status": "available",
+      "checked_at": 1772133112,
+      "expires_at": 1772154712,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-3-vision-128k-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3-vision-128k-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133112,
+      "expires_at": 1772219512,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '20f2537e-8593-4eb9-ad40-60eee3bbaa55': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::microsoft/phi-3.5-mini-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3.5-mini-instruct",
+      "status": "available",
+      "checked_at": 1772133112,
+      "expires_at": 1772154712,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-3.5-moe-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3.5-moe-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133112,
+      "expires_at": 1772219512,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'e6cab982-62f4-481e-9a7a-3dedb87dbd01': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::microsoft/phi-3.5-vision-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-3.5-vision-instruct",
+      "status": "available",
+      "checked_at": 1772133113,
+      "expires_at": 1772154713,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-4-mini-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-4-mini-instruct",
+      "status": "available",
+      "checked_at": 1772133113,
+      "expires_at": 1772154713,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-4-mini-flash-reasoning": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-4-mini-flash-reasoning",
+      "status": "available",
+      "checked_at": 1772133113,
+      "expires_at": 1772154713,
+      "error": ""
+    },
+    "nvidia::microsoft/phi-4-multimodal-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "microsoft/phi-4-multimodal-instruct",
+      "status": "available",
+      "checked_at": 1772133113,
+      "expires_at": 1772154713,
+      "error": ""
+    },
+    "nvidia::mistralai/codestral-22b-instruct-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/codestral-22b-instruct-v0.1",
+      "status": "unsupported",
+      "checked_at": 1772133113,
+      "expires_at": 1772219513,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function id '9a10b012-e6df-46fd-83b2-700dcbc75814' version 'null': Specified function in account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0' is not found\"}"
+    },
+    "nvidia::mistralai/devstral-2-123b-instruct-2512": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/devstral-2-123b-instruct-2512",
+      "status": "available",
+      "checked_at": 1772133114,
+      "expires_at": 1772154714,
+      "error": ""
+    },
+    "nvidia::mistralai/mamba-codestral-7b-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mamba-codestral-7b-v0.1",
+      "status": "available",
+      "checked_at": 1772133114,
+      "expires_at": 1772154714,
+      "error": ""
+    },
+    "nvidia::mistralai/mathstral-7b-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mathstral-7b-v0.1",
+      "status": "available",
+      "checked_at": 1772133114,
+      "expires_at": 1772154714,
+      "error": ""
+    },
+    "nvidia::mistralai/ministral-14b-instruct-2512": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/ministral-14b-instruct-2512",
+      "status": "available",
+      "checked_at": 1772133114,
+      "expires_at": 1772154714,
+      "error": ""
+    },
+    "nvidia::mistralai/mistral-7b-instruct-v0.2": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-7b-instruct-v0.2",
+      "status": "available",
+      "checked_at": 1772133114,
+      "expires_at": 1772154714,
+      "error": ""
+    },
+    "nvidia::mistralai/mistral-7b-instruct-v0.3": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-7b-instruct-v0.3",
+      "status": "available",
+      "checked_at": 1772133114,
+      "expires_at": 1772154714,
+      "error": ""
+    },
+    "nvidia::mistralai/mistral-large": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-large",
+      "status": "unsupported",
+      "checked_at": 1772133114,
+      "expires_at": 1772219514,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '767b5b9a-3f9d-4c1d-86e8-fa861988cee7': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::mistralai/mistral-large-2-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-large-2-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133115,
+      "expires_at": 1772219515,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '7fadd4de-e22a-48e4-90e9-f02ef14a74b9': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::mistralai/mistral-medium-3-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-medium-3-instruct",
+      "status": "available",
+      "checked_at": 1772133115,
+      "expires_at": 1772154715,
+      "error": ""
+    },
+    "nvidia::mistralai/mistral-large-3-675b-instruct-2512": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-large-3-675b-instruct-2512",
+      "status": "available",
+      "checked_at": 1772133115,
+      "expires_at": 1772154715,
+      "error": ""
+    },
+    "nvidia::mistralai/mistral-small-24b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-small-24b-instruct",
+      "status": "available",
+      "checked_at": 1772133115,
+      "expires_at": 1772154715,
+      "error": ""
+    },
+    "nvidia::mistralai/mistral-nemotron": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-nemotron",
+      "status": "available",
+      "checked_at": 1772133115,
+      "expires_at": 1772154715,
+      "error": ""
+    },
+    "nvidia::mistralai/mistral-small-3.1-24b-instruct-2503": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mistral-small-3.1-24b-instruct-2503",
+      "status": "available",
+      "checked_at": 1772133115,
+      "expires_at": 1772154715,
+      "error": ""
+    },
+    "nvidia::mistralai/mixtral-8x22b-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mixtral-8x22b-v0.1",
+      "status": "unsupported",
+      "checked_at": 1772133116,
+      "expires_at": 1772219516,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function id '39655fc1-9ebc-4b24-963e-6915ea6680de' version 'null': Specified function in account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0' is not found\"}"
+    },
+    "nvidia::mistralai/mixtral-8x7b-instruct-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mixtral-8x7b-instruct-v0.1",
+      "status": "available",
+      "checked_at": 1772133116,
+      "expires_at": 1772154716,
+      "error": ""
+    },
+    "nvidia::mistralai/mixtral-8x22b-instruct-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/mixtral-8x22b-instruct-v0.1",
+      "status": "available",
+      "checked_at": 1772133116,
+      "expires_at": 1772154716,
+      "error": ""
+    },
+    "nvidia::moonshotai/kimi-k2-instruct-0905": {
+      "provider_id": "nvidia",
+      "model_name": "moonshotai/kimi-k2-instruct-0905",
+      "status": "available",
+      "checked_at": 1772133116,
+      "expires_at": 1772154716,
+      "error": ""
+    },
+    "nvidia::moonshotai/kimi-k2-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "moonshotai/kimi-k2-instruct",
+      "status": "available",
+      "checked_at": 1772133116,
+      "expires_at": 1772154716,
+      "error": ""
+    },
+    "nvidia::nv-mistralai/mistral-nemo-12b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nv-mistralai/mistral-nemo-12b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133116,
+      "expires_at": 1772219516,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'f8c05193-d2e2-4f0f-bb4d-7ad70070002b': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/cosmos-reason2-8b": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/cosmos-reason2-8b",
+      "status": "unsupported",
+      "checked_at": 1772133116,
+      "expires_at": 1772219516,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'e199b43b-6c62-4a63-9379-f60e1a953236': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/embed-qa-4": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/embed-qa-4",
+      "status": "unsupported",
+      "checked_at": 1772133117,
+      "expires_at": 1772219517,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/llama-3.1-nemoguard-8b-content-safety": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemoguard-8b-content-safety",
+      "status": "available",
+      "checked_at": 1772133117,
+      "expires_at": 1772154717,
+      "error": ""
+    },
+    "nvidia::nvidia/llama-3.1-nemotron-51b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemotron-51b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133117,
+      "expires_at": 1772219517,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '5beba52c-65a9-4f46-8cd9-656689a1b205': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/llama-3.1-nemoguard-8b-topic-control": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemoguard-8b-topic-control",
+      "status": "available",
+      "checked_at": 1772133117,
+      "expires_at": 1772154717,
+      "error": ""
+    },
+    "nvidia::nvidia/llama-3.1-nemotron-70b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemotron-70b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133117,
+      "expires_at": 1772219517,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '9b96341b-9791-4db9-a00d-4e43aa192a39': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/llama-3.1-nemotron-nano-8b-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "status": "available",
+      "checked_at": 1772133118,
+      "expires_at": 1772154718,
+      "error": ""
+    },
+    "nvidia::nvidia/llama-3.1-nemotron-nano-vl-8b-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "status": "available",
+      "checked_at": 1772133118,
+      "expires_at": 1772154718,
+      "error": ""
+    },
+    "nvidia::nvidia/llama-3.1-nemotron-safety-guard-8b-v3": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "status": "available",
+      "checked_at": 1772133118,
+      "expires_at": 1772154718,
+      "error": ""
+    },
+    "nvidia::nvidia/llama-3.2-nemoretriever-1b-vlm-embed-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.2-nemoretriever-1b-vlm-embed-v1",
+      "status": "unsupported",
+      "checked_at": 1772133118,
+      "expires_at": 1772219518,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/llama-3.1-nemotron-70b-reward": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemotron-70b-reward",
+      "status": "available",
+      "checked_at": 1772133118,
+      "expires_at": 1772154718,
+      "error": ""
+    },
+    "nvidia::nvidia/llama-3.2-nemoretriever-300m-embed-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.2-nemoretriever-300m-embed-v1",
+      "status": "unsupported",
+      "checked_at": 1772133118,
+      "expires_at": 1772219518,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/llama-3.2-nv-embedqa-1b-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.2-nv-embedqa-1b-v1",
+      "status": "unsupported",
+      "checked_at": 1772133118,
+      "expires_at": 1772219518,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/llama-3.2-nv-embedqa-1b-v2": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.2-nv-embedqa-1b-v2",
+      "status": "unsupported",
+      "checked_at": 1772133118,
+      "expires_at": 1772219518,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/llama-nemotron-embed-vl-1b-v2": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-nemotron-embed-vl-1b-v2",
+      "status": "unsupported",
+      "checked_at": 1772133119,
+      "expires_at": 1772219519,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/llama-3.3-nemotron-super-49b-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "status": "available",
+      "checked_at": 1772133119,
+      "expires_at": 1772154719,
+      "error": ""
+    },
+    "nvidia::nvidia/llama3-chatqa-1.5-70b": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama3-chatqa-1.5-70b",
+      "status": "unsupported",
+      "checked_at": 1772133119,
+      "expires_at": 1772219519,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '46594287-38b9-481c-a37f-baa02f2d3ba1': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/llama-3.3-nemotron-super-49b-v1.5": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "status": "available",
+      "checked_at": 1772133119,
+      "expires_at": 1772154719,
+      "error": ""
+    },
+    "nvidia::nvidia/mistral-nemo-minitron-8b-8k-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/mistral-nemo-minitron-8b-8k-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133119,
+      "expires_at": 1772219519,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '5aa06dd2-0a02-4a5d-be4c-bf88e956965d': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/llama3-chatqa-1.5-8b": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama3-chatqa-1.5-8b",
+      "status": "available",
+      "checked_at": 1772133119,
+      "expires_at": 1772154719,
+      "error": ""
+    },
+    "nvidia::nvidia/mistral-nemo-minitron-8b-base": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/mistral-nemo-minitron-8b-base",
+      "status": "unsupported",
+      "checked_at": 1772133119,
+      "expires_at": 1772219519,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/nemotron-4-340b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-4-340b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133120,
+      "expires_at": 1772219520,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'b0fcd392-e905-4ab4-8eb9-aeae95c30b37': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/nemotron-4-340b-reward": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-4-340b-reward",
+      "status": "unsupported",
+      "checked_at": 1772133120,
+      "expires_at": 1772219520,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'c53ee0e9-bad9-4e09-b365-52c9d6b71254': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/nemotron-4-mini-hindi-4b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-4-mini-hindi-4b-instruct",
+      "status": "available",
+      "checked_at": 1772133120,
+      "expires_at": 1772154720,
+      "error": ""
+    },
+    "nvidia::nvidia/nemotron-content-safety-reasoning-4b": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-content-safety-reasoning-4b",
+      "status": "available",
+      "checked_at": 1772133120,
+      "expires_at": 1772154720,
+      "error": ""
+    },
+    "nvidia::nvidia/nemotron-mini-4b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-mini-4b-instruct",
+      "status": "available",
+      "checked_at": 1772133120,
+      "expires_at": 1772154720,
+      "error": ""
+    },
+    "nvidia::nvidia/nemotron-nano-3-30b-a3b": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-nano-3-30b-a3b",
+      "status": "unsupported",
+      "checked_at": 1772133120,
+      "expires_at": 1772219520,
+      "error": "Provider 'nvidia' API error: 404 {\"error\":{\"message\":\"The model `nvidia/nemotron-nano-3-30b-a3b` does not exist.\",\"type\":\"NotFoundError\",\"param\":null,\"code\":404}}"
+    },
+    "nvidia::nvidia/nemotron-nano-12b-v2-vl": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-nano-12b-v2-vl",
+      "status": "available",
+      "checked_at": 1772133120,
+      "expires_at": 1772154720,
+      "error": ""
+    },
+    "nvidia::nvidia/nv-embed-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nv-embed-v1",
+      "status": "unsupported",
+      "checked_at": 1772133121,
+      "expires_at": 1772219521,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/nv-embedcode-7b-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nv-embedcode-7b-v1",
+      "status": "unsupported",
+      "checked_at": 1772133121,
+      "expires_at": 1772219521,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/neva-22b": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/neva-22b",
+      "status": "unsupported",
+      "checked_at": 1772133121,
+      "expires_at": 1772219521,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'bc205f8e-1740-40df-8d32-c4321763498a': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/llama-3.1-nemotron-nano-4b-v1.1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemotron-nano-4b-v1.1",
+      "status": "available",
+      "checked_at": 1772133121,
+      "expires_at": 1772154721,
+      "error": ""
+    },
+    "nvidia::nvidia/nv-embedqa-mistral-7b-v2": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nv-embedqa-mistral-7b-v2",
+      "status": "unsupported",
+      "checked_at": 1772133121,
+      "expires_at": 1772219521,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/nv-embedqa-e5-v5": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nv-embedqa-e5-v5",
+      "status": "unsupported",
+      "checked_at": 1772133121,
+      "expires_at": 1772219521,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/nvclip": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nvclip",
+      "status": "unsupported",
+      "checked_at": 1772133121,
+      "expires_at": 1772219521,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::nvidia/riva-translate-4b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/riva-translate-4b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133121,
+      "expires_at": 1772219521,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'f35337fa-b4dd-4996-bcba-5476ee01171d': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::nvidia/streampetr": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/streampetr",
+      "status": "unsupported",
+      "checked_at": 1772133122,
+      "expires_at": 1772219522,
+      "error": "Provider 'nvidia' API error: 404 {\"detail\":\"Not Found\"}"
+    },
+    "nvidia::nvidia/riva-translate-4b-instruct-v1.1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/riva-translate-4b-instruct-v1.1",
+      "status": "available",
+      "checked_at": 1772133122,
+      "expires_at": 1772154722,
+      "error": ""
+    },
+    "nvidia::nvidia/vila": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/vila",
+      "status": "unsupported",
+      "checked_at": 1772133122,
+      "expires_at": 1772219522,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '1c8df143-2303-419b-8b28-b4dd82cfe113': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::qwen/qwen2-7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen2-7b-instruct",
+      "status": "available",
+      "checked_at": 1772133122,
+      "expires_at": 1772154722,
+      "error": ""
+    },
+    "nvidia::qwen/qwen2.5-7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen2.5-7b-instruct",
+      "status": "available",
+      "checked_at": 1772133122,
+      "expires_at": 1772154722,
+      "error": ""
+    },
+    "nvidia::opengpt-x/teuken-7b-instruct-commercial-v0.4": {
+      "provider_id": "nvidia",
+      "model_name": "opengpt-x/teuken-7b-instruct-commercial-v0.4",
+      "status": "available",
+      "checked_at": 1772133122,
+      "expires_at": 1772154722,
+      "error": ""
+    },
+    "nvidia::qwen/qwen2.5-coder-7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen2.5-coder-7b-instruct",
+      "status": "available",
+      "checked_at": 1772133123,
+      "expires_at": 1772154723,
+      "error": ""
+    },
+    "nvidia::qwen/qwen2.5-coder-32b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen2.5-coder-32b-instruct",
+      "status": "available",
+      "checked_at": 1772133123,
+      "expires_at": 1772154723,
+      "error": ""
+    },
+    "nvidia::nvidia/usdcode-llama-3.1-70b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/usdcode-llama-3.1-70b-instruct",
+      "status": "available",
+      "checked_at": 1772133123,
+      "expires_at": 1772154723,
+      "error": ""
+    },
+    "nvidia::qwen/qwq-32b": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwq-32b",
+      "status": "available",
+      "checked_at": 1772133124,
+      "expires_at": 1772154724,
+      "error": ""
+    },
+    "nvidia::rakuten/rakutenai-7b-chat": {
+      "provider_id": "nvidia",
+      "model_name": "rakuten/rakutenai-7b-chat",
+      "status": "available",
+      "checked_at": 1772133124,
+      "expires_at": 1772154724,
+      "error": ""
+    },
+    "nvidia::rakuten/rakutenai-7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "rakuten/rakutenai-7b-instruct",
+      "status": "available",
+      "checked_at": 1772133124,
+      "expires_at": 1772154724,
+      "error": ""
+    },
+    "nvidia::sarvamai/sarvam-m": {
+      "provider_id": "nvidia",
+      "model_name": "sarvamai/sarvam-m",
+      "status": "available",
+      "checked_at": 1772133124,
+      "expires_at": 1772154724,
+      "error": ""
+    },
+    "nvidia::snowflake/arctic-embed-l": {
+      "provider_id": "nvidia",
+      "model_name": "snowflake/arctic-embed-l",
+      "status": "unsupported",
+      "checked_at": 1772133124,
+      "expires_at": 1772219524,
+      "error": "Provider 'nvidia' API error: 404 404 page not found\n"
+    },
+    "nvidia::speakleash/bielik-11b-v2.3-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "speakleash/bielik-11b-v2.3-instruct",
+      "status": "available",
+      "checked_at": 1772133124,
+      "expires_at": 1772154724,
+      "error": ""
+    },
+    "nvidia::speakleash/bielik-11b-v2.6-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "speakleash/bielik-11b-v2.6-instruct",
+      "status": "available",
+      "checked_at": 1772133125,
+      "expires_at": 1772154725,
+      "error": ""
+    },
+    "nvidia::stockmark/stockmark-2-100b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "stockmark/stockmark-2-100b-instruct",
+      "status": "available",
+      "checked_at": 1772133125,
+      "expires_at": 1772154725,
+      "error": ""
+    },
+    "nvidia::tiiuae/falcon3-7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "tiiuae/falcon3-7b-instruct",
+      "status": "available",
+      "checked_at": 1772133125,
+      "expires_at": 1772154725,
+      "error": ""
+    },
+    "nvidia::tokyotech-llm/llama-3-swallow-70b-instruct-v0.1": {
+      "provider_id": "nvidia",
+      "model_name": "tokyotech-llm/llama-3-swallow-70b-instruct-v0.1",
+      "status": "available",
+      "checked_at": 1772133125,
+      "expires_at": 1772154725,
+      "error": ""
+    },
+    "nvidia::upstage/solar-10.7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "upstage/solar-10.7b-instruct",
+      "status": "available",
+      "checked_at": 1772133125,
+      "expires_at": 1772154725,
+      "error": ""
+    },
+    "nvidia::writer/palmyra-creative-122b": {
+      "provider_id": "nvidia",
+      "model_name": "writer/palmyra-creative-122b",
+      "status": "unsupported",
+      "checked_at": 1772133125,
+      "expires_at": 1772219525,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '00bdd0a7-e38f-4423-9007-c4d8730a3f78': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::writer/palmyra-fin-70b-32k": {
+      "provider_id": "nvidia",
+      "model_name": "writer/palmyra-fin-70b-32k",
+      "status": "unsupported",
+      "checked_at": 1772133125,
+      "expires_at": 1772219525,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '316490c6-f1ed-41f9-9da8-3fa9e885653b': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::utter-project/eurollm-9b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "utter-project/eurollm-9b-instruct",
+      "status": "available",
+      "checked_at": 1772133125,
+      "expires_at": 1772154725,
+      "error": ""
+    },
+    "nvidia::writer/palmyra-med-70b": {
+      "provider_id": "nvidia",
+      "model_name": "writer/palmyra-med-70b",
+      "status": "unsupported",
+      "checked_at": 1772133125,
+      "expires_at": 1772219525,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'aab71274-5281-4941-b0b8-20f339d1fc7e': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::writer/palmyra-med-70b-32k": {
+      "provider_id": "nvidia",
+      "model_name": "writer/palmyra-med-70b-32k",
+      "status": "unsupported",
+      "checked_at": 1772133125,
+      "expires_at": 1772219525,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function 'd6faa974-3591-49a4-963d-97221d074b2e': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "nvidia::yentinglin/llama-3-taiwan-70b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "yentinglin/llama-3-taiwan-70b-instruct",
+      "status": "available",
+      "checked_at": 1772133125,
+      "expires_at": 1772154725,
+      "error": ""
+    },
+    "nvidia::zyphra/zamba2-7b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "zyphra/zamba2-7b-instruct",
+      "status": "unsupported",
+      "checked_at": 1772133126,
+      "expires_at": 1772219526,
+      "error": "Provider 'nvidia' API error: 404 {\"status\":404,\"title\":\"Not Found\",\"detail\":\"Function '8378ffb2-51b0-4140-9684-dda1889373e6': Not found for account 't7Zegp_voESoECkL9XIOcW9JZo60SH0h7f5c745knK0'\"}"
+    },
+    "orbit::gemini-claude-sonnet-4-6": {
+      "provider_id": "orbit",
+      "model_name": "gemini-claude-sonnet-4-6",
+      "status": "available",
+      "checked_at": 1772133128,
+      "expires_at": 1772154728,
+      "error": ""
+    },
+    "orbit::gemini-2.5-flash": {
+      "provider_id": "orbit",
+      "model_name": "gemini-2.5-flash",
+      "status": "available",
+      "checked_at": 1772133128,
+      "expires_at": 1772154728,
+      "error": ""
+    },
+    "orbit::gemini-claude-sonnet-4-5-thinking": {
+      "provider_id": "orbit",
+      "model_name": "gemini-claude-sonnet-4-5-thinking",
+      "status": "available",
+      "checked_at": 1772133129,
+      "expires_at": 1772154729,
+      "error": ""
+    },
+    "orbit::gemini-claude-sonnet-4-5": {
+      "provider_id": "orbit",
+      "model_name": "gemini-claude-sonnet-4-5",
+      "status": "available",
+      "checked_at": 1772133130,
+      "expires_at": 1772154730,
+      "error": ""
+    },
+    "orbit::gemini-3-pro-image-preview": {
+      "provider_id": "orbit",
+      "model_name": "gemini-3-pro-image-preview",
+      "status": "available",
+      "checked_at": 1772133131,
+      "expires_at": 1772154731,
+      "error": ""
+    },
+    "orbit::claude-opus-4-6": {
+      "provider_id": "orbit",
+      "model_name": "claude-opus-4-6",
+      "status": "available",
+      "checked_at": 1772133131,
+      "expires_at": 1772154731,
+      "error": ""
+    },
+    "orbit::gemini-3-pro-preview": {
+      "provider_id": "orbit",
+      "model_name": "gemini-3-pro-preview",
+      "status": "available",
+      "checked_at": 1772133132,
+      "expires_at": 1772154732,
+      "error": ""
+    },
+    "orbit::gemini-3.1-pro-high": {
+      "provider_id": "orbit",
+      "model_name": "gemini-3.1-pro-high",
+      "status": "available",
+      "checked_at": 1772133134,
+      "expires_at": 1772154734,
+      "error": ""
+    },
+    "void::gpt-3.5-turbo": {
+      "provider_id": "void",
+      "model_name": "gpt-3.5-turbo",
+      "status": "available",
+      "checked_at": 1772133134,
+      "expires_at": 1772154734,
+      "error": ""
+    },
+    "void::gpt-4o": {
+      "provider_id": "void",
+      "model_name": "gpt-4o",
+      "status": "available",
+      "checked_at": 1772133137,
+      "expires_at": 1772154737,
+      "error": ""
+    },
+    "void::gpt-4.1-mini": {
+      "provider_id": "void",
+      "model_name": "gpt-4.1-mini",
+      "status": "available",
+      "checked_at": 1772133138,
+      "expires_at": 1772154738,
+      "error": ""
+    },
+    "void::gpt-4.1": {
+      "provider_id": "void",
+      "model_name": "gpt-4.1",
+      "status": "transient",
+      "checked_at": 1772138653,
+      "expires_at": 1772138953,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::gpt-5.2": {
+      "provider_id": "void",
+      "model_name": "gpt-5.2",
+      "status": "transient",
+      "checked_at": 1772138658,
+      "expires_at": 1772138958,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::gpt-5.1-codex": {
+      "provider_id": "void",
+      "model_name": "gpt-5.1-codex",
+      "status": "available",
+      "checked_at": 1772133143,
+      "expires_at": 1772154743,
+      "error": ""
+    },
+    "void::sonar": {
+      "provider_id": "void",
+      "model_name": "sonar",
+      "status": "available",
+      "checked_at": 1772133159,
+      "expires_at": 1772154759,
+      "error": ""
+    },
+    "void::grok-4": {
+      "provider_id": "void",
+      "model_name": "grok-4",
+      "status": "available",
+      "checked_at": 1772133160,
+      "expires_at": 1772154760,
+      "error": ""
+    },
+    "void::sonar-pro": {
+      "provider_id": "void",
+      "model_name": "sonar-pro",
+      "status": "available",
+      "checked_at": 1772133160,
+      "expires_at": 1772154760,
+      "error": ""
+    },
+    "void::deepseek-v3.1": {
+      "provider_id": "void",
+      "model_name": "deepseek-v3.1",
+      "status": "available",
+      "checked_at": 1772133162,
+      "expires_at": 1772154762,
+      "error": ""
+    },
+    "void::deepseek-v3.2": {
+      "provider_id": "void",
+      "model_name": "deepseek-v3.2",
+      "status": "transient",
+      "checked_at": 1772138684,
+      "expires_at": 1772138984,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::deepseek-r1": {
+      "provider_id": "void",
+      "model_name": "deepseek-r1",
+      "status": "available",
+      "checked_at": 1772133164,
+      "expires_at": 1772154764,
+      "error": ""
+    },
+    "void::deepseek-r1t2-chimera": {
+      "provider_id": "void",
+      "model_name": "deepseek-r1t2-chimera",
+      "status": "unsupported",
+      "checked_at": 1772138679,
+      "expires_at": 1772225079,
+      "error": "Provider 'void' API error: 404 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138680957_9d4iwy4 at 2026-02-26T20:44:45.330Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138680957_9d4iwy4\",\"timestamp\":\"2026-02-26T20:44:45.330Z\"}}"
+    },
+    "void::umbra": {
+      "provider_id": "void",
+      "model_name": "umbra",
+      "status": "available",
+      "checked_at": 1772133165,
+      "expires_at": 1772154765,
+      "error": ""
+    },
+    "void::deepseek-r1t-chimera": {
+      "provider_id": "void",
+      "model_name": "deepseek-r1t-chimera",
+      "status": "unsupported",
+      "checked_at": 1772138681,
+      "expires_at": 1772225081,
+      "error": "Provider 'void' API error: 404 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138682309_xr07v0h at 2026-02-26T20:44:46.853Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138682309_xr07v0h\",\"timestamp\":\"2026-02-26T20:44:46.853Z\"}}"
+    },
+    "void::grok-4.1": {
+      "provider_id": "void",
+      "model_name": "grok-4.1",
+      "status": "available",
+      "checked_at": 1772133168,
+      "expires_at": 1772154768,
+      "error": ""
+    },
+    "void::grok-4.1-expert": {
+      "provider_id": "void",
+      "model_name": "grok-4.1-expert",
+      "status": "available",
+      "checked_at": 1772133169,
+      "expires_at": 1772154769,
+      "error": ""
+    },
+    "void::grok-4.1-mini": {
+      "provider_id": "void",
+      "model_name": "grok-4.1-mini",
+      "status": "available",
+      "checked_at": 1772133170,
+      "expires_at": 1772154770,
+      "error": ""
+    },
+    "void::grok-4.20-beta": {
+      "provider_id": "void",
+      "model_name": "grok-4.20-beta",
+      "status": "available",
+      "checked_at": 1772133170,
+      "expires_at": 1772154770,
+      "error": ""
+    },
+    "nvidia::deepseek-ai/deepseek-v3.1-terminus": {
+      "provider_id": "nvidia",
+      "model_name": "deepseek-ai/deepseek-v3.1-terminus",
+      "status": "available",
+      "checked_at": 1772134051,
+      "expires_at": 1772155651,
+      "error": ""
+    },
+    "nvidia::google/gemma-3-4b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-3-4b-it",
+      "status": "available",
+      "checked_at": 1772134052,
+      "expires_at": 1772155652,
+      "error": ""
+    },
+    "nvidia::qwen/qwen3.5-397b-a17b": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen3.5-397b-a17b",
+      "status": "available",
+      "checked_at": 1772134069,
+      "expires_at": 1772155669,
+      "error": ""
+    },
+    "void::gpt-oss-120b": {
+      "provider_id": "void",
+      "model_name": "gpt-oss-120b",
+      "status": "unsupported",
+      "checked_at": 1772138654,
+      "expires_at": 1772225054,
+      "error": "Provider 'void' API error: 404 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138651472_ccnrbt2 at 2026-02-26T20:44:20.193Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138651472_ccnrbt2\",\"timestamp\":\"2026-02-26T20:44:20.193Z\"}}"
+    },
+    "void::deepseek-v3.1-terminus": {
+      "provider_id": "void",
+      "model_name": "deepseek-v3.1-terminus",
+      "status": "available",
+      "checked_at": 1772134978,
+      "expires_at": 1772156578,
+      "error": ""
+    },
+    "nvidia::deepseek-ai/deepseek-v3.2": {
+      "provider_id": "nvidia",
+      "model_name": "deepseek-ai/deepseek-v3.2",
+      "status": "available",
+      "checked_at": 1772134657,
+      "expires_at": 1772156257,
+      "error": ""
+    },
+    "nvidia::minimaxai/minimax-m2.1": {
+      "provider_id": "nvidia",
+      "model_name": "minimaxai/minimax-m2.1",
+      "status": "available",
+      "checked_at": 1772134663,
+      "expires_at": 1772156263,
+      "error": ""
+    },
+    "void::gpt-oss-20b": {
+      "provider_id": "void",
+      "model_name": "gpt-oss-20b",
+      "status": "transient",
+      "checked_at": 1772138655,
+      "expires_at": 1772138955,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "google::gemini-2.5-flash": {
+      "provider_id": "google",
+      "model_name": "gemini-2.5-flash",
+      "status": "available",
+      "checked_at": 1772138707,
+      "expires_at": 1772160307,
+      "error": ""
+    },
+    "google::gemini-3-flash-preview": {
+      "provider_id": "google",
+      "model_name": "gemini-3-flash-preview",
+      "status": "available",
+      "checked_at": 1772135895,
+      "expires_at": 1772157495,
+      "error": ""
+    },
+    "google::gemini-flash-latest": {
+      "provider_id": "google",
+      "model_name": "gemini-flash-latest",
+      "status": "available",
+      "checked_at": 1772138724,
+      "expires_at": 1772160324,
+      "error": ""
+    },
+    "nvidia::meta/llama-4-maverick-17b-128e-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-4-maverick-17b-128e-instruct",
+      "status": "transient",
+      "checked_at": 1772138629,
+      "expires_at": 1772138929,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "nvidia::meta/llama-3.2-1b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-3.2-1b-instruct",
+      "status": "transient",
+      "checked_at": 1772138629,
+      "expires_at": 1772138929,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "orbit::gemini-3.1-pro-low": {
+      "provider_id": "orbit",
+      "model_name": "gemini-3.1-pro-low",
+      "status": "available",
+      "checked_at": 1772135931,
+      "expires_at": 1772157531,
+      "error": ""
+    },
+    "void::gpt-4o-mini-search-preview": {
+      "provider_id": "void",
+      "model_name": "gpt-4o-mini-search-preview",
+      "status": "available",
+      "checked_at": 1772135933,
+      "expires_at": 1772157533,
+      "error": ""
+    },
+    "void::gpt-4o-search-preview": {
+      "provider_id": "void",
+      "model_name": "gpt-4o-search-preview",
+      "status": "transient",
+      "checked_at": 1772138651,
+      "expires_at": 1772138951,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::gpt-5.3-codex": {
+      "provider_id": "void",
+      "model_name": "gpt-5.3-codex",
+      "status": "unsupported",
+      "checked_at": 1772138663,
+      "expires_at": 1772225063,
+      "error": "Provider 'void' API error: 404 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138660718_3y5yai5 at 2026-02-26T20:44:28.685Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138660718_3y5yai5\",\"timestamp\":\"2026-02-26T20:44:28.685Z\"}}"
+    },
+    "void::gpt-5.2-codex": {
+      "provider_id": "void",
+      "model_name": "gpt-5.2-codex",
+      "status": "unsupported",
+      "checked_at": 1772138661,
+      "expires_at": 1772225061,
+      "error": "Provider 'void' API error: 404 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138659587_elspz3b at 2026-02-26T20:44:27.249Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138659587_elspz3b\",\"timestamp\":\"2026-02-26T20:44:27.249Z\"}}"
+    },
+    "void::claude-haiku-4-5-20251001": {
+      "provider_id": "void",
+      "model_name": "claude-haiku-4-5-20251001",
+      "status": "available",
+      "checked_at": 1772135949,
+      "expires_at": 1772157549,
+      "error": ""
+    },
+    "google::gemini-2.5-pro": {
+      "provider_id": "google",
+      "model_name": "gemini-2.5-pro",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro\nPlease retry in 26.336835381s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerDay-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"g"
+    },
+    "nvidia::deepseek-ai/deepseek-r1-distill-qwen-7b": {
+      "provider_id": "nvidia",
+      "model_name": "deepseek-ai/deepseek-r1-distill-qwen-7b",
+      "status": "transient",
+      "checked_at": 1772138610,
+      "expires_at": 1772138910,
+      "error": "Provider 'nvidia' API error: 500 {\"error\":\"Error during inference of request chat-3a783c296e23428db4054d21104b9e81 -- Encountered an error in forwardAsync function: Executing TRT engine failed!\"}"
+    },
+    "nvidia::deepseek-ai/deepseek-v3.1": {
+      "provider_id": "nvidia",
+      "model_name": "deepseek-ai/deepseek-v3.1",
+      "status": "transient",
+      "checked_at": 1772138621,
+      "expires_at": 1772138921,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::gpt-5.1-codex-mini": {
+      "provider_id": "void",
+      "model_name": "gpt-5.1-codex-mini",
+      "status": "transient",
+      "checked_at": 1772138662,
+      "expires_at": 1772138962,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::gemini-2.0-flash": {
+      "provider_id": "void",
+      "model_name": "gemini-2.0-flash",
+      "status": "transient",
+      "checked_at": 1772138671,
+      "expires_at": 1772138971,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::gemini-2.5-flash-image": {
+      "provider_id": "void",
+      "model_name": "gemini-2.5-flash-image",
+      "status": "transient",
+      "checked_at": 1772138671,
+      "expires_at": 1772138971,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "google::gemini-2.0-flash-001": {
+      "provider_id": "google",
+      "model_name": "gemini-2.0-flash-001",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\nPlease retry in 26.484440683s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.0-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric: \"generativelang"
+    },
+    "google::gemini-2.0-flash": {
+      "provider_id": "google",
+      "model_name": "gemini-2.0-flash",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\nPlease retry in 26.482918626s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.0-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric: \"generativelang"
+    },
+    "google::gemini-2.0-flash-exp-image-generation": {
+      "provider_id": "google",
+      "model_name": "gemini-2.0-flash-exp-image-generation",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash-exp\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash-exp\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash-exp\nPlease retry in 26.481863579s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.0-flash-exp\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric:"
+    },
+    "google::gemini-2.0-flash-lite": {
+      "provider_id": "google",
+      "model_name": "gemini-2.0-flash-lite",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash-lite\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash-lite\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash-lite\nPlease retry in 26.474352111s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.0-flash-lite\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric: \"genera"
+    },
+    "google::deep-research-pro-preview-12-2025": {
+      "provider_id": "google",
+      "model_name": "deep-research-pro-preview-12-2025",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: deep-research-pro-preview\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: deep-research-pro-preview\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: deep-research-pro-preview\nPlease retry in 26.473213251s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"deep-research-pro-preview\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota"
+    },
+    "google::gemini-2.5-computer-use-preview-10-2025": {
+      "provider_id": "google",
+      "model_name": "gemini-2.5-computer-use-preview-10-2025",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: computer-use-preview\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: computer-use-preview\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: computer-use-preview\nPlease retry in 26.470065853s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"computer-use-preview\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric: \"generative"
+    },
+    "google::gemini-2.0-flash-lite-001": {
+      "provider_id": "google",
+      "model_name": "gemini-2.0-flash-lite-001",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash-lite\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash-lite\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash-lite\nPlease retry in 26.470745369s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.0-flash-lite\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric: \"genera"
+    },
+    "google::gemini-2.5-flash-image": {
+      "provider_id": "google",
+      "model_name": "gemini-2.5-flash-image",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-flash-preview-image\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-flash-preview-image\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-flash-preview-image\nPlease retry in 26.346512021s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash-preview-image\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"gl"
+    },
+    "google::gemini-2.5-pro-preview-tts": {
+      "provider_id": "google",
+      "model_name": "gemini-2.5-pro-preview-tts",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro-tts\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro-tts\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro-tts\nPlease retry in 26.327982597s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-pro-tts\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric: \"genera"
+    },
+    "google::gemini-2.5-flash-preview-tts": {
+      "provider_id": "google",
+      "model_name": "gemini-2.5-flash-preview-tts",
+      "status": "unknown",
+      "checked_at": 1772138608,
+      "expires_at": 1772139508,
+      "error": "Provider 'google' API error: 400 The requested combination of response modalities (TEXT) is not supported by the model. models/gemini-2.5-flash-preview-tts accepts the following combination of response modalities:\n* AUDIO\n"
+    },
+    "google::gemini-3-pro-image-preview": {
+      "provider_id": "google",
+      "model_name": "gemini-3-pro-image-preview",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro-image\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro-image\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3-pro-image\nPlease retry in 26.209862504s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-3-pro-image\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric: \"generativelanguage"
+    },
+    "google::gemini-3-pro-preview": {
+      "provider_id": "google",
+      "model_name": "gemini-3-pro-preview",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3-pro\nPlease retry in 26.200291733s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerDay-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-3-"
+    },
+    "google::gemini-3.1-flash-image-preview": {
+      "provider_id": "google",
+      "model_name": "gemini-3.1-flash-image-preview",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3.1-flash-image\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3.1-flash-image\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3.1-flash-image\nPlease retry in 26.193179453s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-3.1-flash-image\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota"
+    },
+    "google::gemini-3.1-pro-preview": {
+      "provider_id": "google",
+      "model_name": "gemini-3.1-pro-preview",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3.1-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3.1-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3.1-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3.1-pro\nPlease retry in 26.120058454s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value:"
+    },
+    "google::gemini-3.1-pro-preview-customtools": {
+      "provider_id": "google",
+      "model_name": "gemini-3.1-pro-preview-customtools",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3.1-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3.1-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3.1-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3.1-pro\nPlease retry in 26.084709888s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value:"
+    },
+    "google::gemini-pro-latest": {
+      "provider_id": "google",
+      "model_name": "gemini-pro-latest",
+      "status": "quota_blocked",
+      "checked_at": 1772138608,
+      "expires_at": 1772138728,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3-pro\nPlease retry in 26.057764465s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerDay-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-3-"
+    },
+    "google::gemini-robotics-er-1.5-preview": {
+      "provider_id": "google",
+      "model_name": "gemini-robotics-er-1.5-preview",
+      "status": "unknown",
+      "checked_at": 1772138608,
+      "expires_at": 1772139508,
+      "error": "Provider 'google' API error: gemini-robotics-er-1.5-preview returned an empty response."
+    },
+    "google::nano-banana-pro-preview": {
+      "provider_id": "google",
+      "model_name": "nano-banana-pro-preview",
+      "status": "quota_blocked",
+      "checked_at": 1772138609,
+      "expires_at": 1772138729,
+      "error": "Provider 'google' API error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-3-pro-image\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro-image\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3-pro-image\nPlease retry in 25.471779157s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_input_token_count\"\n  quota_id: \"GenerateContentInputTokensPerModelPerMinute-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-3-pro-image\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n}\nviolations {\n  quota_metric: \"genera"
+    },
+    "nvidia::deepseek-ai/deepseek-r1-distill-qwen-32b": {
+      "provider_id": "nvidia",
+      "model_name": "deepseek-ai/deepseek-r1-distill-qwen-32b",
+      "status": "transient",
+      "checked_at": 1772138610,
+      "expires_at": 1772138910,
+      "error": "Provider 'nvidia' API error: 500 {\"error\":\"Error during inference of request chat-6c98e250ae5d46e8ba4bc0ce05fc3d08 -- Encountered an error in forwardAsync function: [TensorRT-LLM][ERROR] CUDA runtime error in ::cudaEventCreate(&event, flags): an illegal memory access was encountered (/home/jenkins/agent/workspace/LLM/helpers/Build-"
+    },
+    "nvidia::bytedance/seed-oss-36b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "bytedance/seed-oss-36b-instruct",
+      "status": "unknown",
+      "checked_at": 1772138611,
+      "expires_at": 1772139511,
+      "error": "bytedance/seed-oss-36b-instruct returned an empty response."
+    },
+    "nvidia::google/paligemma": {
+      "provider_id": "nvidia",
+      "model_name": "google/paligemma",
+      "status": "transient",
+      "checked_at": 1772138613,
+      "expires_at": 1772138913,
+      "error": "Provider 'nvidia' API error: 500 {\"error\":\"Expected exactly one image, got 0\"}"
+    },
+    "nvidia::deepseek-ai/deepseek-r1-distill-qwen-14b": {
+      "provider_id": "nvidia",
+      "model_name": "deepseek-ai/deepseek-r1-distill-qwen-14b",
+      "status": "available",
+      "checked_at": 1772138613,
+      "expires_at": 1772160213,
+      "error": ""
+    },
+    "google::gemma-3-12b-it": {
+      "provider_id": "google",
+      "model_name": "gemma-3-12b-it",
+      "status": "transient",
+      "checked_at": 1772138618,
+      "expires_at": 1772138918,
+      "error": "Provider 'google' API error: 504 Deadline Exceeded"
+    },
+    "nvidia::google/gemma-3-12b-it": {
+      "provider_id": "nvidia",
+      "model_name": "google/gemma-3-12b-it",
+      "status": "transient",
+      "checked_at": 1772138622,
+      "expires_at": 1772138922,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "nvidia::ibm/granite-3.3-8b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "ibm/granite-3.3-8b-instruct",
+      "status": "transient",
+      "checked_at": 1772138625,
+      "expires_at": 1772138925,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "nvidia::mistralai/magistral-small-2506": {
+      "provider_id": "nvidia",
+      "model_name": "mistralai/magistral-small-2506",
+      "status": "unknown",
+      "checked_at": 1772138625,
+      "expires_at": 1772139525,
+      "error": "mistralai/magistral-small-2506 returned an empty response."
+    },
+    "nvidia::igenius/colosseum_355b_instruct_16k": {
+      "provider_id": "nvidia",
+      "model_name": "igenius/colosseum_355b_instruct_16k",
+      "status": "transient",
+      "checked_at": 1772138625,
+      "expires_at": 1772138925,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "nvidia::moonshotai/kimi-k2-thinking": {
+      "provider_id": "nvidia",
+      "model_name": "moonshotai/kimi-k2-thinking",
+      "status": "unknown",
+      "checked_at": 1772138628,
+      "expires_at": 1772139528,
+      "error": "moonshotai/kimi-k2-thinking returned an empty response."
+    },
+    "nvidia::meta/llama-3.2-90b-vision-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "meta/llama-3.2-90b-vision-instruct",
+      "status": "transient",
+      "checked_at": 1772138629,
+      "expires_at": 1772138929,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "nvidia::nvidia/llama-3.1-nemotron-ultra-253b-v1": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+      "status": "available",
+      "checked_at": 1772138631,
+      "expires_at": 1772160231,
+      "error": ""
+    },
+    "nvidia::nvidia/nemoretriever-parse": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemoretriever-parse",
+      "status": "unknown",
+      "checked_at": 1772138632,
+      "expires_at": 1772139532,
+      "error": "Provider 'nvidia' API error: 400 {\"object\":\"error\",\"message\":\"Content cannot be a plain string. The model does not support text input.\",\"type\":\"BadRequestError\",\"param\":null,\"code\":400}"
+    },
+    "nvidia::nvidia/nemotron-3-nano-30b-a3b": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-3-nano-30b-a3b",
+      "status": "unknown",
+      "checked_at": 1772138632,
+      "expires_at": 1772139532,
+      "error": "nvidia/nemotron-3-nano-30b-a3b returned an empty response."
+    },
+    "nvidia::nvidia/nemotron-parse": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nemotron-parse",
+      "status": "unknown",
+      "checked_at": 1772138633,
+      "expires_at": 1772139533,
+      "error": "Provider 'nvidia' API error: 400 {\"object\":\"error\",\"message\":\"Content cannot be a plain string. The model does not support text input. Content cannot be a plain string. The model does not support text input.\",\"type\":\"BadRequestError\",\"param\":null,\"code\":400}"
+    },
+    "nvidia::nvidia/nvidia-nemotron-nano-9b-v2": {
+      "provider_id": "nvidia",
+      "model_name": "nvidia/nvidia-nemotron-nano-9b-v2",
+      "status": "unknown",
+      "checked_at": 1772138634,
+      "expires_at": 1772139534,
+      "error": "nvidia/nvidia-nemotron-nano-9b-v2 returned an empty response."
+    },
+    "nvidia::openai/gpt-oss-120b": {
+      "provider_id": "nvidia",
+      "model_name": "openai/gpt-oss-120b",
+      "status": "unknown",
+      "checked_at": 1772138634,
+      "expires_at": 1772139534,
+      "error": "openai/gpt-oss-120b returned an empty response."
+    },
+    "nvidia::openai/gpt-oss-20b": {
+      "provider_id": "nvidia",
+      "model_name": "openai/gpt-oss-20b",
+      "status": "unknown",
+      "checked_at": 1772138634,
+      "expires_at": 1772139534,
+      "error": "openai/gpt-oss-20b returned an empty response."
+    },
+    "nvidia::qwen/qwen3-235b-a22b": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen3-235b-a22b",
+      "status": "unknown",
+      "checked_at": 1772138635,
+      "expires_at": 1772139535,
+      "error": "qwen/qwen3-235b-a22b returned an empty response."
+    },
+    "nvidia::qwen/qwen3-next-80b-a3b-thinking": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen3-next-80b-a3b-thinking",
+      "status": "unknown",
+      "checked_at": 1772138635,
+      "expires_at": 1772139535,
+      "error": "qwen/qwen3-next-80b-a3b-thinking returned an empty response."
+    },
+    "nvidia::stepfun-ai/step-3.5-flash": {
+      "provider_id": "nvidia",
+      "model_name": "stepfun-ai/step-3.5-flash",
+      "status": "unknown",
+      "checked_at": 1772138637,
+      "expires_at": 1772139537,
+      "error": "stepfun-ai/step-3.5-flash returned an empty response."
+    },
+    "nvidia::thudm/chatglm3-6b": {
+      "provider_id": "nvidia",
+      "model_name": "thudm/chatglm3-6b",
+      "status": "unknown",
+      "checked_at": 1772138637,
+      "expires_at": 1772139537,
+      "error": "thudm/chatglm3-6b returned an empty response."
+    },
+    "nvidia::moonshotai/kimi-k2.5": {
+      "provider_id": "nvidia",
+      "model_name": "moonshotai/kimi-k2.5",
+      "status": "transient",
+      "checked_at": 1772138638,
+      "expires_at": 1772138938,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "nvidia::z-ai/glm4.7": {
+      "provider_id": "nvidia",
+      "model_name": "z-ai/glm4.7",
+      "status": "unknown",
+      "checked_at": 1772138639,
+      "expires_at": 1772139539,
+      "error": "z-ai/glm4.7 returned an empty response."
+    },
+    "nvidia::z-ai/glm5": {
+      "provider_id": "nvidia",
+      "model_name": "z-ai/glm5",
+      "status": "unknown",
+      "checked_at": 1772138639,
+      "expires_at": 1772139539,
+      "error": "z-ai/glm5 returned an empty response."
+    },
+    "nvidia::qwen/qwen3-coder-480b-a35b-instruct": {
+      "provider_id": "nvidia",
+      "model_name": "qwen/qwen3-coder-480b-a35b-instruct",
+      "status": "transient",
+      "checked_at": 1772138645,
+      "expires_at": 1772138945,
+      "error": "Provider 'nvidia' API error: request error: HTTPSConnectionPool(host='integrate.api.nvidia.com', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::chatgpt-4o-latest": {
+      "provider_id": "void",
+      "model_name": "chatgpt-4o-latest",
+      "status": "transient",
+      "checked_at": 1772138646,
+      "expires_at": 1772138946,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::gpt-5-chat-latest": {
+      "provider_id": "void",
+      "model_name": "gpt-5-chat-latest",
+      "status": "transient",
+      "checked_at": 1772138648,
+      "expires_at": 1772138948,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138652465_wznr8re at 2026-02-26T20:44:13.472Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138652465_wznr8re\",\"timestamp\":\"2026-02-26T20:44:13.472Z\"}}"
+    },
+    "void::gpt-5-nano": {
+      "provider_id": "void",
+      "model_name": "gpt-5-nano",
+      "status": "unknown",
+      "checked_at": 1772138648,
+      "expires_at": 1772139548,
+      "error": "gpt-5-nano returned an empty response."
+    },
+    "void::gpt-5-mini": {
+      "provider_id": "void",
+      "model_name": "gpt-5-mini",
+      "status": "unknown",
+      "checked_at": 1772138649,
+      "expires_at": 1772139549,
+      "error": "gpt-5-mini returned an empty response."
+    },
+    "void::gpt-5.2-chat-latest": {
+      "provider_id": "void",
+      "model_name": "gpt-5.2-chat-latest",
+      "status": "transient",
+      "checked_at": 1772138651,
+      "expires_at": 1772138951,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::gpt-5": {
+      "provider_id": "void",
+      "model_name": "gpt-5",
+      "status": "unknown",
+      "checked_at": 1772138651,
+      "expires_at": 1772139551,
+      "error": "gpt-5 returned an empty response."
+    },
+    "void::gpt-5-codex": {
+      "provider_id": "void",
+      "model_name": "gpt-5-codex",
+      "status": "available",
+      "checked_at": 1772138656,
+      "expires_at": 1772160256,
+      "error": ""
+    },
+    "void::o1": {
+      "provider_id": "void",
+      "model_name": "o1",
+      "status": "unknown",
+      "checked_at": 1772138656,
+      "expires_at": 1772139556,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'o1'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::o3": {
+      "provider_id": "void",
+      "model_name": "o3",
+      "status": "unknown",
+      "checked_at": 1772138657,
+      "expires_at": 1772139557,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'o3'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::o4-mini": {
+      "provider_id": "void",
+      "model_name": "o4-mini",
+      "status": "transient",
+      "checked_at": 1772138657,
+      "expires_at": 1772138957,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::gpt-image-1": {
+      "provider_id": "void",
+      "model_name": "gpt-image-1",
+      "status": "unknown",
+      "checked_at": 1772138658,
+      "expires_at": 1772139558,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'gpt-image-1' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::gpt-image-1.5": {
+      "provider_id": "void",
+      "model_name": "gpt-image-1.5",
+      "status": "unknown",
+      "checked_at": 1772138658,
+      "expires_at": 1772139558,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'gpt-image-1.5' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::gpt-5.1": {
+      "provider_id": "void",
+      "model_name": "gpt-5.1",
+      "status": "transient",
+      "checked_at": 1772138658,
+      "expires_at": 1772138958,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::text-embedding-3-small": {
+      "provider_id": "void",
+      "model_name": "text-embedding-3-small",
+      "status": "unknown",
+      "checked_at": 1772138658,
+      "expires_at": 1772139558,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'text-embedding-3-small' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::o3-mini": {
+      "provider_id": "void",
+      "model_name": "o3-mini",
+      "status": "unknown",
+      "checked_at": 1772138658,
+      "expires_at": 1772139558,
+      "error": "o3-mini returned an empty response."
+    },
+    "void::text-embedding-3-large": {
+      "provider_id": "void",
+      "model_name": "text-embedding-3-large",
+      "status": "unknown",
+      "checked_at": 1772138658,
+      "expires_at": 1772139558,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'text-embedding-3-large' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::tts-1": {
+      "provider_id": "void",
+      "model_name": "tts-1",
+      "status": "unknown",
+      "checked_at": 1772138658,
+      "expires_at": 1772139558,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'tts-1' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::tts-1-hd": {
+      "provider_id": "void",
+      "model_name": "tts-1-hd",
+      "status": "unknown",
+      "checked_at": 1772138659,
+      "expires_at": 1772139559,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'tts-1-hd' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::gpt-4o-mini-tts": {
+      "provider_id": "void",
+      "model_name": "gpt-4o-mini-tts",
+      "status": "unknown",
+      "checked_at": 1772138659,
+      "expires_at": 1772139559,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'gpt-4o-mini-tts' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::whisper-1": {
+      "provider_id": "void",
+      "model_name": "whisper-1",
+      "status": "unknown",
+      "checked_at": 1772138659,
+      "expires_at": 1772139559,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'whisper-1' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::gpt-4o-transcribe": {
+      "provider_id": "void",
+      "model_name": "gpt-4o-transcribe",
+      "status": "unknown",
+      "checked_at": 1772138659,
+      "expires_at": 1772139559,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'gpt-4o-transcribe' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::omni-moderation-latest": {
+      "provider_id": "void",
+      "model_name": "omni-moderation-latest",
+      "status": "unknown",
+      "checked_at": 1772138659,
+      "expires_at": 1772139559,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'omni-moderation-latest' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::gpt-4o-mini-transcribe": {
+      "provider_id": "void",
+      "model_name": "gpt-4o-mini-transcribe",
+      "status": "transient",
+      "checked_at": 1772138659,
+      "expires_at": 1772138959,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::claude-opus-4-1-20250805": {
+      "provider_id": "void",
+      "model_name": "claude-opus-4-1-20250805",
+      "status": "unknown",
+      "checked_at": 1772138660,
+      "expires_at": 1772139560,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'claude-opus-4-1-20250805'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::claude-sonnet-4-20250514": {
+      "provider_id": "void",
+      "model_name": "claude-sonnet-4-20250514",
+      "status": "unknown",
+      "checked_at": 1772138660,
+      "expires_at": 1772139560,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'claude-sonnet-4-20250514'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::claude-opus-4-20250514": {
+      "provider_id": "void",
+      "model_name": "claude-opus-4-20250514",
+      "status": "unknown",
+      "checked_at": 1772138660,
+      "expires_at": 1772139560,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'claude-opus-4-20250514'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::claude-3-7-sonnet-20250219": {
+      "provider_id": "void",
+      "model_name": "claude-3-7-sonnet-20250219",
+      "status": "transient",
+      "checked_at": 1772138660,
+      "expires_at": 1772138960,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'claude-3-7-sonnet-20250219'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::claude-sonnet-4-5-20250929": {
+      "provider_id": "void",
+      "model_name": "claude-sonnet-4-5-20250929",
+      "status": "transient",
+      "checked_at": 1772138660,
+      "expires_at": 1772138960,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::claude-opus-4-5-20251101": {
+      "provider_id": "void",
+      "model_name": "claude-opus-4-5-20251101",
+      "status": "unknown",
+      "checked_at": 1772138660,
+      "expires_at": 1772139560,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'claude-opus-4-5-20251101'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::claude-opus-4-6": {
+      "provider_id": "void",
+      "model_name": "claude-opus-4-6",
+      "status": "unknown",
+      "checked_at": 1772138660,
+      "expires_at": 1772139560,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'claude-opus-4-6'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::claude-sonnet-4-6": {
+      "provider_id": "void",
+      "model_name": "claude-sonnet-4-6",
+      "status": "unknown",
+      "checked_at": 1772138661,
+      "expires_at": 1772139561,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Your plan does not have access to model 'claude-sonnet-4-6'. Upgrade your plan or use a model available in your current plan.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::claude-3-5-haiku-20241022": {
+      "provider_id": "void",
+      "model_name": "claude-3-5-haiku-20241022",
+      "status": "available",
+      "checked_at": 1772138661,
+      "expires_at": 1772160261,
+      "error": ""
+    },
+    "void::gemini-2.5-pro": {
+      "provider_id": "void",
+      "model_name": "gemini-2.5-pro",
+      "status": "transient",
+      "checked_at": 1772138662,
+      "expires_at": 1772138962,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::gemini-3-pro-preview": {
+      "provider_id": "void",
+      "model_name": "gemini-3-pro-preview",
+      "status": "unknown",
+      "checked_at": 1772138667,
+      "expires_at": 1772139567,
+      "error": "gemini-3-pro-preview returned an empty response."
+    },
+    "void::gemini-3.1-pro-preview": {
+      "provider_id": "void",
+      "model_name": "gemini-3.1-pro-preview",
+      "status": "unknown",
+      "checked_at": 1772138667,
+      "expires_at": 1772139567,
+      "error": "gemini-3.1-pro-preview returned an empty response."
+    },
+    "void::gemma-3n-e4b-it": {
+      "provider_id": "void",
+      "model_name": "gemma-3n-e4b-it",
+      "status": "transient",
+      "checked_at": 1772138667,
+      "expires_at": 1772138967,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138673256_zuckta8 at 2026-02-26T20:44:33.264Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138673256_zuckta8\",\"timestamp\":\"2026-02-26T20:44:33.264Z\"}}"
+    },
+    "void::imagen-4.0-generate-preview-06-06": {
+      "provider_id": "void",
+      "model_name": "imagen-4.0-generate-preview-06-06",
+      "status": "unknown",
+      "checked_at": 1772138668,
+      "expires_at": 1772139568,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'imagen-4.0-generate-preview-06-06' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::imagen-3.0-generate-002": {
+      "provider_id": "void",
+      "model_name": "imagen-3.0-generate-002",
+      "status": "unknown",
+      "checked_at": 1772138669,
+      "expires_at": 1772139569,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'imagen-3.0-generate-002' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::grok-4-1-fast-reasoning": {
+      "provider_id": "void",
+      "model_name": "grok-4-1-fast-reasoning",
+      "status": "transient",
+      "checked_at": 1772138669,
+      "expires_at": 1772138969,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138674391_jtsttbi at 2026-02-26T20:44:34.862Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138674391_jtsttbi\",\"timestamp\":\"2026-02-26T20:44:34.862Z\"}}"
+    },
+    "void::grok-4-1-fast-non-reasoning": {
+      "provider_id": "void",
+      "model_name": "grok-4-1-fast-non-reasoning",
+      "status": "transient",
+      "checked_at": 1772138669,
+      "expires_at": 1772138969,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138675003_k028ejf at 2026-02-26T20:44:35.200Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138675003_k028ejf\",\"timestamp\":\"2026-02-26T20:44:35.200Z\"}}"
+    },
+    "void::grok-code-fast-1": {
+      "provider_id": "void",
+      "model_name": "grok-code-fast-1",
+      "status": "transient",
+      "checked_at": 1772138669,
+      "expires_at": 1772138969,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::magistral-medium-latest": {
+      "provider_id": "void",
+      "model_name": "magistral-medium-latest",
+      "status": "transient",
+      "checked_at": 1772138670,
+      "expires_at": 1772138970,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138675735_qqgp9w5 at 2026-02-26T20:44:36.140Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138675735_qqgp9w5\",\"timestamp\":\"2026-02-26T20:44:36.140Z\"}}"
+    },
+    "void::magistral-small-latest": {
+      "provider_id": "void",
+      "model_name": "magistral-small-latest",
+      "status": "transient",
+      "checked_at": 1772138671,
+      "expires_at": 1772138971,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138676483_we9j4y4 at 2026-02-26T20:44:36.492Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138676483_we9j4y4\",\"timestamp\":\"2026-02-26T20:44:36.492Z\"}}"
+    },
+    "void::gemini-2.5-flash-lite-preview-06-17": {
+      "provider_id": "void",
+      "model_name": "gemini-2.5-flash-lite-preview-06-17",
+      "status": "transient",
+      "checked_at": 1772138671,
+      "expires_at": 1772138971,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::mistral-large-latest": {
+      "provider_id": "void",
+      "model_name": "mistral-large-latest",
+      "status": "transient",
+      "checked_at": 1772138671,
+      "expires_at": 1772138971,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138676905_jsoqfuk at 2026-02-26T20:44:36.922Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138676905_jsoqfuk\",\"timestamp\":\"2026-02-26T20:44:36.922Z\"}}"
+    },
+    "void::gemini-2.5-flash": {
+      "provider_id": "void",
+      "model_name": "gemini-2.5-flash",
+      "status": "transient",
+      "checked_at": 1772138671,
+      "expires_at": 1772138971,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::mistral-medium-latest": {
+      "provider_id": "void",
+      "model_name": "mistral-medium-latest",
+      "status": "transient",
+      "checked_at": 1772138672,
+      "expires_at": 1772138972,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138677237_plctwtv at 2026-02-26T20:44:37.523Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138677237_plctwtv\",\"timestamp\":\"2026-02-26T20:44:37.523Z\"}}"
+    },
+    "void::mistral-small-latest": {
+      "provider_id": "void",
+      "model_name": "mistral-small-latest",
+      "status": "transient",
+      "checked_at": 1772138672,
+      "expires_at": 1772138972,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138677240_pgh2qrl at 2026-02-26T20:44:37.530Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138677240_pgh2qrl\",\"timestamp\":\"2026-02-26T20:44:37.530Z\"}}"
+    },
+    "void::ministral-3b-latest": {
+      "provider_id": "void",
+      "model_name": "ministral-3b-latest",
+      "status": "transient",
+      "checked_at": 1772138672,
+      "expires_at": 1772138972,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138677446_obf2jhm at 2026-02-26T20:44:37.544Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138677446_obf2jhm\",\"timestamp\":\"2026-02-26T20:44:37.544Z\"}}"
+    },
+    "void::ministral-8b-latest": {
+      "provider_id": "void",
+      "model_name": "ministral-8b-latest",
+      "status": "transient",
+      "checked_at": 1772138672,
+      "expires_at": 1772138972,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138677514_tqhvsjr at 2026-02-26T20:44:37.550Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138677514_tqhvsjr\",\"timestamp\":\"2026-02-26T20:44:37.550Z\"}}"
+    },
+    "void::gemini-3-flash-preview": {
+      "provider_id": "void",
+      "model_name": "gemini-3-flash-preview",
+      "status": "transient",
+      "checked_at": 1772138672,
+      "expires_at": 1772138972,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::mistral-moderation-latest": {
+      "provider_id": "void",
+      "model_name": "mistral-moderation-latest",
+      "status": "transient",
+      "checked_at": 1772138672,
+      "expires_at": 1772138972,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::gemini-3-pro-image-preview": {
+      "provider_id": "void",
+      "model_name": "gemini-3-pro-image-preview",
+      "status": "transient",
+      "checked_at": 1772138673,
+      "expires_at": 1772138973,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    },
+    "void::llama-4-scout-17b-16e-instruct": {
+      "provider_id": "void",
+      "model_name": "llama-4-scout-17b-16e-instruct",
+      "status": "transient",
+      "checked_at": 1772138673,
+      "expires_at": 1772138973,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138678951_9up646t at 2026-02-26T20:44:39.077Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138678951_9up646t\",\"timestamp\":\"2026-02-26T20:44:39.077Z\"}}"
+    },
+    "void::llama-4-maverick-17b-128e-instruct": {
+      "provider_id": "void",
+      "model_name": "llama-4-maverick-17b-128e-instruct",
+      "status": "transient",
+      "checked_at": 1772138674,
+      "expires_at": 1772138974,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138679431_7epgqxh at 2026-02-26T20:44:39.449Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138679431_7epgqxh\",\"timestamp\":\"2026-02-26T20:44:39.449Z\"}}"
+    },
+    "void::deepseek-v3": {
+      "provider_id": "void",
+      "model_name": "deepseek-v3",
+      "status": "transient",
+      "checked_at": 1772138674,
+      "expires_at": 1772138974,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::sonar-reasoning-pro": {
+      "provider_id": "void",
+      "model_name": "sonar-reasoning-pro",
+      "status": "unknown",
+      "checked_at": 1772138674,
+      "expires_at": 1772139574,
+      "error": "sonar-reasoning-pro returned an empty response."
+    },
+    "void::sonar-deep-research": {
+      "provider_id": "void",
+      "model_name": "sonar-deep-research",
+      "status": "unknown",
+      "checked_at": 1772138676,
+      "expires_at": 1772139576,
+      "error": "sonar-deep-research returned an empty response."
+    },
+    "void::sonar-reasoning": {
+      "provider_id": "void",
+      "model_name": "sonar-reasoning",
+      "status": "unknown",
+      "checked_at": 1772138677,
+      "expires_at": 1772139577,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138678097_t96dtos at 2026-02-26T20:44:43.030Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138678097_t96dtos\",\"timestamp\":\"2026-02-26T20:44:43.030Z\"}}"
+    },
+    "void::r1-1776": {
+      "provider_id": "void",
+      "model_name": "r1-1776",
+      "status": "unknown",
+      "checked_at": 1772138677,
+      "expires_at": 1772139577,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138678343_azh0uy5 at 2026-02-26T20:44:43.097Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138678343_azh0uy5\",\"timestamp\":\"2026-02-26T20:44:43.097Z\"}}"
+    },
+    "void::qwen3-235b-a22b-instruct": {
+      "provider_id": "void",
+      "model_name": "qwen3-235b-a22b-instruct",
+      "status": "transient",
+      "checked_at": 1772138677,
+      "expires_at": 1772138977,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138682510_u9o92hg at 2026-02-26T20:44:43.187Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138682510_u9o92hg\",\"timestamp\":\"2026-02-26T20:44:43.187Z\"}}"
+    },
+    "void::qwq-32b": {
+      "provider_id": "void",
+      "model_name": "qwq-32b",
+      "status": "transient",
+      "checked_at": 1772138677,
+      "expires_at": 1772138977,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138682509_ficxy1m at 2026-02-26T20:44:43.191Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138682509_ficxy1m\",\"timestamp\":\"2026-02-26T20:44:43.191Z\"}}"
+    },
+    "void::flux-kontext-pro": {
+      "provider_id": "void",
+      "model_name": "flux-kontext-pro",
+      "status": "unknown",
+      "checked_at": 1772138678,
+      "expires_at": 1772139578,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'flux-kontext-pro' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::qwen3-coder-480b-a35b-instruct": {
+      "provider_id": "void",
+      "model_name": "qwen3-coder-480b-a35b-instruct",
+      "status": "transient",
+      "checked_at": 1772138678,
+      "expires_at": 1772138978,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::kimi-k2-instruct": {
+      "provider_id": "void",
+      "model_name": "kimi-k2-instruct",
+      "status": "transient",
+      "checked_at": 1772138678,
+      "expires_at": 1772138978,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138683752_ltyjc7q at 2026-02-26T20:44:43.895Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138683752_ltyjc7q\",\"timestamp\":\"2026-02-26T20:44:43.895Z\"}}"
+    },
+    "void::midjourney": {
+      "provider_id": "void",
+      "model_name": "midjourney",
+      "status": "unknown",
+      "checked_at": 1772138678,
+      "expires_at": 1772139578,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'midjourney' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::recraft-v3": {
+      "provider_id": "void",
+      "model_name": "recraft-v3",
+      "status": "unknown",
+      "checked_at": 1772138678,
+      "expires_at": 1772139578,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'recraft-v3' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::flux-kontext-max": {
+      "provider_id": "void",
+      "model_name": "flux-kontext-max",
+      "status": "unknown",
+      "checked_at": 1772138678,
+      "expires_at": 1772139578,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'flux-kontext-max' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::glm-5": {
+      "provider_id": "void",
+      "model_name": "glm-5",
+      "status": "transient",
+      "checked_at": 1772138679,
+      "expires_at": 1772138979,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::mimo-v2-flash": {
+      "provider_id": "void",
+      "model_name": "mimo-v2-flash",
+      "status": "transient",
+      "checked_at": 1772138679,
+      "expires_at": 1772138979,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138684893_nodaqe0 at 2026-02-26T20:44:45.340Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138684893_nodaqe0\",\"timestamp\":\"2026-02-26T20:44:45.340Z\"}}"
+    },
+    "void::glm-4.5": {
+      "provider_id": "void",
+      "model_name": "glm-4.5",
+      "status": "transient",
+      "checked_at": 1772138680,
+      "expires_at": 1772138980,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138686129_cwqgtmb at 2026-02-26T20:44:46.154Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138686129_cwqgtmb\",\"timestamp\":\"2026-02-26T20:44:46.154Z\"}}"
+    },
+    "void::glm-4.5-air": {
+      "provider_id": "void",
+      "model_name": "glm-4.5-air",
+      "status": "transient",
+      "checked_at": 1772138680,
+      "expires_at": 1772138980,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138686129_rzxrx0f at 2026-02-26T20:44:46.162Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138686129_rzxrx0f\",\"timestamp\":\"2026-02-26T20:44:46.162Z\"}}"
+    },
+    "void::glm-4.7-fp16": {
+      "provider_id": "void",
+      "model_name": "glm-4.7-fp16",
+      "status": "unknown",
+      "checked_at": 1772138681,
+      "expires_at": 1772139581,
+      "error": "glm-4.7-fp16 returned an empty response."
+    },
+    "void::glm-4.7": {
+      "provider_id": "void",
+      "model_name": "glm-4.7",
+      "status": "unknown",
+      "checked_at": 1772138681,
+      "expires_at": 1772139581,
+      "error": "glm-4.7 returned an empty response."
+    },
+    "void::grok-4.1-fast": {
+      "provider_id": "void",
+      "model_name": "grok-4.1-fast",
+      "status": "transient",
+      "checked_at": 1772138682,
+      "expires_at": 1772138982,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"Incorrect API key provided. You can find your API key at your dashboard.\",\"type\":\"authentication_error\",\"code\":\"invalid_key\"}}"
+    },
+    "void::glm-4.6": {
+      "provider_id": "void",
+      "model_name": "glm-4.6",
+      "status": "unknown",
+      "checked_at": 1772138683,
+      "expires_at": 1772139583,
+      "error": "glm-4.6 returned an empty response."
+    },
+    "void::grok-imagine-1.0": {
+      "provider_id": "void",
+      "model_name": "grok-imagine-1.0",
+      "status": "unknown",
+      "checked_at": 1772138683,
+      "expires_at": 1772139583,
+      "error": "Provider 'void' API error: 400 {\"error\":{\"message\":\"Model 'grok-imagine-1.0' does not support /v1/chat/completions.\",\"type\":\"api_error\",\"code\":\"invalid_model\"}}"
+    },
+    "void::grok-4-mini": {
+      "provider_id": "void",
+      "model_name": "grok-4-mini",
+      "status": "transient",
+      "checked_at": 1772138684,
+      "expires_at": 1772138984,
+      "error": "Provider 'void' API error: 500 {\"error\":{\"message\":\"An error occurred. Reference: req_1772138686724_sj0hepn at 2026-02-26T20:44:49.925Z\",\"type\":\"api_error\",\"code\":\"request_failed\",\"reference_id\":\"req_1772138686724_sj0hepn\",\"timestamp\":\"2026-02-26T20:44:49.925Z\"}}"
+    },
+    "void::kimi-k2.5": {
+      "provider_id": "void",
+      "model_name": "kimi-k2.5",
+      "status": "transient",
+      "checked_at": 1772138688,
+      "expires_at": 1772138988,
+      "error": "Provider 'void' API error: request error: HTTPSConnectionPool(host='api.voidai.app', port=443): Read timed out. (read timeout=10)"
+    }
+  }
+}
