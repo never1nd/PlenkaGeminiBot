@@ -65,6 +65,7 @@ MODEL_CAPABILITY_PROBE_ENABLED = os.getenv("MODEL_CAPABILITY_PROBE_ENABLED", "1"
     "yes",
     "on",
 }
+STARTUP_PROBE_MODE = os.getenv("STARTUP_PROBE_MODE", "none").strip().lower()
 MODEL_HIDE_UNAVAILABLE_MODELS = os.getenv("MODEL_HIDE_UNAVAILABLE_MODELS", "1").strip().lower() in {
     "1",
     "true",
@@ -1926,9 +1927,19 @@ def build_app():
 
 
 def main() -> None:
-    # Startup is intentionally blocked until full capability check and filtering complete.
-    run_startup_model_capability_probe(force_full=True)
-    apply_model_capability_filter(force=True, strict=True)
+    # Keep startup responsive by default; enable blocking probe only when explicitly requested.
+    if STARTUP_PROBE_MODE in {"smart", "full"}:
+        force_full = STARTUP_PROBE_MODE == "full"
+        logger.info(
+            "Startup model probe enabled: mode=%s, scope=%s, timeout=%ss",
+            STARTUP_PROBE_MODE,
+            MODEL_PROBE_SCOPE,
+            MODEL_PROBE_TIMEOUT_SECONDS,
+        )
+        run_startup_model_capability_probe(force_full=force_full)
+        apply_model_capability_filter(force=True, strict=False)
+    else:
+        logger.info("Startup model probe disabled (STARTUP_PROBE_MODE=none).")
     app = build_app()
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
