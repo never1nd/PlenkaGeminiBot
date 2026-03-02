@@ -7,9 +7,6 @@ allowlist.json
 model_prefs.json
 image_prefs.json
 clear_non_working_tokens.py
-sidekick_activate.py
-sidekick.py
-!provider_handlers/sidekick.py
 
 # Runtime state and reports
 users.db

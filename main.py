@@ -71,6 +71,11 @@ PROVIDER_AVAILABLE_TTL_SECONDS = max(10, int(os.getenv("PROVIDER_AVAILABLE_TTL_S
 PROVIDER_AVAILABILITY_RECHECK_ENABLED = env_bool("PROVIDER_AVAILABILITY_RECHECK_ENABLED", "1")
 PROVIDER_AVAILABILITY_RECHECK_INTERVAL_SECONDS = int(os.getenv("PROVIDER_AVAILABILITY_RECHECK_INTERVAL_SECONDS", "90"))
 PROVIDER_AVAILABILITY_RECHECK_INITIAL_DELAY_SECONDS = int(os.getenv("PROVIDER_AVAILABILITY_RECHECK_INITIAL_DELAY_SECONDS", "15"))
+NON_REPROBE_PROVIDERS = {
+    item.strip().lower()
+    for item in os.getenv("NON_REPROBE_PROVIDERS", "sidekick").split(",")
+    if item.strip()
+}
 
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "1024") or "1024")
 IMAGE_GENERATION_SIZE = os.getenv("IMAGE_GENERATION_SIZE", "1024x1024").strip() or "1024x1024"
@@ -87,7 +92,8 @@ PROVIDER_AVAILABILITY_LOCK = threading.Lock()
 PROVIDER_AVAILABILITY_RECHECK_TASK: asyncio.Task[Any] | None = None
 MODEL_CAPABILITY_RECHECK_TASK: asyncio.Task[Any] | None = None
 MODEL_CAPABILITY_RECHECK_LOCK = threading.Lock()
-CHAT_MEMORY_CACHE: dict[int, bool] = {}
+CHAT_MEMORY_DEFAULT_USER_ID = 0
+CHAT_MEMORY_CACHE: dict[tuple[int, int], bool] = {}
 CHAT_MODE_CACHE: dict[int, str] = {}
 CHAT_SETTINGS_CACHE_LOCK = threading.Lock()
 
@@ -560,6 +566,10 @@ def check_provider_availability(provider_id: str, *, force: bool = False) -> tup
     if not normalized:
         return False, "invalid provider id"
 
+    if normalized in NON_REPROBE_PROVIDERS:
+        set_cached_provider_availability(normalized, True, "", PROVIDER_AVAILABLE_TTL_SECONDS)
+        return True, ""
+
     if not force:
         cached = get_cached_provider_availability(normalized)
         if cached is not None:
@@ -636,7 +646,8 @@ def clear_provider_transient_capabilities(provider_id: str) -> int:
 
 
 def reconcile_provider_availability_states(*, force: bool = False) -> dict[str, int]:
-    provider_ids = sorted(TEXT_PROVIDER_HANDLERS.keys())
+    provider_ids = sorted(pid for pid in TEXT_PROVIDER_HANDLERS.keys() if pid not in NON_REPROBE_PROVIDERS)
+    skipped_non_reprobe = len(TEXT_PROVIDER_HANDLERS) - len(provider_ids)
     marked_transient = 0
     cleared_transient = 0
     unavailable_providers = 0
@@ -666,7 +677,9 @@ def reconcile_provider_availability_states(*, force: bool = False) -> dict[str, 
         apply_model_capability_filter(force=True, strict=False)
 
     return {
-        "providers_total": len(provider_ids),
+        "providers_total": len(TEXT_PROVIDER_HANDLERS),
+        "providers_checked": len(provider_ids),
+        "providers_skipped_non_reprobe": skipped_non_reprobe,
         "providers_available": available_providers,
         "providers_unavailable": unavailable_providers,
         "marked_transient": marked_transient,
@@ -908,8 +921,10 @@ def init_users_db() -> None:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS memory_settings (
-                chat_id INTEGER PRIMARY KEY,
-                enabled INTEGER NOT NULL DEFAULT 1
+                chat_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                enabled INTEGER NOT NULL DEFAULT 1,
+                PRIMARY KEY(chat_id, user_id)
             )
             """
         )
@@ -927,6 +942,28 @@ def init_users_db() -> None:
             ON chat_history(chat_id, id DESC)
             """
         )
+        memory_columns = conn.execute("PRAGMA table_info(memory_settings)").fetchall()
+        memory_column_names = {str(row[1]).strip().lower() for row in memory_columns}
+        if memory_columns and "user_id" not in memory_column_names:
+            conn.execute("ALTER TABLE memory_settings RENAME TO memory_settings_legacy")
+            conn.execute(
+                """
+                CREATE TABLE memory_settings (
+                    chat_id INTEGER NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    enabled INTEGER NOT NULL DEFAULT 1,
+                    PRIMARY KEY(chat_id, user_id)
+                )
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO memory_settings(chat_id, user_id, enabled)
+                SELECT chat_id, ?, enabled FROM memory_settings_legacy
+                """,
+                (CHAT_MEMORY_DEFAULT_USER_ID,),
+            )
+            conn.execute("DROP TABLE memory_settings_legacy")
 
 
 def add_allowed_user_to_db(user_id: int) -> None:
@@ -963,37 +1000,44 @@ def decrypt_text(cipher: str) -> str:
     return cipher
 
 
-def is_memory_enabled(chat_id: int) -> bool:
+def is_memory_enabled(chat_id: int, user_id: int) -> bool:
+    cache_key = (chat_id, user_id)
     with CHAT_SETTINGS_CACHE_LOCK:
-        cached = CHAT_MEMORY_CACHE.get(chat_id)
+        cached = CHAT_MEMORY_CACHE.get(cache_key)
     if cached is not None:
         return bool(cached)
 
     conn = get_db_connection()
-    row = conn.execute("SELECT enabled FROM memory_settings WHERE chat_id = ?", (chat_id,)).fetchone()
-    if row is None:
-        with CHAT_SETTINGS_CACHE_LOCK:
-            CHAT_MEMORY_CACHE[chat_id] = True
-        return True
-    enabled = bool(int(row[0]))
+    row = conn.execute(
+        "SELECT enabled FROM memory_settings WHERE chat_id = ? AND user_id = ?",
+        (chat_id, user_id),
+    ).fetchone()
+    if row is not None:
+        enabled = bool(int(row[0]))
+    else:
+        default_row = conn.execute(
+            "SELECT enabled FROM memory_settings WHERE chat_id = ? AND user_id = ?",
+            (chat_id, CHAT_MEMORY_DEFAULT_USER_ID),
+        ).fetchone()
+        enabled = bool(int(default_row[0])) if default_row is not None else True
     with CHAT_SETTINGS_CACHE_LOCK:
-        CHAT_MEMORY_CACHE[chat_id] = enabled
+        CHAT_MEMORY_CACHE[cache_key] = enabled
     return enabled
 
 
-def set_memory_enabled(chat_id: int, enabled: bool) -> None:
+def set_memory_enabled(chat_id: int, user_id: int, enabled: bool) -> None:
     conn = get_db_connection()
     with conn:
         conn.execute(
             """
-            INSERT INTO memory_settings(chat_id, enabled)
-            VALUES(?, ?)
-            ON CONFLICT(chat_id) DO UPDATE SET enabled = excluded.enabled
+            INSERT INTO memory_settings(chat_id, user_id, enabled)
+            VALUES(?, ?, ?)
+            ON CONFLICT(chat_id, user_id) DO UPDATE SET enabled = excluded.enabled
             """,
-            (chat_id, 1 if enabled else 0),
+            (chat_id, user_id, 1 if enabled else 0),
         )
     with CHAT_SETTINGS_CACHE_LOCK:
-        CHAT_MEMORY_CACHE[chat_id] = bool(enabled)
+        CHAT_MEMORY_CACHE[(chat_id, user_id)] = bool(enabled)
 
 
 def get_chat_mode(chat_id: int) -> str:
@@ -1789,7 +1833,11 @@ def build_image_generation_model_keys(primary_key: str) -> list[str]:
 def build_model_probe_keys() -> list[str]:
     scope = MODEL_PROBE_SCOPE if MODEL_PROBE_SCOPE in {"all", "smart"} else "smart"
     if scope == "all":
-        keys = list(ALL_MODEL_ORDER or MODEL_ORDER)
+        keys = [
+            key
+            for key in (ALL_MODEL_ORDER or MODEL_ORDER)
+            if MODEL_PROVIDER_BY_KEY.get(key, "") not in NON_REPROBE_PROVIDERS
+        ]
         if MODEL_PROBE_MAX_MODELS > 0:
             return keys[:MODEL_PROBE_MAX_MODELS]
         return keys
@@ -1799,6 +1847,8 @@ def build_model_probe_keys() -> list[str]:
 
     # Probe each provider fallback model list as it is commonly used during retries.
     for provider_id, handler in TEXT_PROVIDER_HANDLERS.items():
+        if provider_id in NON_REPROBE_PROVIDERS:
+            continue
         fallback_models = getattr(handler, "fallback_models", []) or []
         if not isinstance(fallback_models, list):
             continue
@@ -1808,12 +1858,20 @@ def build_model_probe_keys() -> list[str]:
                 seen.add(model_key)
                 result.append(model_key)
 
-    if DEFAULT_TEXT_PROVIDER and DEFAULT_TEXT_PROVIDER not in seen:
+    if (
+        DEFAULT_TEXT_PROVIDER
+        and DEFAULT_TEXT_PROVIDER not in seen
+        and MODEL_PROVIDER_BY_KEY.get(DEFAULT_TEXT_PROVIDER, "") not in NON_REPROBE_PROVIDERS
+    ):
         seen.add(DEFAULT_TEXT_PROVIDER)
         result.append(DEFAULT_TEXT_PROVIDER)
 
     if not result:
-        result = list(ALL_MODEL_ORDER or MODEL_ORDER)
+        result = [
+            key
+            for key in (ALL_MODEL_ORDER or MODEL_ORDER)
+            if MODEL_PROVIDER_BY_KEY.get(key, "") not in NON_REPROBE_PROVIDERS
+        ]
 
     if MODEL_PROBE_MAX_MODELS > 0:
         result = result[:MODEL_PROBE_MAX_MODELS]
@@ -1823,6 +1881,8 @@ def build_model_probe_keys() -> list[str]:
 def probe_single_model_capability(model_key: str) -> tuple[str, str, str]:
     provider_id = MODEL_PROVIDER_BY_KEY.get(model_key, "")
     model_name = MODEL_NAME_BY_KEY.get(model_key, "")
+    if provider_id in NON_REPROBE_PROVIDERS:
+        return MODEL_CAPABILITY_STATUS_UNKNOWN, provider_id, model_name
     handler = TEXT_PROVIDER_HANDLERS.get(provider_id)
     if not provider_id or not model_name or not handler:
         return MODEL_CAPABILITY_STATUS_UNKNOWN, provider_id, model_name
@@ -1866,6 +1926,11 @@ def run_startup_model_capability_probe(*, force_full: bool = False) -> None:
         probe_keys = list(ALL_MODEL_ORDER or MODEL_ORDER)
     else:
         probe_keys = build_model_probe_keys()
+    probe_keys = [
+        key
+        for key in probe_keys
+        if MODEL_PROVIDER_BY_KEY.get(key, "") not in NON_REPROBE_PROVIDERS
+    ]
     if not probe_keys:
         return
 
@@ -2904,10 +2969,12 @@ async def run_provider_availability_recheck_once() -> None:
         stats = await asyncio.to_thread(reconcile_provider_availability_states, force=True)
         if int(stats.get("changed", 0)) > 0 or int(stats.get("providers_unavailable", 0)) > 0:
             logger.info(
-                "Provider availability recheck: unavailable=%d/%d marked_transient=%d "
+                "Provider availability recheck: unavailable=%d/%d checked=%d skipped_non_reprobe=%d marked_transient=%d "
                 "cleared_transient=%d changed=%s",
                 int(stats.get("providers_unavailable", 0)),
                 int(stats.get("providers_total", 0)),
+                int(stats.get("providers_checked", 0)),
+                int(stats.get("providers_skipped_non_reprobe", 0)),
                 int(stats.get("marked_transient", 0)),
                 int(stats.get("cleared_transient", 0)),
                 bool(int(stats.get("changed", 0))),
@@ -3116,7 +3183,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/modelsearch <text> - search text models",
         "/mode text|image|status - switch response mode",
         "Send photo/file with optional caption in text mode for attachment-aware models.",
-        "/memory on|off|status - toggle memory for this chat",
+        "/memory on|off|status - toggle memory context for you in this chat",
         "/clear - clear chat memory",
         "/allow <user_id> - grant access",
         "/deny <user_id> - revoke access",
@@ -3177,6 +3244,8 @@ async def keys_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             f"(initial {MODEL_CAPABILITY_RECHECK_INITIAL_DELAY_SECONDS}s, force_full={MODEL_CAPABILITY_RECHECK_FORCE_FULL})"
         ),
         f"Provider model-list probe timeout: {PROVIDER_MODEL_LIST_PROBE_TIMEOUT_SECONDS}s",
+        "Non-reprobe providers: "
+        + (", ".join(sorted(NON_REPROBE_PROVIDERS)) if NON_REPROBE_PROVIDERS else "(none)"),
         f"Provider availability TTL (down/up): {PROVIDER_UNAVAILABLE_TTL_SECONDS}s/{PROVIDER_AVAILABLE_TTL_SECONDS}s",
         (
             "Provider availability recheck: "
@@ -3225,22 +3294,26 @@ async def memory_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     chat_id = await ensure_allowed_chat(update)
     if chat_id is None:
         return
+    user_id = get_effective_user_id(update)
+    if user_id is None:
+        await reply_to_update(update, "Could not identify user.")
+        return
     arg = first_context_arg(context).lower()
     if not arg:
-        state = "on" if is_memory_enabled(chat_id) else "off"
-        await reply_to_update(update, f"Memory is {state}. Usage: /memory on|off|status")
+        state = "on" if is_memory_enabled(chat_id, user_id) else "off"
+        await reply_to_update(update, f"Memory is {state} for you in this chat. Usage: /memory on|off|status")
         return
     if arg == "status":
-        state = "on" if is_memory_enabled(chat_id) else "off"
-        await reply_to_update(update, f"Memory is {state}.")
+        state = "on" if is_memory_enabled(chat_id, user_id) else "off"
+        await reply_to_update(update, f"Memory is {state} for you in this chat.")
         return
     if arg == "on":
-        set_memory_enabled(chat_id, True)
-        await reply_to_update(update, "Memory enabled for this chat.")
+        set_memory_enabled(chat_id, user_id, True)
+        await reply_to_update(update, "Memory enabled for you in this chat.")
         return
     if arg == "off":
-        set_memory_enabled(chat_id, False)
-        await reply_to_update(update, "Memory disabled for this chat.")
+        set_memory_enabled(chat_id, user_id, False)
+        await reply_to_update(update, "Memory disabled for you in this chat.")
         return
     await reply_to_update(update, "Usage: /memory on|off|status")
 
@@ -3324,7 +3397,7 @@ async def run_text_generation_flow(
 ) -> tuple[str, str, dict[str, int]]:
     await message.chat.send_action(action="typing")
     model_key = get_user_model_key(user_id)
-    memory_on = is_memory_enabled(chat_id)
+    memory_on = is_memory_enabled(chat_id, user_id)
     history = get_recent_history(chat_id, MEMORY_CONTEXT_MESSAGES) if memory_on else []
     normalized_attachments = attachments or []
     model_prompt = build_model_prompt(prompt)

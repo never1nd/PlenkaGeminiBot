@@ -49,6 +49,7 @@ class SidekickProviderHandler(BaseProviderHandler):
         self.model_display_names: dict[str, str] = {}
         self._cursor = 0
         self._lock = threading.Lock()
+        self._request_lock = threading.Lock()
         self._session_local = threading.local()
 
     def key_count(self) -> int:
@@ -395,33 +396,41 @@ class SidekickProviderHandler(BaseProviderHandler):
         strip_reasoning: Callable[[str], str],
     ) -> tuple[str, UsageStats]:
         _ = max_output_tokens
-        keys = self._rotated_keys()
-        if not keys:
-            raise RuntimeError("No API keys configured for provider: sidekick")
-        if not self.person_id:
-            raise RuntimeError("Provider 'sidekick' person_id is missing.")
+        # Sidekick backend is not concurrency-safe for parallel prompt requests.
+        acquired = self._request_lock.acquire(blocking=False)
+        if not acquired:
+            logger.info("Sidekick request queued: waiting for active Sidekick prompt to finish.")
+            self._request_lock.acquire()
+        try:
+            keys = self._rotated_keys()
+            if not keys:
+                raise RuntimeError("No API keys configured for provider: sidekick")
+            if not self.person_id:
+                raise RuntimeError("Provider 'sidekick' person_id is missing.")
 
-        last_error = ""
-        normalized_attachments = attachments or []
-        for token in keys:
-            try:
-                text = asyncio.run(
-                    self._generate_text_async(
-                        token,
-                        prompt,
-                        model_name,
-                        history,
-                        normalized_attachments,
-                        timeout_seconds,
+            last_error = ""
+            normalized_attachments = attachments or []
+            for token in keys:
+                try:
+                    text = asyncio.run(
+                        self._generate_text_async(
+                            token,
+                            prompt,
+                            model_name,
+                            history,
+                            normalized_attachments,
+                            timeout_seconds,
+                        )
                     )
-                )
-                text = strip_reasoning(text)
-                if not text:
-                    raise RuntimeError(f"{model_name} returned an empty response.")
-                return text, {}
-            except Exception as exc:
-                last_error = str(exc)
-                if not self._is_retryable_error(exc):
-                    break
-                continue
-        raise RuntimeError(f"Provider 'sidekick' API error: {last_error}")
+                    text = strip_reasoning(text)
+                    if not text:
+                        raise RuntimeError(f"{model_name} returned an empty response.")
+                    return text, {}
+                except Exception as exc:
+                    last_error = str(exc)
+                    if not self._is_retryable_error(exc):
+                        break
+                    continue
+            raise RuntimeError(f"Provider 'sidekick' API error: {last_error}")
+        finally:
+            self._request_lock.release()

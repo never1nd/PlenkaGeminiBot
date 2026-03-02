@@ -8,7 +8,7 @@ Telegram bot with multi-provider text generation and per-user API/model selectio
 - Per-user API/model selection with `/api` (alias: `/model`)
 - Provider browser with `/provider`
 - Model search with `/modelsearch <text>`
-- Chat memory controls: `/memory on|off|status` and `/clear`
+- Per-user chat memory controls: `/memory on|off|status` and `/clear`
 - User attachments in text mode: send photo or file (with optional caption) to models/providers that support attachment input
   - If current model cannot process attachment, bot shows action buttons:
     - proceed without attachment
@@ -31,7 +31,7 @@ Telegram bot with multi-provider text generation and per-user API/model selectio
 - `/provider`
 - `/model`
 - `/modelsearch <text>`
-- `/memory on|off|status`
+- `/memory on|off|status` (per-user in current chat)
 - `/clear`
 - send photo/file in chat (text mode)
 - `/allow <user_id>` (owner only)
@@ -119,4 +119,5 @@ Generation skips cached blocking statuses while cache is valid.
 - `MODEL_PROBE_TIMEOUT_SECONDS` (default: `0`, auto mode)
 - `MODEL_PROBE_WORKERS` (default: `8`)
 - `MODEL_HIDE_UNAVAILABLE_MODELS` (default: `1`)
+- `NON_REPROBE_PROVIDERS` (comma-separated provider ids excluded from provider/model reprobes, default: `sidekick`)
 - `LOG_LEVEL` (default: `INFO`)
