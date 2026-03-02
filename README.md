@@ -1,89 +1,122 @@
-﻿# PlenkaGeminiBot
+# PlenkaGeminiBot
 
-ÐŸÑ€Ð¾ÑÑ‚Ð¾Ð¹ Telegram-Ð±Ð¾Ñ‚ Ð½Ð° Python Ñ Gemini API. ÐŸÐ¾Ð´Ð´ÐµÑ€Ð¶Ð¸Ð²Ð°ÐµÑ‚:
-- Ð²Ñ‹Ð±Ð¾Ñ€ Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ð¾Ð¹ Ð¼Ð¾Ð´ÐµÐ»Ð¸ Ñ‡ÐµÑ€ÐµÐ· `/model`:
-  - `Gemini 2.5 Flash`
-  - `Gemini 3 Flash`
-  - `Qwen Next 80B`
-  - `Kimi K2 Thinking`
-  - `MiniMax M2.1`
-- Ð´Ð¾ÑÑ‚ÑƒÐ¿ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð´Ð»Ñ Ð²Ð»Ð°Ð´ÐµÐ»ÑŒÑ†Ð° Ð¸ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð½Ñ‹Ñ… Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹ (ÑÐ¿Ð¸ÑÐ¾Ðº Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑÑ Ð² `users.db`)
+Telegram bot with multi-provider text generation and per-user API/model selection.
 
-## Ð‘Ñ‹ÑÑ‚Ñ€Ñ‹Ð¹ ÑÑ‚Ð°Ñ€Ñ‚
+## Features
 
-1. Ð¡Ð¾Ð·Ð´Ð°Ð¹Ñ‚Ðµ Ð²Ð¸Ñ€Ñ‚ÑƒÐ°Ð»ÑŒÐ½Ð¾Ðµ Ð¾ÐºÑ€ÑƒÐ¶ÐµÐ½Ð¸Ðµ Ð¸ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚Ðµ Ð·Ð°Ð²Ð¸ÑÐ¸Ð¼Ð¾ÑÑ‚Ð¸.
-2. Ð¡ÐºÐ¾Ð¿Ð¸Ñ€ÑƒÐ¹Ñ‚Ðµ `.env.example` Ð² `.env` Ð¸ Ð·Ð°Ð¿Ð¾Ð»Ð½Ð¸Ñ‚Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ.
-3. Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ñ‚Ðµ Ð±Ð¾Ñ‚Ð°.
+- Access control: owner plus allowlist stored in `users.db` (backup in `allowlist.json`)
+- Per-user API/model selection with `/api` (alias: `/model`)
+- Provider browser with `/provider`
+- Model search with `/modelsearch <text>`
+- Chat memory controls: `/memory on|off|status` and `/clear`
+- User attachments in text mode: send photo or file (with optional caption) to models/providers that support attachment input
+  - If current model cannot process attachment, bot shows action buttons:
+    - proceed without attachment
+    - proceed with auto-model selection
+    - choose another model
+- Bot asks models to reply using Telegram Markdown-style formatting and renders formatted output for Telegram
+- When auto-model is used for file attachments, reply includes `provider/model` label at the bottom
+- Multi-provider fallback routing:
+  - selected API/model and provider first
+  - then other models from selected provider
+  - then same model name on other providers
+  - then all remaining available models
+- Startup model capability probe with cache in `model_capabilities.json`
 
-ÐšÐ¾Ð¼Ð°Ð½Ð´Ñ‹:
-- `/start` â€” Ð¿Ñ€Ð¸Ð²ÐµÑ‚ÑÑ‚Ð²Ð¸Ðµ
-- `/whoami` â€” ÑƒÐ·Ð½Ð°Ñ‚ÑŒ ÑÐ²Ð¾Ð¹ `user_id`
-- `/allow <user_id>` â€” Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ (Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð²Ð»Ð°Ð´ÐµÐ»ÐµÑ†). Ð¢Ð°ÐºÐ¶Ðµ Ð¼Ð¾Ð¶Ð½Ð¾ Ð¾Ñ‚Ð²ÐµÑ‚Ð¸Ñ‚ÑŒ Ð½Ð° ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ.
-- `/deny <user_id>` â€” ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ (Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð²Ð»Ð°Ð´ÐµÐ»ÐµÑ†). Ð¢Ð°ÐºÐ¶Ðµ Ð¼Ð¾Ð¶Ð½Ð¾ Ð¾Ñ‚Ð²ÐµÑ‚Ð¸Ñ‚ÑŒ Ð½Ð° ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ.
-- `/list` â€” ÑÐ¿Ð¸ÑÐ¾Ðº Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹ Ñ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð¾Ð¼ (Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð²Ð»Ð°Ð´ÐµÐ»ÐµÑ†)
-- `/model` â€” Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚ÑŒ Ð¼ÐµÐ½ÑŽ Ð²Ñ‹Ð±Ð¾Ñ€Ð° Ñ‚ÐµÐºÑÑ‚Ð¾Ð²Ð¾Ð¹ Ð¼Ð¾Ð´ÐµÐ»Ð¸
-- `/memory on|off|status` â€” Ð²ÐºÐ»ÑŽÑ‡Ð¸Ñ‚ÑŒ/Ð²Ñ‹ÐºÐ»ÑŽÑ‡Ð¸Ñ‚ÑŒ Ð¿Ð°Ð¼ÑÑ‚ÑŒ Ð´Ð¸Ð°Ð»Ð¾Ð³Ð° Ð´Ð»Ñ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ñ‡Ð°Ñ‚Ð°
-- `/clear` â€” Ð¾Ñ‡Ð¸ÑÑ‚Ð¸Ñ‚ÑŒ Ð¸ÑÑ‚Ð¾Ñ€Ð¸ÑŽ (Ð¿Ð°Ð¼ÑÑ‚ÑŒ) Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ñ‡Ð°Ñ‚Ð°
+## Commands
 
-## ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸
+- `/start`
+- `/whoami`
+- `/api`
+- `/provider`
+- `/model`
+- `/modelsearch <text>`
+- `/memory on|off|status`
+- `/clear`
+- send photo/file in chat (text mode)
+- `/allow <user_id>` (owner only)
+- `/deny <user_id>` (owner only)
+- `/list` (owner only)
+- `/keys` (owner only)
+- `/help` (owner only)
 
-Ð’ÑÐµ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ Ñ‡ÐµÑ€ÐµÐ· Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ðµ Ð¾ÐºÑ€ÑƒÐ¶ÐµÐ½Ð¸Ñ, ÑÐ¼. `.env.example`.
-Ð”Ð»Ñ Ð¿Ð°Ð¼ÑÑ‚Ð¸ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÑ SQLite (Ð¸ÑÑ‚Ð¾Ñ€Ð¸Ñ Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑÑ Ð² `users.db`).
-Ð”Ð»Ñ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÑ Ð‘Ð” `users.db` Ð¸ Ñ€ÐµÐ·ÐµÑ€Ð²Ð½Ñ‹Ð¹ Ñ„Ð°Ð¹Ð» `allowlist.json`.
-
-## Ð—Ð°Ð¿ÑƒÑÐº
+## Quick Start
 
 ```powershell
 python -m venv .venv
-.venv\\Scripts\\Activate.ps1
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-copy .env.example .env
+# create .env manually
 python main.py
 ```
 
-## Custom Providers
+Create `.env` manually and set required variables (at minimum `TELEGRAM_BOT_TOKEN` and `OWNER_USER_ID`).
 
-Text providers are implemented as individual handlers in `provider_handlers/`.
-All text providers are loaded from `providers.json`.
+## Provider Config (`providers.json`)
 
-Each provider supports:
+Each provider entry supports:
+
 - `id`, `label`
 - `base_url` or `base_url_env` (for OpenAI-compatible providers)
 - `models_path`, `chat_path`
 - `auth_header`, `auth_prefix`
-- `api_keys` (inline list of tokens in `providers.json`)
+- `api_keys` (or `api_key`)
+- `discover_models`
 - `fallback_models`
 
-Top-level routing option in `providers.json`:
-- `model_provider_priority`: general provider retry order list under `"*"` (or directly as a list).
+Sidekick-specific fields:
 
-Fallback behavior:
-- If the selected model fails, the bot retries only the same model name on other providers.
-- Provider retry order uses only the general priority order.
-- Model names are strict. `gemini-3.1-pro-preview` and `gemini-3.1-pro-high` are treated as different models.
+- `person_id` (required for `id: "sidekick"`)
+- `models_url` (default: `https://cube.tobit.cloud/chayns-ai-chatbot/nativeModelChatbot`)
+- `thread_create_url` (default: `https://cube.tobit.cloud/intercom-backend/v2/thread?forceCreate=true`)
+- `ws_url` (default: `wss://intercom.tobit.cloud/ws/socket.io/?EIO=4&transport=websocket`)
+- `image_upload_url_template` (default: `https://cube.tobit.cloud/image-service/v3/Images/{person_id}`)
+- `origin`, `referer`, `user_agent` (optional headers override)
+
+Top-level config:
+
+- No top-level routing priority field is used; provider/model routing is automatic.
 
 ## Model Capability Probe
 
-The bot now supports startup capability probing with cache.
+Cache file: `model_capabilities.json` (configurable by `MODEL_CAPABILITIES_FILE`).
 
-- Cache file: `model_capabilities.json` (configurable via `MODEL_CAPABILITIES_FILE`)
-- On startup, bot probes all discovered provider/model pairs before polling starts.
-- Startup is blocked until probing and filtering are complete.
-- Startup probe checks selected provider/model pairs and records status:
-  - `available`
-  - `quota_blocked`
-  - `unsupported`
-  - `auth_error`
-  - `transient`
-- Generation routing skips cached blocking pairs while cache is valid.
-- Cache is also updated from real generation errors/successes at runtime.
+Statuses:
 
-Environment variables:
+- `available`
+- `quota_blocked`
+- `unsupported`
+- `auth_error`
+- `transient`
+- `unknown`
+
+Generation skips cached blocking statuses while cache is valid.
+
+## Important Environment Variables
+
+- `TELEGRAM_BOT_TOKEN`
+- `OWNER_USER_ID`
+- `ALLOWLIST_FILE` (default: `allowlist.json`)
+- `USERS_DB_FILE` (default: `users.db`)
+- `MODEL_PREFS_FILE` (default: `model_prefs.json`)
+- `CUSTOM_PROVIDER_CONFIG_FILE` (default: `providers.json`)
+- `MODEL_CAPABILITIES_FILE` (default: `model_capabilities.json`)
+- `MEMORY_CONTEXT_MESSAGES` (default: `20`)
+- `MAX_OUTPUT_TOKENS` (default: `1024`)
+- `MAX_INPUT_ATTACHMENT_COUNT` (default: `3`)
+- `MAX_INPUT_ATTACHMENT_BYTES` (default: `10485760`)
+- `MAX_INPUT_TEXT_ATTACHMENT_BYTES` (default: `524288`)
+- `MAX_INPUT_TEXT_ATTACHMENT_CHARS` (default: `20000`)
+- `TELEGRAM_REPLY_CHUNK_CHARS` (default: `3200`, safe chunk size for long replies)
+- `REGULAR_MODEL_TIMEOUT_SECONDS` (default: `90`)
+- `REASONING_MODEL_TIMEOUT_SECONDS` (default: `180`)
+- `FALLBACK_ATTEMPT_TIMEOUT_SECONDS` (default: `35`)
 - `MODEL_CAPABILITY_PROBE_ENABLED` (default: `1`)
-- `MODEL_PROBE_SCOPE` (`smart` or `all`, default: `smart`) for non-forced probes
+- `MODEL_PROBE_SCOPE` (`smart` or `all`, default: `smart`)
 - `MODEL_PROBE_MAX_MODELS` (default: `0`, no limit)
 - `MODEL_CAPABILITY_TTL_SECONDS` (default: `21600`)
-- `MODEL_PROBE_TIMEOUT_SECONDS` (default: `8`)
+- `MODEL_PROBE_TIMEOUT_MIN_SECONDS` (default: `30`)
+- `MODEL_PROBE_TIMEOUT_SECONDS` (default: `0`, auto mode)
 - `MODEL_PROBE_WORKERS` (default: `8`)
 - `MODEL_HIDE_UNAVAILABLE_MODELS` (default: `1`)
-
+- `LOG_LEVEL` (default: `INFO`)

@@ -1,14 +1,47 @@
+# Secrets and local config
 .env
 .env.*
 !.env.example
+providers.json
 allowlist.json
 model_prefs.json
 image_prefs.json
+clear_non_working_tokens.py
+sidekick_activate.py
+sidekick.py
+
+# Runtime state and reports
 users.db
 users.db-shm
 users.db-wal
-__pycache__/
-*.pyc
-.venv/
+model_capabilities.json
+provider_api_report*.json
+*.log
+logs/
 
-providers.json
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Editor/OS
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store

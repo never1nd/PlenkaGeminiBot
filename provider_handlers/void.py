@@ -14,6 +14,7 @@ class VoidProviderHandler(OpenAICompatProviderHandler):
         discover_models: bool = True,
         models_path: str = "/models",
         chat_path: str = "/chat/completions",
+        image_path: str = "/images/generations",
         auth_header: str = "Authorization",
         auth_prefix: str = "Bearer ",
     ) -> None:
@@ -26,6 +27,7 @@ class VoidProviderHandler(OpenAICompatProviderHandler):
             discover_models=discover_models,
             models_path=models_path,
             chat_path=chat_path,
+            image_path=image_path,
             auth_header=auth_header,
             auth_prefix=auth_prefix,
         )
