@@ -24,7 +24,14 @@ from provider_handlers import (
     load_external_provider_handlers,
 )
 from provider_handlers.base import InputAttachment
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InputFile, Update
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InlineQueryResultArticle,
+    InputFile,
+    InputTextMessageContent,
+    Update,
+)
 from telegram.constants import ParseMode
 from telegram.error import BadRequest
 from telegram.ext import (
@@ -32,6 +39,7 @@ from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
     ContextTypes,
+    InlineQueryHandler,
     MessageHandler,
     filters,
 )
@@ -84,6 +92,12 @@ MAX_INPUT_ATTACHMENT_BYTES = max(64 * 1024, int(os.getenv("MAX_INPUT_ATTACHMENT_
 MAX_INPUT_TEXT_ATTACHMENT_BYTES = int(os.getenv("MAX_INPUT_TEXT_ATTACHMENT_BYTES", str(512 * 1024)))
 MAX_INPUT_TEXT_ATTACHMENT_CHARS = int(os.getenv("MAX_INPUT_TEXT_ATTACHMENT_CHARS", "20000"))
 TELEGRAM_REPLY_CHUNK_CHARS = 4000
+INLINE_PROVIDER_ID = "void"
+INLINE_MODEL_NAME = "gemini-3.0-pro"
+INLINE_QUERY_CACHE_SECONDS = max(0, int(os.getenv("INLINE_QUERY_CACHE_SECONDS", "0") or "0"))
+INLINE_MAX_PROMPT_CHARS = max(1, int(os.getenv("INLINE_MAX_PROMPT_CHARS", "2000") or "2000"))
+INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "3800") or "3800"))
+INLINE_PREVIEW_CHARS = max(32, int(os.getenv("INLINE_PREVIEW_CHARS", "120") or "120"))
 
 PROVIDER_DISPLAY_NAMES: dict[str, str] = {"google": "Google Gemini", "nvidia": "NVIDIA"}
 MODEL_CAPABILITIES_LOCK = threading.Lock()
@@ -1359,6 +1373,17 @@ def split_text_for_telegram(text: str, limit: int) -> list[str]:
     if remaining:
         chunks.append(remaining)
     return chunks or [normalized[:max_len]]
+
+
+def truncate_text(text: str, limit: int) -> str:
+    value = str(text or "").strip()
+    if limit <= 0:
+        return ""
+    if len(value) <= limit:
+        return value
+    if limit <= 3:
+        return value[:limit]
+    return f"{value[: limit - 3].rstrip()}..."
 
 
 async def send_reply_text_chunk(message, text: str, *, parse_html: bool = True) -> None:
@@ -2670,7 +2695,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         update,
         f"Ready. Current model: {get_model_label(model_key)}\n"
         f"Current mode: {mode}\n"
-        "Send text/photo/file in text mode, use /api or /provider to browse, /mode text|image to switch, or /modelsearch <text>.",
+        "Send text/photo/file in text mode, use /api or /provider to browse, /mode text|image to switch, or /modelsearch <text>.\n"
+        "Inline mode is allowlist-only and always uses void/gemini-3.0-pro (memory disabled).",
     )
 
 
@@ -3182,6 +3208,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/model - choose text model",
         "/modelsearch <text> - search text models",
         "/mode text|image|status - switch response mode",
+        "Inline mode: use @botname <prompt> (allowlist only, fixed void/gemini-3.0-pro, memory off).",
         "Send photo/file with optional caption in text mode for attachment-aware models.",
         "/memory on|off|status - toggle memory context for you in this chat",
         "/clear - clear chat memory",
@@ -3444,6 +3471,110 @@ async def run_text_generation_flow(
     return used_provider_id, used_model_name, usage
 
 
+async def run_inline_generation_flow(prompt: str) -> tuple[str, dict[str, int]]:
+    normalized_prompt = truncate_text(prompt, INLINE_MAX_PROMPT_CHARS)
+    if not normalized_prompt:
+        raise RuntimeError("Empty inline prompt.")
+
+    provider_ok, provider_reason = check_provider_availability(INLINE_PROVIDER_ID)
+    if not provider_ok:
+        raise RuntimeError(f"Inline provider unavailable: {provider_reason or INLINE_PROVIDER_ID}")
+
+    model_prompt = build_model_prompt(normalized_prompt)
+    answer, used_model_name, usage = await asyncio.to_thread(
+        generate_text_with_handler,
+        INLINE_PROVIDER_ID,
+        model_prompt,
+        INLINE_MODEL_NAME,
+        [],
+        [],
+        timeout_seconds=get_timeout_for_model(INLINE_MODEL_NAME),
+    )
+    if used_model_name != INLINE_MODEL_NAME:
+        raise RuntimeError(
+            f"Inline mode model mismatch: expected {INLINE_MODEL_NAME}, got {used_model_name}"
+        )
+    return answer, usage
+
+
+async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+    inline_query = update.inline_query
+    if inline_query is None:
+        return
+
+    user = inline_query.from_user
+    if not is_allowed(user):
+        await inline_query.answer(
+            [],
+            cache_time=0,
+            is_personal=True,
+            switch_pm_text="Access denied. Ask owner to add you.",
+            switch_pm_parameter="access_denied",
+        )
+        return
+
+    query_text = str(inline_query.query or "").strip()
+    if not query_text:
+        await inline_query.answer(
+            [],
+            cache_time=INLINE_QUERY_CACHE_SECONDS,
+            is_personal=True,
+            switch_pm_text="Type a prompt for inline mode.",
+            switch_pm_parameter="inline_help",
+        )
+        return
+
+    try:
+        answer, usage = await run_inline_generation_flow(query_text)
+    except Exception:
+        logger.exception(
+            "Inline generation failed: user_id=%s provider=%s model=%s",
+            getattr(user, "id", "unknown"),
+            INLINE_PROVIDER_ID,
+            INLINE_MODEL_NAME,
+        )
+        await inline_query.answer(
+            [],
+            cache_time=0,
+            is_personal=True,
+            switch_pm_text="Inline generation failed. Open bot chat.",
+            switch_pm_parameter="inline_error",
+        )
+        return
+
+    logger.info(
+        "Inline model usage: user_id=%s provider=%s model=%s prompt_tokens=%s completion_tokens=%s total_tokens=%s",
+        getattr(user, "id", "unknown"),
+        INLINE_PROVIDER_ID,
+        INLINE_MODEL_NAME,
+        usage.get("prompt_tokens", "n/a"),
+        usage.get("completion_tokens", "n/a"),
+        usage.get("total_tokens", "n/a"),
+    )
+
+    inline_answer = truncate_text(answer, INLINE_MAX_ANSWER_CHARS) or "Empty response."
+    reply_text = (
+        f"{inline_answer.rstrip()}\n\n"
+        f"Used provider/model: `{INLINE_PROVIDER_ID}/{INLINE_MODEL_NAME}`"
+    )
+    preview_text = truncate_text(inline_answer.replace("\n", " "), INLINE_PREVIEW_CHARS)
+    result = InlineQueryResultArticle(
+        id=hashlib.sha1(f"{inline_query.id}:{query_text}".encode("utf-8")).hexdigest(),
+        title="Void Gemini 3.0 Pro",
+        description=preview_text or "Inline response",
+        input_message_content=InputTextMessageContent(
+            message_text=markdown_code_to_telegram_html(reply_text),
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
+        ),
+    )
+    await inline_query.answer(
+        [result],
+        cache_time=INLINE_QUERY_CACHE_SECONDS,
+        is_personal=True,
+    )
+
+
 def extract_prompt_from_message(message) -> str:
     return str(message.text or message.caption or "").strip()
 
@@ -3650,6 +3781,7 @@ def build_app():
     app.add_handler(CallbackQueryHandler(on_attachment_resolution_callback, pattern=r"^attachresolve:"))
     app.add_handler(CallbackQueryHandler(on_model_page_callback, pattern=r"^modelpage:"))
     app.add_handler(CallbackQueryHandler(on_model_callback, pattern=r"^model:"))
+    app.add_handler(InlineQueryHandler(handle_inline_query))
     app.add_handler(
         MessageHandler((filters.TEXT | filters.PHOTO | filters.Document.ALL) & ~filters.COMMAND, handle_message)
     )
