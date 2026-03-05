@@ -93,7 +93,12 @@ MAX_INPUT_TEXT_ATTACHMENT_BYTES = int(os.getenv("MAX_INPUT_TEXT_ATTACHMENT_BYTES
 MAX_INPUT_TEXT_ATTACHMENT_CHARS = int(os.getenv("MAX_INPUT_TEXT_ATTACHMENT_CHARS", "20000"))
 TELEGRAM_REPLY_CHUNK_CHARS = 4000
 INLINE_PROVIDER_ID = "void"
-INLINE_MODEL_NAME = "gemini-3.1-flash-lite-preview"
+INLINE_MODEL_PRIORITY = (
+    "gemini-3-flash-preview",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-2.5-flash",
+)
+INLINE_MODEL_PRIORITY_TEXT = ", ".join(INLINE_MODEL_PRIORITY)
 INLINE_QUERY_CACHE_SECONDS = max(0, int(os.getenv("INLINE_QUERY_CACHE_SECONDS", "0") or "0"))
 INLINE_MAX_PROMPT_CHARS = max(1, int(os.getenv("INLINE_MAX_PROMPT_CHARS", "2000") or "2000"))
 INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "3800") or "3800"))
@@ -2706,7 +2711,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         f"Ready. Current model: {get_model_label(model_key)}\n"
         f"Current mode: {mode}\n"
         "Send text/photo/file in text mode, use /api or /provider to browse, /mode text|image to switch, or /modelsearch <text>.\n"
-        "Inline mode is allowlist-only and always uses void/gemini-3.1-flash-lite-preview (memory disabled).",
+        f"Inline mode is allowlist-only and uses void priority: {INLINE_MODEL_PRIORITY_TEXT} (memory disabled).",
     )
 
 
@@ -3218,7 +3223,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/model - choose text model",
         "/modelsearch <text> - search text models",
         "/mode text|image|status - switch response mode",
-        "Inline mode: use @botname <prompt> (allowlist only, fixed void/gemini-3.1-flash-lite-preview, memory off).",
+        f"Inline mode: use @botname <prompt> (allowlist only, void priority: {INLINE_MODEL_PRIORITY_TEXT}, memory off).",
         "Send photo/file with optional caption in text mode for attachment-aware models.",
         "/memory on|off|status - toggle memory context for you in this chat",
         "/clear - clear chat memory",
@@ -3481,26 +3486,45 @@ async def run_text_generation_flow(
     return used_provider_id, used_model_name, usage
 
 
-async def run_inline_generation_flow(prompt: str) -> tuple[str, dict[str, int]]:
+async def run_inline_generation_flow(prompt: str) -> tuple[str, str, dict[str, int]]:
     normalized_prompt = truncate_text(prompt, INLINE_MAX_PROMPT_CHARS)
     if not normalized_prompt:
         raise RuntimeError("Empty inline prompt.")
+    fallback_timeout = max(4, min(INLINE_MODEL_TIMEOUT_SECONDS, 5))
+    last_error: Exception | None = None
+    attempts: list[str] = []
 
-    answer, used_model_name, usage = await asyncio.to_thread(
-        generate_text_with_handler,
-        INLINE_PROVIDER_ID,
-        normalized_prompt,
-        INLINE_MODEL_NAME,
-        [],
-        [],
-        timeout_seconds=INLINE_MODEL_TIMEOUT_SECONDS,
-        max_output_tokens=INLINE_MAX_OUTPUT_TOKENS,
-    )
-    if used_model_name != INLINE_MODEL_NAME:
-        raise RuntimeError(
-            f"Inline mode model mismatch: expected {INLINE_MODEL_NAME}, got {used_model_name}"
-        )
-    return answer, usage
+    for idx, model_name in enumerate(INLINE_MODEL_PRIORITY):
+        timeout_seconds = INLINE_MODEL_TIMEOUT_SECONDS if idx == 0 else fallback_timeout
+        try:
+            answer, used_model_name, usage = await asyncio.to_thread(
+                generate_text_with_handler,
+                INLINE_PROVIDER_ID,
+                normalized_prompt,
+                model_name,
+                [],
+                [],
+                timeout_seconds=timeout_seconds,
+                max_output_tokens=INLINE_MAX_OUTPUT_TOKENS,
+            )
+            return answer, used_model_name, usage
+        except Exception as exc:
+            last_error = exc
+            attempts.append(f"{model_name} (timeout={timeout_seconds}s)")
+            logger.warning(
+                "Inline model attempt failed: user_prompt_len=%d provider=%s model=%s timeout=%ss error=%s",
+                len(normalized_prompt),
+                INLINE_PROVIDER_ID,
+                model_name,
+                timeout_seconds,
+                exc,
+            )
+            continue
+
+    attempts_text = ", ".join(attempts) if attempts else "no attempts"
+    raise RuntimeError(
+        f"Inline generation failed after trying: {attempts_text}. Last error: {last_error}"
+    ) from last_error
 
 
 async def answer_inline_query_compat(
@@ -3562,13 +3586,13 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
         return
 
     try:
-        answer, usage = await run_inline_generation_flow(query_text)
+        answer, used_inline_model_name, usage = await run_inline_generation_flow(query_text)
     except Exception:
         logger.exception(
-            "Inline generation failed: user_id=%s provider=%s model=%s",
+            "Inline generation failed: user_id=%s provider=%s models=%s",
             getattr(user, "id", "unknown"),
             INLINE_PROVIDER_ID,
-            INLINE_MODEL_NAME,
+            INLINE_MODEL_PRIORITY_TEXT,
         )
         error_text = (
             "Inline generation failed.\n"
@@ -3598,7 +3622,7 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
         "Inline model usage: user_id=%s provider=%s model=%s prompt_tokens=%s completion_tokens=%s total_tokens=%s",
         getattr(user, "id", "unknown"),
         INLINE_PROVIDER_ID,
-        INLINE_MODEL_NAME,
+        used_inline_model_name,
         usage.get("prompt_tokens", "n/a"),
         usage.get("completion_tokens", "n/a"),
         usage.get("total_tokens", "n/a"),
@@ -3607,14 +3631,14 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
     inline_question = truncate_text(query_text, INLINE_MAX_PROMPT_CHARS)
     inline_answer = truncate_text(answer, INLINE_MAX_ANSWER_CHARS) or "Empty response."
     reply_text = (
-        f"Question:\n{inline_question}\n\n"
-        f"Answer:\n{inline_answer.rstrip()}\n\n"
-        f"Used provider/model: `{INLINE_PROVIDER_ID}/{INLINE_MODEL_NAME}`"
+        f"\"{inline_question}\"\n\n"
+        f"{inline_answer.rstrip()}\n\n"
+        f"{used_inline_model_name}"
     )
     preview_text = truncate_text(inline_answer.replace("\n", " "), INLINE_PREVIEW_CHARS)
     result = InlineQueryResultArticle(
         id=hashlib.sha1(f"{inline_query.id}:{query_text}".encode("utf-8")).hexdigest(),
-        title="Void Gemini 3.1 Flash Lite Preview",
+        title="Void Gemini Inline",
         description=preview_text or "Inline response",
         input_message_content=InputTextMessageContent(
             message_text=markdown_code_to_telegram_html(reply_text),
