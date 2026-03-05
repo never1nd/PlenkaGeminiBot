@@ -103,9 +103,13 @@ INLINE_QUERY_CACHE_SECONDS = max(0, int(os.getenv("INLINE_QUERY_CACHE_SECONDS", 
 INLINE_MAX_PROMPT_CHARS = max(1, int(os.getenv("INLINE_MAX_PROMPT_CHARS", "2000") or "2000"))
 INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "3800") or "3800"))
 INLINE_PREVIEW_CHARS = max(32, int(os.getenv("INLINE_PREVIEW_CHARS", "120") or "120"))
-INLINE_MODEL_TIMEOUT_SECONDS = max(4, int(os.getenv("INLINE_MODEL_TIMEOUT_SECONDS", "8") or "8"))
+INLINE_MODEL_TIMEOUT_SECONDS = max(4, int(os.getenv("INLINE_MODEL_TIMEOUT_SECONDS", "9") or "9"))
 INLINE_MAX_OUTPUT_TOKENS = max(64, int(os.getenv("INLINE_MAX_OUTPUT_TOKENS", "256") or "256"))
-INLINE_TOTAL_TIMEOUT_SECONDS = max(3, int(os.getenv("INLINE_TOTAL_TIMEOUT_SECONDS", "8") or "8"))
+INLINE_TOTAL_TIMEOUT_SECONDS = max(3, int(os.getenv("INLINE_TOTAL_TIMEOUT_SECONDS", "9") or "9"))
+INLINE_PROMPT_INSTRUCTION = (
+    "Answer in the user's language. Keep it concise (1-2 short sentences), "
+    "but always complete the thought; do not leave unfinished phrases."
+)
 
 PROVIDER_DISPLAY_NAMES: dict[str, str] = {"google": "Google Gemini", "nvidia": "NVIDIA"}
 MODEL_CAPABILITIES_LOCK = threading.Lock()
@@ -3491,6 +3495,7 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, str, dict[str, i
     normalized_prompt = truncate_text(prompt, INLINE_MAX_PROMPT_CHARS)
     if not normalized_prompt:
         raise RuntimeError("Empty inline prompt.")
+    inline_model_prompt = f"{INLINE_PROMPT_INSTRUCTION}\n\n{normalized_prompt}"
     fallback_timeout = max(2, min(INLINE_MODEL_TIMEOUT_SECONDS, 4))
     last_error: Exception | None = None
     attempts: list[str] = []
@@ -3508,7 +3513,7 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, str, dict[str, i
             answer, used_model_name, usage = await asyncio.to_thread(
                 generate_text_with_handler,
                 INLINE_PROVIDER_ID,
-                normalized_prompt,
+                inline_model_prompt,
                 model_name,
                 [],
                 [],
