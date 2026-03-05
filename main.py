@@ -37,6 +37,7 @@ from telegram.error import BadRequest
 from telegram.ext import (
     ApplicationBuilder,
     CallbackQueryHandler,
+    ChosenInlineResultHandler,
     CommandHandler,
     ContextTypes,
     InlineQueryHandler,
@@ -101,15 +102,16 @@ INLINE_MODEL_PRIORITY = (
 INLINE_MODEL_PRIORITY_TEXT = ", ".join(INLINE_MODEL_PRIORITY)
 INLINE_QUERY_CACHE_SECONDS = max(0, int(os.getenv("INLINE_QUERY_CACHE_SECONDS", "0") or "0"))
 INLINE_MAX_PROMPT_CHARS = max(1, int(os.getenv("INLINE_MAX_PROMPT_CHARS", "2000") or "2000"))
-INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "3800") or "3800"))
+INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "500") or "500"))
 INLINE_PREVIEW_CHARS = max(32, int(os.getenv("INLINE_PREVIEW_CHARS", "120") or "120"))
 INLINE_MODEL_TIMEOUT_SECONDS = max(4, int(os.getenv("INLINE_MODEL_TIMEOUT_SECONDS", "9") or "9"))
 INLINE_MAX_OUTPUT_TOKENS = max(64, int(os.getenv("INLINE_MAX_OUTPUT_TOKENS", "256") or "256"))
 INLINE_TOTAL_TIMEOUT_SECONDS = max(3, int(os.getenv("INLINE_TOTAL_TIMEOUT_SECONDS", "9") or "9"))
 INLINE_PROMPT_INSTRUCTION = (
-    "Answer in the user's language. Keep it concise (1-2 short sentences), "
-    "but always complete the thought; do not leave unfinished phrases."
+    f"Answer in the user's language. The answer must be complete and no longer than {INLINE_MAX_ANSWER_CHARS} characters."
 )
+INLINE_PLACEHOLDER_TEXT = os.getenv("INLINE_PLACEHOLDER_TEXT", "Generating response...").strip() or "Generating response..."
+INLINE_PENDING_RESULT_TTL_SECONDS = max(30, int(os.getenv("INLINE_PENDING_RESULT_TTL_SECONDS", "600") or "600"))
 
 PROVIDER_DISPLAY_NAMES: dict[str, str] = {"google": "Google Gemini", "nvidia": "NVIDIA"}
 MODEL_CAPABILITIES_LOCK = threading.Lock()
@@ -122,6 +124,8 @@ CHAT_MEMORY_DEFAULT_USER_ID = 0
 CHAT_MEMORY_CACHE: dict[tuple[int, int], bool] = {}
 CHAT_MODE_CACHE: dict[int, str] = {}
 CHAT_SETTINGS_CACHE_LOCK = threading.Lock()
+INLINE_PENDING_LOCK = threading.Lock()
+INLINE_PENDING_RESULTS: dict[str, dict[str, Any]] = {}
 
 MODEL_CAPABILITY_STATUS_AVAILABLE = "available"
 MODEL_CAPABILITY_STATUS_QUOTA_BLOCKED = "quota_blocked"
@@ -3491,6 +3495,123 @@ async def run_text_generation_flow(
     return used_provider_id, used_model_name, usage
 
 
+def build_inline_reply_text(question: str, answer: str, model_name: str = "") -> str:
+    normalized_question = truncate_text(question, INLINE_MAX_PROMPT_CHARS)
+    normalized_answer = truncate_text(answer, INLINE_MAX_ANSWER_CHARS) or "Empty response."
+    model_suffix = str(model_name or "").strip()
+    if model_suffix:
+        return f"\"{normalized_question}\"\n\n{normalized_answer.rstrip()}\n\n{model_suffix}"
+    return f"\"{normalized_question}\"\n\n{normalized_answer.rstrip()}"
+
+
+def set_pending_inline_result(result_id: str, *, user_id: int, query_text: str) -> None:
+    normalized_result_id = str(result_id or "").strip()
+    normalized_query = str(query_text or "").strip()
+    if not normalized_result_id or not normalized_query:
+        return
+    now_ts = int(time.time())
+    with INLINE_PENDING_LOCK:
+        expired_keys = [
+            key
+            for key, item in INLINE_PENDING_RESULTS.items()
+            if int(item.get("expires_at", 0) or 0) <= now_ts
+        ]
+        for key in expired_keys:
+            INLINE_PENDING_RESULTS.pop(key, None)
+        INLINE_PENDING_RESULTS[normalized_result_id] = {
+            "user_id": int(user_id),
+            "query_text": normalized_query,
+            "created_at": now_ts,
+            "expires_at": now_ts + INLINE_PENDING_RESULT_TTL_SECONDS,
+        }
+
+
+def pop_pending_inline_result(result_id: str) -> dict[str, Any] | None:
+    normalized_result_id = str(result_id or "").strip()
+    if not normalized_result_id:
+        return None
+    now_ts = int(time.time())
+    with INLINE_PENDING_LOCK:
+        payload = INLINE_PENDING_RESULTS.pop(normalized_result_id, None)
+    if not isinstance(payload, dict):
+        return None
+    if int(payload.get("expires_at", 0) or 0) <= now_ts:
+        return None
+    return payload
+
+
+async def edit_inline_message_text_compat(
+    context: ContextTypes.DEFAULT_TYPE,
+    *,
+    inline_message_id: str,
+    text: str,
+) -> None:
+    html_text = markdown_code_to_telegram_html(text)
+    try:
+        await context.bot.edit_message_text(
+            text=html_text,
+            inline_message_id=inline_message_id,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
+        )
+    except BadRequest as exc:
+        reason = str(exc).strip().lower()
+        ignorable_markers = (
+            "message is not modified",
+            "query is too old",
+            "response timeout expired",
+            "query id is invalid",
+            "message to edit not found",
+            "message can't be edited",
+            "inline message id is invalid",
+        )
+        if any(marker in reason for marker in ignorable_markers):
+            logger.warning("Skipping inline edit due to Telegram restriction: %s", exc)
+            return
+        raise
+
+
+async def complete_chosen_inline_result(
+    context: ContextTypes.DEFAULT_TYPE,
+    *,
+    user_id: int,
+    inline_message_id: str,
+    query_text: str,
+) -> None:
+    try:
+        answer, used_inline_model_name, usage = await run_inline_generation_flow(query_text)
+        logger.info(
+            "Inline chosen-result usage: user_id=%s provider=%s model=%s prompt_tokens=%s completion_tokens=%s total_tokens=%s",
+            user_id,
+            INLINE_PROVIDER_ID,
+            used_inline_model_name,
+            usage.get("prompt_tokens", "n/a"),
+            usage.get("completion_tokens", "n/a"),
+            usage.get("total_tokens", "n/a"),
+        )
+        final_text = build_inline_reply_text(query_text, answer, used_inline_model_name)
+    except Exception as exc:
+        logger.exception(
+            "Inline chosen-result generation failed: user_id=%s provider=%s models=%s",
+            user_id,
+            INLINE_PROVIDER_ID,
+            INLINE_MODEL_PRIORITY_TEXT,
+        )
+        final_text = build_inline_reply_text(query_text, f"Inline generation failed: {exc}")
+    try:
+        await edit_inline_message_text_compat(
+            context,
+            inline_message_id=inline_message_id,
+            text=final_text,
+        )
+    except Exception:
+        logger.exception(
+            "Inline chosen-result edit failed: user_id=%s inline_message_id=%s",
+            user_id,
+            inline_message_id,
+        )
+
+
 async def run_inline_generation_flow(prompt: str) -> tuple[str, str, dict[str, int]]:
     normalized_prompt = truncate_text(prompt, INLINE_MAX_PROMPT_CHARS)
     if not normalized_prompt:
@@ -3610,59 +3731,16 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
         )
         return
 
-    try:
-        answer, used_inline_model_name, usage = await run_inline_generation_flow(query_text)
-    except Exception:
-        logger.exception(
-            "Inline generation failed: user_id=%s provider=%s models=%s",
-            getattr(user, "id", "unknown"),
-            INLINE_PROVIDER_ID,
-            INLINE_MODEL_PRIORITY_TEXT,
-        )
-        error_text = (
-            "Inline generation failed.\n"
-            "Open private chat with bot and retry there."
-        )
-        error_result = InlineQueryResultArticle(
-            id=hashlib.sha1(f"{inline_query.id}:inline_error".encode("utf-8")).hexdigest(),
-            title="Inline error",
-            description="Tap to send error details",
-            input_message_content=InputTextMessageContent(
-                message_text=markdown_code_to_telegram_html(error_text),
-                parse_mode=ParseMode.HTML,
-                disable_web_page_preview=True,
-            ),
-        )
-        await answer_inline_query_compat(
-            inline_query,
-            [error_result],
-            cache_time=0,
-            is_personal=True,
-            switch_pm_text="Inline generation failed. Open bot chat.",
-            switch_pm_parameter=sanitize_inline_parameter("inline_error", "inline_error"),
-        )
-        return
-
-    logger.info(
-        "Inline model usage: user_id=%s provider=%s model=%s prompt_tokens=%s completion_tokens=%s total_tokens=%s",
-        getattr(user, "id", "unknown"),
-        INLINE_PROVIDER_ID,
-        used_inline_model_name,
-        usage.get("prompt_tokens", "n/a"),
-        usage.get("completion_tokens", "n/a"),
-        usage.get("total_tokens", "n/a"),
+    result_id = hashlib.sha1(f"{inline_query.id}:{query_text}".encode("utf-8")).hexdigest()
+    set_pending_inline_result(
+        result_id,
+        user_id=int(getattr(user, "id", 0) or 0),
+        query_text=query_text,
     )
-
-    inline_question = truncate_text(query_text, INLINE_MAX_PROMPT_CHARS)
-    inline_answer = truncate_text(answer, INLINE_MAX_ANSWER_CHARS) or "Empty response."
-    reply_text = (
-        f"\"{inline_question}\"\n\n"
-        f"{inline_answer.rstrip()}\n\n"
-        f"{used_inline_model_name}"
-    )
-    preview_text = truncate_text(inline_answer.replace("\n", " "), INLINE_PREVIEW_CHARS)
+    reply_text = build_inline_reply_text(query_text, INLINE_PLACEHOLDER_TEXT, "void")
+    preview_text = truncate_text(INLINE_PLACEHOLDER_TEXT, INLINE_PREVIEW_CHARS)
     result = InlineQueryResultArticle(
-        id=hashlib.sha1(f"{inline_query.id}:{query_text}".encode("utf-8")).hexdigest(),
+        id=result_id,
         title="Void Gemini Inline",
         description=preview_text or "Inline response",
         input_message_content=InputTextMessageContent(
@@ -3676,6 +3754,56 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
         [result],
         cache_time=INLINE_QUERY_CACHE_SECONDS,
         is_personal=True,
+    )
+
+
+async def handle_chosen_inline_result(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chosen_result = update.chosen_inline_result
+    if chosen_result is None:
+        return
+
+    user = chosen_result.from_user
+    if not is_allowed(user):
+        return
+
+    inline_message_id = str(getattr(chosen_result, "inline_message_id", "") or "").strip()
+    if not inline_message_id:
+        logger.warning(
+            "Chosen inline result without inline_message_id: user_id=%s result_id=%s",
+            getattr(user, "id", "unknown"),
+            str(getattr(chosen_result, "result_id", "") or "").strip(),
+        )
+        return
+
+    result_id = str(getattr(chosen_result, "result_id", "") or "").strip()
+    pending = pop_pending_inline_result(result_id) if result_id else None
+    query_text = str((pending or {}).get("query_text", "")).strip() or str(chosen_result.query or "").strip()
+    if not query_text:
+        logger.warning(
+            "Chosen inline result missing query text: user_id=%s result_id=%s",
+            getattr(user, "id", "unknown"),
+            result_id,
+        )
+        return
+
+    if isinstance(pending, dict):
+        pending_user_id = int(pending.get("user_id", 0) or 0)
+        if pending_user_id and pending_user_id != int(getattr(user, "id", 0) or 0):
+            logger.warning(
+                "Ignoring pending inline result from different user: result_id=%s owner=%s actual=%s",
+                result_id,
+                pending_user_id,
+                getattr(user, "id", "unknown"),
+            )
+            return
+
+    context.application.create_task(
+        complete_chosen_inline_result(
+            context,
+            user_id=int(getattr(user, "id", 0) or 0),
+            inline_message_id=inline_message_id,
+            query_text=query_text,
+        )
     )
 
 
@@ -3886,6 +4014,7 @@ def build_app():
     app.add_handler(CallbackQueryHandler(on_model_page_callback, pattern=r"^modelpage:"))
     app.add_handler(CallbackQueryHandler(on_model_callback, pattern=r"^model:"))
     app.add_handler(InlineQueryHandler(handle_inline_query))
+    app.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))
     app.add_handler(
         MessageHandler((filters.TEXT | filters.PHOTO | filters.Document.ALL) & ~filters.COMMAND, handle_message)
     )
