@@ -93,11 +93,12 @@ MAX_INPUT_TEXT_ATTACHMENT_BYTES = int(os.getenv("MAX_INPUT_TEXT_ATTACHMENT_BYTES
 MAX_INPUT_TEXT_ATTACHMENT_CHARS = int(os.getenv("MAX_INPUT_TEXT_ATTACHMENT_CHARS", "20000"))
 TELEGRAM_REPLY_CHUNK_CHARS = 4000
 INLINE_PROVIDER_ID = "void"
-INLINE_MODEL_NAME = "gemini-3.0-pro"
+INLINE_MODEL_NAME = "gemini-3.1-flash-lite-preview"
 INLINE_QUERY_CACHE_SECONDS = max(0, int(os.getenv("INLINE_QUERY_CACHE_SECONDS", "0") or "0"))
 INLINE_MAX_PROMPT_CHARS = max(1, int(os.getenv("INLINE_MAX_PROMPT_CHARS", "2000") or "2000"))
 INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "3800") or "3800"))
 INLINE_PREVIEW_CHARS = max(32, int(os.getenv("INLINE_PREVIEW_CHARS", "120") or "120"))
+INLINE_MODEL_TIMEOUT_SECONDS = max(4, int(os.getenv("INLINE_MODEL_TIMEOUT_SECONDS", "8") or "8"))
 
 PROVIDER_DISPLAY_NAMES: dict[str, str] = {"google": "Google Gemini", "nvidia": "NVIDIA"}
 MODEL_CAPABILITIES_LOCK = threading.Lock()
@@ -1384,6 +1385,13 @@ def truncate_text(text: str, limit: int) -> str:
     if limit <= 3:
         return value[:limit]
     return f"{value[: limit - 3].rstrip()}..."
+
+
+def sanitize_inline_parameter(value: str, default: str) -> str:
+    cleaned = re.sub(r"[^a-z0-9_]+", "_", str(value or "").strip().lower()).strip("_")
+    if not cleaned:
+        cleaned = default
+    return cleaned[:64]
 
 
 async def send_reply_text_chunk(message, text: str, *, parse_html: bool = True) -> None:
@@ -2696,7 +2704,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         f"Ready. Current model: {get_model_label(model_key)}\n"
         f"Current mode: {mode}\n"
         "Send text/photo/file in text mode, use /api or /provider to browse, /mode text|image to switch, or /modelsearch <text>.\n"
-        "Inline mode is allowlist-only and always uses void/gemini-3.0-pro (memory disabled).",
+        "Inline mode is allowlist-only and always uses void/gemini-3.1-flash-lite-preview (memory disabled).",
     )
 
 
@@ -3208,7 +3216,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/model - choose text model",
         "/modelsearch <text> - search text models",
         "/mode text|image|status - switch response mode",
-        "Inline mode: use @botname <prompt> (allowlist only, fixed void/gemini-3.0-pro, memory off).",
+        "Inline mode: use @botname <prompt> (allowlist only, fixed void/gemini-3.1-flash-lite-preview, memory off).",
         "Send photo/file with optional caption in text mode for attachment-aware models.",
         "/memory on|off|status - toggle memory context for you in this chat",
         "/clear - clear chat memory",
@@ -3476,10 +3484,6 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, dict[str, int]]:
     if not normalized_prompt:
         raise RuntimeError("Empty inline prompt.")
 
-    provider_ok, provider_reason = check_provider_availability(INLINE_PROVIDER_ID)
-    if not provider_ok:
-        raise RuntimeError(f"Inline provider unavailable: {provider_reason or INLINE_PROVIDER_ID}")
-
     model_prompt = build_model_prompt(normalized_prompt)
     answer, used_model_name, usage = await asyncio.to_thread(
         generate_text_with_handler,
@@ -3488,7 +3492,7 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, dict[str, int]]:
         INLINE_MODEL_NAME,
         [],
         [],
-        timeout_seconds=get_timeout_for_model(INLINE_MODEL_NAME),
+        timeout_seconds=INLINE_MODEL_TIMEOUT_SECONDS,
     )
     if used_model_name != INLINE_MODEL_NAME:
         raise RuntimeError(
@@ -3509,7 +3513,7 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
             cache_time=0,
             is_personal=True,
             switch_pm_text="Access denied. Ask owner to add you.",
-            switch_pm_parameter="access_denied",
+            switch_pm_parameter=sanitize_inline_parameter("access_denied", "access_denied"),
         )
         return
 
@@ -3520,7 +3524,7 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
             cache_time=INLINE_QUERY_CACHE_SECONDS,
             is_personal=True,
             switch_pm_text="Type a prompt for inline mode.",
-            switch_pm_parameter="inline_help",
+            switch_pm_parameter=sanitize_inline_parameter("inline_help", "inline_help"),
         )
         return
 
@@ -3533,12 +3537,26 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
             INLINE_PROVIDER_ID,
             INLINE_MODEL_NAME,
         )
+        error_text = (
+            "Inline generation failed.\n"
+            "Open private chat with bot and retry there."
+        )
+        error_result = InlineQueryResultArticle(
+            id=hashlib.sha1(f"{inline_query.id}:inline_error".encode("utf-8")).hexdigest(),
+            title="Inline error",
+            description="Tap to send error details",
+            input_message_content=InputTextMessageContent(
+                message_text=markdown_code_to_telegram_html(error_text),
+                parse_mode=ParseMode.HTML,
+                disable_web_page_preview=True,
+            ),
+        )
         await inline_query.answer(
-            [],
+            [error_result],
             cache_time=0,
             is_personal=True,
             switch_pm_text="Inline generation failed. Open bot chat.",
-            switch_pm_parameter="inline_error",
+            switch_pm_parameter=sanitize_inline_parameter("inline_error", "inline_error"),
         )
         return
 
@@ -3560,7 +3578,7 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
     preview_text = truncate_text(inline_answer.replace("\n", " "), INLINE_PREVIEW_CHARS)
     result = InlineQueryResultArticle(
         id=hashlib.sha1(f"{inline_query.id}:{query_text}".encode("utf-8")).hexdigest(),
-        title="Void Gemini 3.0 Pro",
+        title="Void Gemini 3.1 Flash Lite Preview",
         description=preview_text or "Inline response",
         input_message_content=InputTextMessageContent(
             message_text=markdown_code_to_telegram_html(reply_text),
