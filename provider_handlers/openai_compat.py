@@ -212,7 +212,12 @@ class OpenAICompatProviderHandler(BaseProviderHandler):
                 )
             except requests.RequestException as exc:
                 last_error = f"request error: {exc}"
-                break
+                logger.warning(
+                    "Provider '%s' request failed with current key, trying next key: %s",
+                    self.provider_id,
+                    exc,
+                )
+                continue
 
             if resp.ok:
                 payload_data = resp.json()
@@ -263,7 +268,12 @@ class OpenAICompatProviderHandler(BaseProviderHandler):
                 )
             except requests.RequestException as exc:
                 last_error = f"request error: {exc}"
-                break
+                logger.warning(
+                    "Provider '%s' image request failed with current key, trying next key: %s",
+                    self.provider_id,
+                    exc,
+                )
+                continue
 
             if resp.ok:
                 try:

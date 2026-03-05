@@ -99,6 +99,7 @@ INLINE_MAX_PROMPT_CHARS = max(1, int(os.getenv("INLINE_MAX_PROMPT_CHARS", "2000"
 INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "3800") or "3800"))
 INLINE_PREVIEW_CHARS = max(32, int(os.getenv("INLINE_PREVIEW_CHARS", "120") or "120"))
 INLINE_MODEL_TIMEOUT_SECONDS = max(4, int(os.getenv("INLINE_MODEL_TIMEOUT_SECONDS", "8") or "8"))
+INLINE_MAX_OUTPUT_TOKENS = max(64, int(os.getenv("INLINE_MAX_OUTPUT_TOKENS", "256") or "256"))
 
 PROVIDER_DISPLAY_NAMES: dict[str, str] = {"google": "Google Gemini", "nvidia": "NVIDIA"}
 MODEL_CAPABILITIES_LOCK = threading.Lock()
@@ -1654,6 +1655,7 @@ def generate_text_with_handler(
     attachments: list[InputAttachment] | None = None,
     *,
     timeout_seconds: int | None = None,
+    max_output_tokens: int | None = None,
 ) -> Tuple[str, str, dict[str, int]]:
     handler = TEXT_PROVIDER_HANDLERS.get(provider_id)
     if not handler:
@@ -1664,7 +1666,7 @@ def generate_text_with_handler(
         model_name,
         history,
         attachments,
-        max_output_tokens=MAX_OUTPUT_TOKENS,
+        max_output_tokens=max_output_tokens if max_output_tokens is not None else MAX_OUTPUT_TOKENS,
         timeout_seconds=effective_timeout,
         strip_reasoning=strip_reasoning,
     )
@@ -3492,6 +3494,7 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, dict[str, int]]:
         [],
         [],
         timeout_seconds=INLINE_MODEL_TIMEOUT_SECONDS,
+        max_output_tokens=INLINE_MAX_OUTPUT_TOKENS,
     )
     if used_model_name != INLINE_MODEL_NAME:
         raise RuntimeError(
@@ -3601,9 +3604,11 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
         usage.get("total_tokens", "n/a"),
     )
 
+    inline_question = truncate_text(query_text, INLINE_MAX_PROMPT_CHARS)
     inline_answer = truncate_text(answer, INLINE_MAX_ANSWER_CHARS) or "Empty response."
     reply_text = (
-        f"{inline_answer.rstrip()}\n\n"
+        f"Question:\n{inline_question}\n\n"
+        f"Answer:\n{inline_answer.rstrip()}\n\n"
         f"Used provider/model: `{INLINE_PROVIDER_ID}/{INLINE_MODEL_NAME}`"
     )
     preview_text = truncate_text(inline_answer.replace("\n", " "), INLINE_PREVIEW_CHARS)
