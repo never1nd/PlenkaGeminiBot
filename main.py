@@ -105,6 +105,7 @@ INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "380
 INLINE_PREVIEW_CHARS = max(32, int(os.getenv("INLINE_PREVIEW_CHARS", "120") or "120"))
 INLINE_MODEL_TIMEOUT_SECONDS = max(4, int(os.getenv("INLINE_MODEL_TIMEOUT_SECONDS", "8") or "8"))
 INLINE_MAX_OUTPUT_TOKENS = max(64, int(os.getenv("INLINE_MAX_OUTPUT_TOKENS", "256") or "256"))
+INLINE_TOTAL_TIMEOUT_SECONDS = max(3, int(os.getenv("INLINE_TOTAL_TIMEOUT_SECONDS", "8") or "8"))
 
 PROVIDER_DISPLAY_NAMES: dict[str, str] = {"google": "Google Gemini", "nvidia": "NVIDIA"}
 MODEL_CAPABILITIES_LOCK = threading.Lock()
@@ -3490,12 +3491,19 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, str, dict[str, i
     normalized_prompt = truncate_text(prompt, INLINE_MAX_PROMPT_CHARS)
     if not normalized_prompt:
         raise RuntimeError("Empty inline prompt.")
-    fallback_timeout = max(4, min(INLINE_MODEL_TIMEOUT_SECONDS, 5))
+    fallback_timeout = max(2, min(INLINE_MODEL_TIMEOUT_SECONDS, 4))
     last_error: Exception | None = None
     attempts: list[str] = []
+    started_at = time.monotonic()
 
     for idx, model_name in enumerate(INLINE_MODEL_PRIORITY):
-        timeout_seconds = INLINE_MODEL_TIMEOUT_SECONDS if idx == 0 else fallback_timeout
+        elapsed = time.monotonic() - started_at
+        remaining_budget = max(1.0, float(INLINE_TOTAL_TIMEOUT_SECONDS) - elapsed)
+        if remaining_budget <= 1.0 and idx > 0:
+            attempts.append(f"{model_name} (skipped: budget_exhausted)")
+            break
+        base_timeout = INLINE_MODEL_TIMEOUT_SECONDS if idx == 0 else fallback_timeout
+        timeout_seconds = max(1, min(base_timeout, int(math.ceil(remaining_budget))))
         try:
             answer, used_model_name, usage = await asyncio.to_thread(
                 generate_text_with_handler,
@@ -3512,11 +3520,12 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, str, dict[str, i
             last_error = exc
             attempts.append(f"{model_name} (timeout={timeout_seconds}s)")
             logger.warning(
-                "Inline model attempt failed: user_prompt_len=%d provider=%s model=%s timeout=%ss error=%s",
+                "Inline model attempt failed: user_prompt_len=%d provider=%s model=%s timeout=%ss remaining_budget=%.2fs error=%s",
                 len(normalized_prompt),
                 INLINE_PROVIDER_ID,
                 model_name,
                 timeout_seconds,
+                remaining_budget,
                 exc,
             )
             continue
@@ -3554,6 +3563,17 @@ async def answer_inline_query_compat(
         kwargs.pop("switch_pm_text", None)
         kwargs.pop("switch_pm_parameter", None)
         await inline_query.answer(results, **kwargs)
+    except BadRequest as exc:
+        reason = str(exc).strip().lower()
+        stale_markers = (
+            "query is too old",
+            "response timeout expired",
+            "query id is invalid",
+        )
+        if any(marker in reason for marker in stale_markers):
+            logger.warning("Skipping expired inline query response: %s", exc)
+            return
+        raise
 
 
 async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
