@@ -3484,11 +3484,10 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, dict[str, int]]:
     if not normalized_prompt:
         raise RuntimeError("Empty inline prompt.")
 
-    model_prompt = build_model_prompt(normalized_prompt)
     answer, used_model_name, usage = await asyncio.to_thread(
         generate_text_with_handler,
         INLINE_PROVIDER_ID,
-        model_prompt,
+        normalized_prompt,
         INLINE_MODEL_NAME,
         [],
         [],
@@ -3501,6 +3500,35 @@ async def run_inline_generation_flow(prompt: str) -> tuple[str, dict[str, int]]:
     return answer, usage
 
 
+async def answer_inline_query_compat(
+    inline_query,
+    results: list[InlineQueryResultArticle],
+    *,
+    cache_time: int,
+    is_personal: bool,
+    switch_pm_text: str | None = None,
+    switch_pm_parameter: str | None = None,
+) -> None:
+    kwargs: dict[str, Any] = {
+        "cache_time": cache_time,
+        "is_personal": is_personal,
+    }
+    if switch_pm_text:
+        kwargs["switch_pm_text"] = switch_pm_text
+    if switch_pm_parameter:
+        kwargs["switch_pm_parameter"] = switch_pm_parameter
+    try:
+        await inline_query.answer(results, **kwargs)
+    except TypeError as exc:
+        # Some python-telegram-bot versions don't accept switch_pm_* on InlineQuery.answer.
+        reason = str(exc).lower()
+        if "switch_pm_text" not in reason and "switch_pm_parameter" not in reason:
+            raise
+        kwargs.pop("switch_pm_text", None)
+        kwargs.pop("switch_pm_parameter", None)
+        await inline_query.answer(results, **kwargs)
+
+
 async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
     inline_query = update.inline_query
     if inline_query is None:
@@ -3508,7 +3536,8 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
 
     user = inline_query.from_user
     if not is_allowed(user):
-        await inline_query.answer(
+        await answer_inline_query_compat(
+            inline_query,
             [],
             cache_time=0,
             is_personal=True,
@@ -3519,7 +3548,8 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
 
     query_text = str(inline_query.query or "").strip()
     if not query_text:
-        await inline_query.answer(
+        await answer_inline_query_compat(
+            inline_query,
             [],
             cache_time=INLINE_QUERY_CACHE_SECONDS,
             is_personal=True,
@@ -3551,7 +3581,8 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
                 disable_web_page_preview=True,
             ),
         )
-        await inline_query.answer(
+        await answer_inline_query_compat(
+            inline_query,
             [error_result],
             cache_time=0,
             is_personal=True,
@@ -3586,7 +3617,8 @@ async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYP
             disable_web_page_preview=True,
         ),
     )
-    await inline_query.answer(
+    await answer_inline_query_compat(
+        inline_query,
         [result],
         cache_time=INLINE_QUERY_CACHE_SECONDS,
         is_personal=True,
