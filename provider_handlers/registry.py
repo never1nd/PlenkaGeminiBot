@@ -10,8 +10,7 @@ from .base import BaseProviderHandler
 from .google import GoogleGeminiProviderHandler
 from .nvidia import NvidiaProviderHandler
 from .openai_compat import OpenAICompatProviderHandler
-from .orbit import OrbitProviderHandler
-from .sidekick import SidekickProviderHandler
+from .openrouter import OpenRouterProviderHandler
 from .utils import unique_keep_order
 from .void import VoidProviderHandler
 
@@ -31,14 +30,6 @@ def create_handler(
     image_path: str,
     auth_header: str,
     auth_prefix: str,
-    sidekick_person_id: str,
-    sidekick_models_url: str,
-    sidekick_thread_create_url: str,
-    sidekick_ws_url: str,
-    sidekick_image_upload_url_template: str,
-    sidekick_origin: str,
-    sidekick_referer: str,
-    sidekick_user_agent: str,
 ) -> BaseProviderHandler:
     if provider_id == "google":
         return GoogleGeminiProviderHandler(
@@ -53,8 +44,8 @@ def create_handler(
             api_keys=keys,
             fallback_models=fallback_models,
         )
-    if provider_id == "orbit":
-        return OrbitProviderHandler(
+    if provider_id == "void":
+        return VoidProviderHandler(
             label=label,
             base_url=base_url,
             keys=keys,
@@ -66,8 +57,8 @@ def create_handler(
             auth_header=auth_header,
             auth_prefix=auth_prefix,
         )
-    if provider_id == "void":
-        return VoidProviderHandler(
+    if provider_id == "openrouter":
+        return OpenRouterProviderHandler(
             label=label,
             base_url=base_url,
             keys=keys,
@@ -91,21 +82,6 @@ def create_handler(
             image_path=image_path,
             auth_header=auth_header,
             auth_prefix=auth_prefix,
-        )
-    if provider_id == "sidekick":
-        return SidekickProviderHandler(
-            label=label,
-            keys=keys,
-            person_id=sidekick_person_id,
-            fallback_models=fallback_models,
-            discover_models=discover_models,
-            models_url=sidekick_models_url,
-            thread_create_url=sidekick_thread_create_url,
-            ws_url=sidekick_ws_url,
-            image_upload_url_template=sidekick_image_upload_url_template,
-            origin=sidekick_origin,
-            referer=sidekick_referer,
-            user_agent=sidekick_user_agent,
         )
     return OpenAICompatProviderHandler(
         provider_id=provider_id,
@@ -187,49 +163,8 @@ def load_external_provider_handlers(config_file: str) -> dict[str, BaseProviderH
         chat_path = str(raw_provider.get("chat_path", "/chat/completions")).strip() or "/chat/completions"
         image_path = str(raw_provider.get("image_path", "/images/generations")).strip() or "/images/generations"
         discover_models = bool(raw_provider.get("discover_models", True))
-        sidekick_person_id = str(raw_provider.get("person_id", "")).strip()
-        if not sidekick_person_id:
-            person_env = str(raw_provider.get("person_id_env", "")).strip()
-            if person_env:
-                sidekick_person_id = os.getenv(person_env, "").strip()
-        sidekick_models_url = str(
-            raw_provider.get(
-                "models_url",
-                "https://cube.tobit.cloud/chayns-ai-chatbot/nativeModelChatbot",
-            )
-        ).strip()
-        sidekick_thread_create_url = str(
-            raw_provider.get(
-                "thread_create_url",
-                "https://cube.tobit.cloud/intercom-backend/v2/thread?forceCreate=true",
-            )
-        ).strip()
-        sidekick_ws_url = str(
-            raw_provider.get(
-                "ws_url",
-                "wss://intercom.tobit.cloud/ws/socket.io/?EIO=4&transport=websocket",
-            )
-        ).strip()
-        sidekick_image_upload_url_template = str(
-            raw_provider.get(
-                "image_upload_url_template",
-                "https://cube.tobit.cloud/image-service/v3/Images/{person_id}",
-            )
-        ).strip()
-        sidekick_origin = str(raw_provider.get("origin", "https://sidekick.ki")).strip()
-        sidekick_referer = str(raw_provider.get("referer", "https://sidekick.ki/")).strip()
-        sidekick_user_agent = str(
-            raw_provider.get(
-                "user_agent",
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0",
-            )
-        ).strip()
-
         keys = unique_keep_order(collected_keys)
-        if provider_id == "sidekick" and not sidekick_person_id:
-            logger.warning("Skipping provider '%s': person_id is missing.", provider_id)
-            continue
-        if provider_id not in {"google", "sidekick"} and not base_url:
+        if provider_id not in {"google"} and not base_url:
             logger.warning("Skipping provider '%s': base_url is missing.", provider_id)
             continue
         if not keys:
@@ -247,14 +182,6 @@ def load_external_provider_handlers(config_file: str) -> dict[str, BaseProviderH
             image_path=image_path,
             auth_header=auth_header,
             auth_prefix=auth_prefix,
-            sidekick_person_id=sidekick_person_id,
-            sidekick_models_url=sidekick_models_url,
-            sidekick_thread_create_url=sidekick_thread_create_url,
-            sidekick_ws_url=sidekick_ws_url,
-            sidekick_image_upload_url_template=sidekick_image_upload_url_template,
-            sidekick_origin=sidekick_origin,
-            sidekick_referer=sidekick_referer,
-            sidekick_user_agent=sidekick_user_agent,
         )
         handlers[provider_id] = handler
         logger.info(

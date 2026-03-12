@@ -4,7 +4,8 @@ Telegram bot with multi-provider text generation and per-user API/model selectio
 
 ## Features
 
-- Access control: owner plus allowlist stored in `users.db` (backup in `allowlist.json`)
+- Access control: owner(s) plus allowlist stored in `users.db` (backup in `allowlist.json`)
+- Optional group keyword trigger: replies in group chats when a message contains `GROUP_KEYWORD_TRIGGER` (default `\u043a\u043e\u043a\u0441`) and looks like a question.
 - Per-user API/model selection with `/api` (alias: `/model`)
 - Provider browser with `/provider`
 - Model search with `/modelsearch <text>`
@@ -51,6 +52,7 @@ python main.py
 ```
 
 Create `.env` manually and set required variables (at minimum `TELEGRAM_BOT_TOKEN` and `OWNER_USER_ID`).
+`OWNER_USER_ID` can be a single ID or a comma/space-separated list; you can also use `OWNER_USER_IDS` for extra owners.
 
 ## Provider Config (`providers.json`)
 
@@ -95,7 +97,8 @@ Generation skips cached blocking statuses while cache is valid.
 ## Important Environment Variables
 
 - `TELEGRAM_BOT_TOKEN`
-- `OWNER_USER_ID`
+- `OWNER_USER_ID` (single ID or comma/space-separated list)
+- `OWNER_USER_IDS` (optional extra list of owner IDs; merged with `OWNER_USER_ID`)
 - `ALLOWLIST_FILE` (default: `allowlist.json`)
 - `USERS_DB_FILE` (default: `users.db`)
 - `MODEL_PREFS_FILE` (default: `model_prefs.json`)
@@ -110,6 +113,7 @@ Generation skips cached blocking statuses while cache is valid.
 - `TELEGRAM_REPLY_CHUNK_CHARS` (default: `3200`, safe chunk size for long replies)
 - `REGULAR_MODEL_TIMEOUT_SECONDS` (default: `90`)
 - `REASONING_MODEL_TIMEOUT_SECONDS` (default: `180`)
+- `IMAGE_MODEL_TIMEOUT_SECONDS` (default: `50`)
 - `FALLBACK_ATTEMPT_TIMEOUT_SECONDS` (default: `35`)
 - `MODEL_CAPABILITY_PROBE_ENABLED` (default: `1`)
 - `MODEL_PROBE_SCOPE` (`smart` or `all`, default: `smart`)
@@ -121,3 +125,7 @@ Generation skips cached blocking statuses while cache is valid.
 - `MODEL_HIDE_UNAVAILABLE_MODELS` (default: `1`)
 - `NON_REPROBE_PROVIDERS` (comma-separated provider ids excluded from provider/model reprobes, default: `sidekick`)
 - `LOG_LEVEL` (default: `INFO`)
+- `GROUP_KEYWORD_TRIGGER` (default: `\u043a\u043e\u043a\u0441`)
+- `GROUP_KEYWORD_REQUIRE_QUESTION` (default: `0`)
+- `GROUP_PROVIDER_ALLOWLIST` (default: `nvidia,sosikibot,openrouter`)
+- `GROUP_PHOTO_KEYWORD` (default: `\u043a\u043e\u043a\u0441\u0444\u043e\u0442\u043e`)

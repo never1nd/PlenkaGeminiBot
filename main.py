@@ -54,14 +54,100 @@ def env_bool(name: str, default: str = "0") -> bool:
     return os.getenv(name, default).strip().lower() in ENV_TRUE_VALUES
 
 
+def env_int(name: str, default: int) -> int:
+    raw = os.getenv(name, str(default))
+    try:
+        return int(str(raw).strip())
+    except (TypeError, ValueError):
+        return int(default)
+
+
+def parse_user_id_list(raw_values: list[str]) -> set[int]:
+    combined = ",".join(value for value in raw_values if value)
+    if not combined:
+        return set()
+    parts = re.split(r"[,\s;]+", combined)
+    ids: set[int] = set()
+    for part in parts:
+        token = part.strip()
+        if not token:
+            continue
+        try:
+            value = int(token)
+        except ValueError:
+            continue
+        if value > 0:
+            ids.add(value)
+    return ids
+
+
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
-OWNER_USER_ID = int(os.getenv("OWNER_USER_ID", "8082486311") or "8082486311")
+def parse_owner_user_ids(raw_values: list[str]) -> set[int]:
+    combined = ",".join(value for value in raw_values if value)
+    if not combined:
+        return set()
+    parts = re.split(r"[,\s;]+", combined)
+    owner_ids: set[int] = set()
+    for part in parts:
+        token = part.strip()
+        if not token:
+            continue
+        try:
+            value = int(token)
+        except ValueError:
+            continue
+        if value > 0:
+            owner_ids.add(value)
+    return owner_ids
+
+
+def load_owner_user_ids() -> set[int]:
+    raw_values: list[str] = []
+    raw_primary = os.getenv("OWNER_USER_ID", "").strip()
+    raw_list = os.getenv("OWNER_USER_IDS", "").strip()
+    if raw_primary:
+        raw_values.append(raw_primary)
+    if raw_list:
+        raw_values.append(raw_list)
+    if not raw_values:
+        raw_values.append("8082486311")
+    return parse_owner_user_ids(raw_values)
+
+
+OWNER_USER_IDS = load_owner_user_ids()
+BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME", "").strip().lstrip("@")
+GROUP_KEYWORD_TRIGGER = os.getenv("GROUP_KEYWORD_TRIGGER", "\u043a\u043e\u043a\u0441").strip()
+GROUP_KEYWORD_REQUIRE_QUESTION = env_bool("GROUP_KEYWORD_REQUIRE_QUESTION", "0")
+REPLY_INSTRUCTION_DEFAULT = (
+    "Reply in Telegram Markdown. No HTML. Give a complete answer without filler. "
+    "Ты - кокс. это твое имя. Отвечай как человек и похуист. пытайся быть не очень борзым"
+)
+REPLY_INSTRUCTION_SHORT = (
+    "Reply in Telegram Markdown. No HTML. Be direct and to the point without filler. "
+    "Ты - кокс. это твое имя. Отвечай как человек и похуист. пытайся быть не очень борзым"
+)
+GROUP_PROVIDER_ALLOWLIST = {
+    item.strip().lower()
+    for item in os.getenv("GROUP_PROVIDER_ALLOWLIST", "nvidia,sosikibot,openrouter").split(",")
+    if item.strip()
+}
+GROUP_PHOTO_KEYWORD = os.getenv("GROUP_PHOTO_KEYWORD", "\u043a\u043e\u043a\u0441\u0444\u043e\u0442\u043e").strip()
+GROUP_FAST_MODEL_NAME = os.getenv("GROUP_FAST_MODEL_NAME", "").strip()
+GROUP_FAST_MODEL_PROVIDER = os.getenv("GROUP_FAST_MODEL_PROVIDER", "").strip().lower()
+SPECIAL_DENIED_USER_IDS = parse_user_id_list(
+    [
+        os.getenv("SPECIAL_DENIED_USER_ID", "").strip(),
+        os.getenv("SPECIAL_DENIED_USER_IDS", "").strip(),
+    ]
+)
+SPECIAL_DENIED_MESSAGE = os.getenv("SPECIAL_DENIED_MESSAGE", "\u0443 \u043c\u0435\u043d\u044f 1 \u0442\u0440\u0438\u043b\u043b\u0438\u043e\u043d \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u043e\u0432").strip()
 
 MEMORY_CONTEXT_MESSAGES = int(os.getenv("MEMORY_CONTEXT_MESSAGES", "20"))
 CUSTOM_PROVIDER_CONFIG_FILE = os.getenv("CUSTOM_PROVIDER_CONFIG_FILE", "providers.json").strip()
 
 REGULAR_MODEL_TIMEOUT_SECONDS = int(os.getenv("REGULAR_MODEL_TIMEOUT_SECONDS", "20"))
 REASONING_MODEL_TIMEOUT_SECONDS = int(os.getenv("REASONING_MODEL_TIMEOUT_SECONDS", "60"))
+IMAGE_MODEL_TIMEOUT_SECONDS = int(os.getenv("IMAGE_MODEL_TIMEOUT_SECONDS", "50"))
 FALLBACK_ATTEMPT_TIMEOUT_SECONDS = int(os.getenv("FALLBACK_ATTEMPT_TIMEOUT_SECONDS", "10"))
 MODEL_CAPABILITY_TTL_SECONDS = int(os.getenv("MODEL_CAPABILITY_TTL_SECONDS", "300"))
 MODEL_PROBE_TIMEOUT_SECONDS = int(os.getenv("MODEL_PROBE_TIMEOUT_SECONDS", "10"))
@@ -82,36 +168,27 @@ PROVIDER_AVAILABILITY_RECHECK_INTERVAL_SECONDS = int(os.getenv("PROVIDER_AVAILAB
 PROVIDER_AVAILABILITY_RECHECK_INITIAL_DELAY_SECONDS = int(os.getenv("PROVIDER_AVAILABILITY_RECHECK_INITIAL_DELAY_SECONDS", "15"))
 NON_REPROBE_PROVIDERS = {
     item.strip().lower()
-    for item in os.getenv("NON_REPROBE_PROVIDERS", "sidekick").split(",")
+    for item in os.getenv("NON_REPROBE_PROVIDERS", "sosikibot,openrouter").split(",")
     if item.strip()
 }
 
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "1024") or "1024")
+INLINE_MAX_OUTPUT_TOKENS = 250
+INLINE_DEBOUNCE_SECONDS = 0.0
+INLINE_ALLOWED_MODEL_BASES = (
+    "gemini-3.1-flash-lite",
+    "gemini-3.0-flash",
+    "gemini-2.5-flash",
+)
+INLINE_PLACEHOLDER_TEXT = "Generating response..."
 IMAGE_GENERATION_SIZE = os.getenv("IMAGE_GENERATION_SIZE", "1024x1024").strip() or "1024x1024"
+DEFAULT_IMAGE_MODEL_NAME = os.getenv("DEFAULT_IMAGE_MODEL_NAME", "gpt image 1.5").strip()
+DEFAULT_IMAGE_MODEL_PROVIDER = os.getenv("DEFAULT_IMAGE_MODEL_PROVIDER", "").strip().lower()
 MAX_INPUT_ATTACHMENT_COUNT = max(1, int(os.getenv("MAX_INPUT_ATTACHMENT_COUNT", "3") or "3"))
 MAX_INPUT_ATTACHMENT_BYTES = max(64 * 1024, int(os.getenv("MAX_INPUT_ATTACHMENT_BYTES", str(10 * 1024 * 1024)) or str(10 * 1024 * 1024)))
 MAX_INPUT_TEXT_ATTACHMENT_BYTES = int(os.getenv("MAX_INPUT_TEXT_ATTACHMENT_BYTES", str(512 * 1024)))
 MAX_INPUT_TEXT_ATTACHMENT_CHARS = int(os.getenv("MAX_INPUT_TEXT_ATTACHMENT_CHARS", "20000"))
 TELEGRAM_REPLY_CHUNK_CHARS = 4000
-INLINE_PROVIDER_ID = "void"
-INLINE_MODEL_PRIORITY = (
-    "gemini-3-flash-preview",
-    "gemini-3.1-flash-lite-preview",
-    "gemini-2.5-flash",
-)
-INLINE_MODEL_PRIORITY_TEXT = ", ".join(INLINE_MODEL_PRIORITY)
-INLINE_QUERY_CACHE_SECONDS = max(0, int(os.getenv("INLINE_QUERY_CACHE_SECONDS", "0") or "0"))
-INLINE_MAX_PROMPT_CHARS = max(1, int(os.getenv("INLINE_MAX_PROMPT_CHARS", "2000") or "2000"))
-INLINE_MAX_ANSWER_CHARS = max(128, int(os.getenv("INLINE_MAX_ANSWER_CHARS", "500") or "500"))
-INLINE_PREVIEW_CHARS = max(32, int(os.getenv("INLINE_PREVIEW_CHARS", "120") or "120"))
-INLINE_MODEL_TIMEOUT_SECONDS = max(4, int(os.getenv("INLINE_MODEL_TIMEOUT_SECONDS", "9") or "9"))
-INLINE_MAX_OUTPUT_TOKENS = max(64, int(os.getenv("INLINE_MAX_OUTPUT_TOKENS", "256") or "256"))
-INLINE_TOTAL_TIMEOUT_SECONDS = max(3, int(os.getenv("INLINE_TOTAL_TIMEOUT_SECONDS", "9") or "9"))
-INLINE_PROMPT_INSTRUCTION = (
-    f"Answer in the user's language. The answer must be complete and no longer than {INLINE_MAX_ANSWER_CHARS} characters."
-)
-INLINE_PLACEHOLDER_TEXT = os.getenv("INLINE_PLACEHOLDER_TEXT", "Generating response...").strip() or "Generating response..."
-INLINE_PENDING_RESULT_TTL_SECONDS = max(30, int(os.getenv("INLINE_PENDING_RESULT_TTL_SECONDS", "600") or "600"))
 
 PROVIDER_DISPLAY_NAMES: dict[str, str] = {"google": "Google Gemini", "nvidia": "NVIDIA"}
 MODEL_CAPABILITIES_LOCK = threading.Lock()
@@ -125,7 +202,7 @@ CHAT_MEMORY_CACHE: dict[tuple[int, int], bool] = {}
 CHAT_MODE_CACHE: dict[int, str] = {}
 CHAT_SETTINGS_CACHE_LOCK = threading.Lock()
 INLINE_PENDING_LOCK = threading.Lock()
-INLINE_PENDING_RESULTS: dict[str, dict[str, Any]] = {}
+INLINE_PENDING_REQUESTS: dict[int, dict[str, object]] = {}
 
 MODEL_CAPABILITY_STATUS_AVAILABLE = "available"
 MODEL_CAPABILITY_STATUS_QUOTA_BLOCKED = "quota_blocked"
@@ -527,7 +604,7 @@ def probe_provider_model_list(provider_id: str, timeout_seconds: int) -> tuple[b
     if not normalized or not handler:
         return False, "provider handler is not loaded"
 
-    if normalized in {"google", "sidekick"}:
+    if normalized in {"google"}:
         try:
             models = handler.discover_models(timeout_seconds=timeout_seconds)
             model_names = [str(x).strip() for x in models if str(x).strip()]
@@ -1209,8 +1286,8 @@ init_users_db()
 migrate_legacy_allowlist_to_db()
 allowed_user_ids = load_allowed_user_ids_from_db()
 # Owner is always allowed even if not present in DB.
-if OWNER_USER_ID:
-    allowed_user_ids.add(OWNER_USER_ID)
+if OWNER_USER_IDS:
+    allowed_user_ids.update(OWNER_USER_IDS)
 write_allowlist_backup(allowed_user_ids)
 user_model_prefs = load_model_prefs()
 
@@ -1223,12 +1300,27 @@ def is_allowed(user) -> bool:
     return False
 
 
+def is_special_denied_user(user) -> bool:
+    if not user:
+        return False
+    if user.id in SPECIAL_DENIED_USER_IDS:
+        return True
+    username = str(getattr(user, "username", "") or "").strip()
+    if username and "дима" in username.casefold():
+        return True
+    return False
+
+
+def get_denied_text_for_user(user, default_text: str) -> str:
+    if is_special_denied_user(user):
+        return ""
+    return default_text
+
+
 def is_owner(user) -> bool:
     if not user:
         return False
-    if OWNER_USER_ID and user.id == OWNER_USER_ID:
-        return True
-    return False
+    return user.id in OWNER_USER_IDS
 
 
 def parse_user_id(arg: str) -> Optional[int]:
@@ -1248,6 +1340,15 @@ def get_user_model_key(user_id: Optional[int]) -> str:
     if model_key not in MODEL_ORDER_SET:
         return DEFAULT_TEXT_PROVIDER
     return model_key
+
+
+def has_user_model_preference(user_id: Optional[int]) -> bool:
+    if user_id is None:
+        return False
+    model_key = user_model_prefs.get(str(user_id), "")
+    if not model_key:
+        return False
+    return model_key in MODEL_ORDER_SET
 
 
 def set_user_model_key(user_id: int, model_key: str) -> None:
@@ -1282,18 +1383,24 @@ def strip_reasoning(text: str) -> str:
     return cleaned or text
 
 
-def build_model_prompt(prompt: str) -> str:
+def build_model_prompt(prompt: str, *, short: bool = False) -> str:
     base = str(prompt or "").strip()
     if not base:
         base = "Help the user."
-    return (
-        f"{base}\n\n"
-        "Formatting instructions:\n"
-        "- Use Telegram Markdown-style formatting for readability.\n"
-        "- Use bold/italic/lists where appropriate.\n"
-        "- Use inline code for short code/commands and fenced code blocks for multi-line code.\n"
-        "- Keep formatting valid and avoid raw HTML."
-    )
+    instruction = REPLY_INSTRUCTION_SHORT if short else REPLY_INSTRUCTION_DEFAULT
+    if not instruction:
+        return base
+    return f"{base}\n\n{instruction}"
+
+
+def build_inline_prompt(prompt: str) -> str:
+    base = str(prompt or "").strip()
+    if not base:
+        base = "Help the user."
+    instruction = REPLY_INSTRUCTION_SHORT
+    if not instruction:
+        return base
+    return f"{base}\n\n{instruction}"
 
 
 def render_markdown_inline_to_html(text: str) -> str:
@@ -1391,22 +1498,50 @@ def split_text_for_telegram(text: str, limit: int) -> list[str]:
     return chunks or [normalized[:max_len]]
 
 
-def truncate_text(text: str, limit: int) -> str:
-    value = str(text or "").strip()
-    if limit <= 0:
+def trim_inline_text(text: str, limit: int = TELEGRAM_REPLY_CHUNK_CHARS) -> str:
+    normalized = str(text or "").strip()
+    if not normalized:
         return ""
-    if len(value) <= limit:
-        return value
-    if limit <= 3:
-        return value[:limit]
-    return f"{value[: limit - 3].rstrip()}..."
+    max_len = max(128, int(limit))
+    if len(normalized) <= max_len:
+        return normalized
+    trimmed = normalized[: max_len - 3].rstrip()
+    return f"{trimmed}..." if trimmed else normalized[:max_len]
 
 
-def sanitize_inline_parameter(value: str, default: str) -> str:
-    cleaned = re.sub(r"[^a-z0-9_]+", "_", str(value or "").strip().lower()).strip("_")
-    if not cleaned:
-        cleaned = default
-    return cleaned[:64]
+def format_inline_answer(question: str, answer: str) -> str:
+    prompt_text = str(question or "").strip()
+    if not prompt_text:
+        prompt_text = "Help the user."
+    answer_text = str(answer or "").strip()
+    if not answer_text:
+        answer_text = "Empty response."
+    return f"\"{prompt_text}\"\n\n---\n\n\"{answer_text}\""
+
+
+async def edit_inline_message_text(bot, inline_message_id: str, text: str) -> None:
+    trimmed = trim_inline_text(text)
+    if not trimmed:
+        trimmed = "Empty response."
+    payload = markdown_code_to_telegram_html(trimmed) if trimmed else ""
+    try:
+        await bot.edit_message_text(payload, inline_message_id=inline_message_id, parse_mode=ParseMode.HTML)
+        return
+    except BadRequest as exc:
+        reason = str(exc).strip().lower()
+        if "message is too long" in reason:
+            fallback_trim = trim_inline_text(trimmed, max(128, TELEGRAM_REPLY_CHUNK_CHARS // 2))
+            payload = markdown_code_to_telegram_html(fallback_trim) if fallback_trim else ""
+            try:
+                await bot.edit_message_text(
+                    payload,
+                    inline_message_id=inline_message_id,
+                    parse_mode=ParseMode.HTML,
+                )
+                return
+            except BadRequest:
+                trimmed = fallback_trim
+        await bot.edit_message_text(trimmed, inline_message_id=inline_message_id)
 
 
 async def send_reply_text_chunk(message, text: str, *, parse_html: bool = True) -> None:
@@ -1675,12 +1810,13 @@ def generate_text_with_handler(
     if not handler:
         raise RuntimeError(f"Provider handler is not loaded: {provider_id}")
     effective_timeout = timeout_seconds if timeout_seconds is not None else get_timeout_for_model(model_name)
+    effective_max_output_tokens = MAX_OUTPUT_TOKENS if max_output_tokens is None else max(1, int(max_output_tokens))
     text, usage = handler.generate_text(
         prompt,
         model_name,
         history,
         attachments,
-        max_output_tokens=max_output_tokens if max_output_tokens is not None else MAX_OUTPUT_TOKENS,
+        max_output_tokens=effective_max_output_tokens,
         timeout_seconds=effective_timeout,
         strip_reasoning=strip_reasoning,
     )
@@ -1786,6 +1922,138 @@ def find_provider_model_key(provider_id: str, model_name: str) -> str:
     return ""
 
 
+def normalize_model_name_for_match(model_name: str) -> str:
+    lowered = str(model_name or "").strip().lower()
+    if not lowered:
+        return ""
+    return re.sub(r"[\s_]+", "-", lowered)
+
+
+def build_default_image_model_variants(model_name: str) -> list[str]:
+    raw = str(model_name or "").strip()
+    if not raw:
+        return []
+    variants = [raw]
+    normalized = normalize_model_name_for_match(raw)
+    if normalized and normalized != raw:
+        variants.append(normalized)
+    return variants
+
+
+def find_model_key_by_name(model_name: str, *, provider_id: str = "") -> str:
+    raw = str(model_name or "").strip()
+    if not raw:
+        return ""
+    normalized = normalize_model_name_for_match(raw)
+    provider_id = str(provider_id or "").strip().lower()
+    provider_ids = [provider_id] if provider_id else PROVIDER_ORDER
+
+    # Exact match first (case-insensitive).
+    lowered = raw.lower()
+    for provider in provider_ids:
+        for model_key in PROVIDER_MODEL_KEYS.get(provider, []):
+            if MODEL_NAME_BY_KEY.get(model_key, "").strip().lower() == lowered:
+                return model_key
+
+    # Normalized match (treat spaces/underscores as hyphens).
+    if normalized:
+        for provider in provider_ids:
+            for model_key in PROVIDER_MODEL_KEYS.get(provider, []):
+                candidate = MODEL_NAME_BY_KEY.get(model_key, "")
+                if normalize_model_name_for_match(candidate) == normalized:
+                    return model_key
+
+    return ""
+
+
+def get_default_image_model_key() -> str:
+    if not DEFAULT_IMAGE_MODEL_NAME:
+        return ""
+    if DEFAULT_IMAGE_MODEL_PROVIDER:
+        key = find_model_key_by_name(DEFAULT_IMAGE_MODEL_NAME, provider_id=DEFAULT_IMAGE_MODEL_PROVIDER)
+        if key:
+            return key
+    return find_model_key_by_name(DEFAULT_IMAGE_MODEL_NAME)
+
+
+def score_fast_model_name(model_name: str) -> int:
+    lowered = str(model_name or "").strip().lower()
+    if not lowered:
+        return -10_000
+    score = 0
+    if is_reasoning_model(model_name):
+        score -= 80
+    fast_hints = (
+        ("flash", 80),
+        ("lite", 60),
+        ("mini", 50),
+        ("nano", 40),
+        ("haiku", 35),
+        ("turbo", 30),
+        ("fast", 25),
+        ("insta", 20),
+    )
+    slow_hints = (
+        ("thinking", -80),
+        ("reason", -70),
+        ("r1", -60),
+        ("deepseek-r1", -90),
+        ("qwq", -50),
+        ("pro", -25),
+        ("ultra", -40),
+        ("max", -20),
+        ("large", -20),
+        ("xl", -15),
+        ("mega", -20),
+    )
+    for token, weight in fast_hints:
+        if token in lowered:
+            score += weight
+    for token, weight in slow_hints:
+        if token in lowered:
+            score += weight
+    normalized_inline = normalize_inline_model_name(model_name)
+    for base in INLINE_ALLOWED_MODEL_BASES:
+        if normalized_inline == base or normalized_inline.startswith(f"{base}-"):
+            score += 120
+            break
+    return score
+
+
+def get_group_fast_model_key(provider_allowlist: set[str] | None = None) -> str:
+    normalized_allowlist: set[str] | None = None
+    if provider_allowlist is not None:
+        normalized_allowlist = {item.strip().lower() for item in provider_allowlist if str(item).strip()}
+        if not normalized_allowlist:
+            return ""
+
+    if GROUP_FAST_MODEL_NAME:
+        preferred = find_model_key_by_name(GROUP_FAST_MODEL_NAME, provider_id=GROUP_FAST_MODEL_PROVIDER)
+        if preferred:
+            provider_id = MODEL_PROVIDER_BY_KEY.get(preferred, "")
+            if not normalized_allowlist or provider_id in normalized_allowlist:
+                return preferred
+        logger.warning(
+            "Group fast model '%s' not found or not allowed; falling back to heuristic selection.",
+            GROUP_FAST_MODEL_NAME,
+        )
+
+    best_key = ""
+    best_score = -10_000
+    for model_key in MODEL_ORDER:
+        provider_id = MODEL_PROVIDER_BY_KEY.get(model_key, "")
+        model_name = MODEL_NAME_BY_KEY.get(model_key, "")
+        if not provider_id or not model_name:
+            continue
+        if normalized_allowlist and provider_id not in normalized_allowlist:
+            continue
+        score = score_fast_model_name(model_name)
+        if score > best_score:
+            best_score = score
+            best_key = model_key
+    return best_key
+
+
 def build_generation_model_keys(primary_key: str) -> list[str]:
     primary_provider = MODEL_PROVIDER_BY_KEY.get(primary_key, "")
     primary_model_name = MODEL_NAME_BY_KEY.get(primary_key, "")
@@ -1877,6 +2145,37 @@ def build_image_generation_model_keys(primary_key: str) -> list[str]:
             add_candidate(model_key)
 
     return candidates
+
+
+def normalize_inline_model_name(model_name: str) -> str:
+    normalized = str(model_name or "").strip().lower()
+    if normalized.startswith("models/"):
+        normalized = normalized.split("/", 1)[1]
+    return normalized
+
+
+def build_inline_model_keys() -> list[str]:
+    if not MODEL_ORDER:
+        return []
+    buckets: dict[str, list[str]] = {base: [] for base in INLINE_ALLOWED_MODEL_BASES}
+    for model_key in MODEL_ORDER:
+        model_name = MODEL_NAME_BY_KEY.get(model_key, "")
+        if not model_name:
+            continue
+        normalized = normalize_inline_model_name(model_name)
+        for base in INLINE_ALLOWED_MODEL_BASES:
+            if normalized == base or normalized.startswith(f"{base}-"):
+                buckets[base].append(model_key)
+                break
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for base in INLINE_ALLOWED_MODEL_BASES:
+        for model_key in buckets[base]:
+            if model_key in seen or model_key not in MODEL_ORDER_SET:
+                continue
+            seen.add(model_key)
+            ordered.append(model_key)
+    return ordered
 
 
 def build_model_probe_keys() -> list[str]:
@@ -2113,6 +2412,7 @@ def generate_text(
     *,
     allow_attachment_auto_fallback: bool = True,
     selected_only: bool = False,
+    provider_allowlist: set[str] | None = None,
 ) -> Tuple[str, str, str, dict[str, int]]:
     chosen_key = model_key if model_key in MODEL_ORDER_SET else DEFAULT_TEXT_PROVIDER
     if not chosen_key:
@@ -2126,6 +2426,22 @@ def generate_text(
         raw_attempt_keys = [chosen_key]
     else:
         raw_attempt_keys = build_generation_model_keys(chosen_key) or [chosen_key]
+    if provider_allowlist is not None:
+        normalized_allowlist = {item.strip().lower() for item in provider_allowlist if str(item).strip()}
+        if not normalized_allowlist:
+            raise RuntimeError("Provider allowlist is empty.")
+        filtered_attempts = [
+            key for key in raw_attempt_keys
+            if MODEL_PROVIDER_BY_KEY.get(key, "").strip().lower() in normalized_allowlist
+        ]
+        if not filtered_attempts:
+            filtered_attempts = [
+                key for key in MODEL_ORDER
+                if MODEL_PROVIDER_BY_KEY.get(key, "").strip().lower() in normalized_allowlist
+            ]
+        if not filtered_attempts:
+            raise RuntimeError("No allowed providers are configured for this request.")
+        raw_attempt_keys = filtered_attempts
     if requires_attachment_support and not allow_attachment_auto_fallback:
         selected_handler = TEXT_PROVIDER_HANDLERS.get(selected_provider)
         if selected_handler is None or not selected_handler.supports_input_attachments():
@@ -2295,7 +2611,146 @@ def generate_text(
     raise RuntimeError("No text models available.")
 
 
-def generate_image(prompt: str, model_key: str) -> tuple[dict[str, str], str, str]:
+def generate_inline_text(prompt: str) -> tuple[str, str, str, dict[str, int]]:
+    candidate_keys = build_inline_model_keys()
+    if not candidate_keys:
+        raise RuntimeError("Inline mode is unavailable (no Gemini Flash models configured).")
+
+    logger.info(
+        "Inline generation selection: candidates=%d max_output_tokens=%d",
+        len(candidate_keys),
+        INLINE_MAX_OUTPUT_TOKENS,
+    )
+
+    provider_availability: dict[str, tuple[bool, str]] = {}
+    attempt_keys: list[str] = []
+    skipped_candidates: list[str] = []
+    for candidate_key in candidate_keys:
+        provider_id = MODEL_PROVIDER_BY_KEY.get(candidate_key, "")
+        model_name = MODEL_NAME_BY_KEY.get(candidate_key, "")
+        if not provider_id or not model_name:
+            continue
+        if provider_id not in provider_availability:
+            provider_availability[provider_id] = check_provider_availability(provider_id)
+        provider_ok, provider_reason = provider_availability[provider_id]
+        if not provider_ok:
+            skipped_candidates.append(f"{provider_id}:{model_name}(provider_unavailable)")
+            continue
+        if provider_reason:
+            logger.info(
+                "Inline provider model-list probe for %s returned non-blocking issue: %s",
+                provider_id,
+                provider_reason,
+            )
+        should_skip, status = should_skip_model_candidate(provider_id, model_name)
+        if should_skip:
+            skipped_candidates.append(f"{provider_id}:{model_name}({status})")
+            continue
+        attempt_keys.append(candidate_key)
+
+    if skipped_candidates:
+        logger.info("Inline skipping ineligible candidates: %s", ", ".join(skipped_candidates))
+    if not attempt_keys:
+        attempt_keys = list(candidate_keys)
+
+    started_at = time.monotonic()
+    attempted: list[str] = []
+    last_error: Exception | None = None
+    last_status = MODEL_CAPABILITY_STATUS_UNKNOWN
+    for idx, candidate_key in enumerate(attempt_keys):
+        provider_id = MODEL_PROVIDER_BY_KEY.get(candidate_key, "")
+        model_name = MODEL_NAME_BY_KEY.get(candidate_key, "")
+        if not provider_id or not model_name:
+            continue
+        base_timeout = get_timeout_for_model(model_name)
+        elapsed = int(time.monotonic() - started_at)
+        remaining_budget = max(5, base_timeout - elapsed)
+        per_attempt_timeout = remaining_budget if idx == 0 else min(remaining_budget, FALLBACK_ATTEMPT_TIMEOUT_SECONDS)
+
+        logger.info(
+            "Inline generation attempt %d/%d provider=%s model=%s timeout=%ss",
+            idx + 1,
+            len(attempt_keys),
+            provider_id,
+            model_name,
+            per_attempt_timeout,
+        )
+        attempted.append(f"{provider_id}:{model_name}")
+        try:
+            if idx > 0:
+                logger.warning(
+                    "Retrying inline generation via fallback provider/model: %s (%s)",
+                    provider_id,
+                    model_name,
+                )
+            text, used_model, usage = generate_text_with_handler(
+                provider_id,
+                prompt,
+                model_name,
+                [],
+                [],
+                timeout_seconds=per_attempt_timeout,
+                max_output_tokens=INLINE_MAX_OUTPUT_TOKENS,
+            )
+            set_model_capability(provider_id, model_name, MODEL_CAPABILITY_STATUS_AVAILABLE)
+            return text, used_model, provider_id, usage
+        except Exception as exc:
+            last_error = exc
+            status = classify_generation_error(exc)
+            error_text = str(exc)
+            last_status = status
+            if classify_provider_probe_error(error_text) == "unavailable":
+                set_cached_provider_availability(
+                    provider_id,
+                    False,
+                    error_text,
+                    PROVIDER_UNAVAILABLE_TTL_SECONDS,
+                )
+            cache_error = "" if status == MODEL_CAPABILITY_STATUS_AVAILABLE else error_text
+            set_model_capability(provider_id, model_name, status, error_text=cache_error)
+            if status == MODEL_CAPABILITY_STATUS_AVAILABLE and is_empty_response_error(exc):
+                logger.info(
+                    "Inline generation returned empty response for provider=%s model=%s; continuing fallback.",
+                    provider_id,
+                    model_name,
+                )
+            elif status == MODEL_CAPABILITY_STATUS_UNSUPPORTED:
+                logger.warning(
+                    "Inline generation marked unsupported for provider=%s model=%s. error=%s",
+                    provider_id,
+                    model_name,
+                    exc,
+                )
+            else:
+                logger.warning(
+                    "Inline generation failed for provider=%s model=%s: %s",
+                    provider_id,
+                    model_name,
+                    exc,
+                )
+            if not is_retryable_generation_error(exc):
+                break
+
+    attempts_str = ", ".join(attempted) if attempted else "none"
+    if last_error is not None:
+        if last_status == MODEL_CAPABILITY_STATUS_UNSUPPORTED:
+            raise RuntimeError(
+                f"Inline generation failed after trying: {attempts_str}. Last error: {last_error}. "
+                "Detected model access/compatibility issue (unsupported or invalid_model)."
+            ) from last_error
+        raise RuntimeError(
+            f"Inline generation failed after trying: {attempts_str}. Last error: {last_error}"
+        ) from last_error
+    raise RuntimeError("No inline models available.")
+
+
+def generate_image(
+    prompt: str,
+    model_key: str,
+    *,
+    provider_allowlist: set[str] | None = None,
+    prefer_default_image_model: bool = False,
+) -> tuple[dict[str, str], str, str]:
     chosen_key = model_key if model_key in MODEL_ORDER_SET else DEFAULT_TEXT_PROVIDER
     if not chosen_key:
         raise RuntimeError("No models available.")
@@ -2303,6 +2758,37 @@ def generate_image(prompt: str, model_key: str) -> tuple[dict[str, str], str, st
     selected_provider = MODEL_PROVIDER_BY_KEY.get(chosen_key, "")
     selected_model_name = MODEL_NAME_BY_KEY.get(chosen_key, "")
     raw_attempt_keys: list[str] = build_image_generation_model_keys(chosen_key) or [chosen_key]
+    direct_default_attempts: list[tuple[str, str]] = []
+    if prefer_default_image_model and DEFAULT_IMAGE_MODEL_NAME:
+        default_image_key = get_default_image_model_key()
+        if default_image_key:
+            raw_attempt_keys = [default_image_key] + [key for key in raw_attempt_keys if key != default_image_key]
+        else:
+            if DEFAULT_IMAGE_MODEL_PROVIDER:
+                direct_default_attempts = [(DEFAULT_IMAGE_MODEL_PROVIDER, DEFAULT_IMAGE_MODEL_NAME)]
+            else:
+                direct_default_attempts = [(provider_id, DEFAULT_IMAGE_MODEL_NAME) for provider_id in PROVIDER_ORDER]
+            logger.info(
+                "Default image model '%s' not found in catalog; attempting direct provider calls.",
+                DEFAULT_IMAGE_MODEL_NAME,
+            )
+    normalized_allowlist: set[str] | None = None
+    if provider_allowlist is not None:
+        normalized_allowlist = {item.strip().lower() for item in provider_allowlist if str(item).strip()}
+        if not normalized_allowlist:
+            raise RuntimeError("Provider allowlist is empty.")
+        filtered_attempts = [
+            key for key in raw_attempt_keys
+            if MODEL_PROVIDER_BY_KEY.get(key, "").strip().lower() in normalized_allowlist
+        ]
+        if not filtered_attempts:
+            filtered_attempts = [
+                key for key in MODEL_ORDER
+                if MODEL_PROVIDER_BY_KEY.get(key, "").strip().lower() in normalized_allowlist
+            ]
+        if not filtered_attempts:
+            raise RuntimeError("No allowed providers are configured for this request.")
+        raw_attempt_keys = filtered_attempts
     logger.info(
         "Image routing selection: provider=%s model=%s candidates=%d size=%s",
         selected_provider or "unknown",
@@ -2332,18 +2818,57 @@ def generate_image(prompt: str, model_key: str) -> tuple[dict[str, str], str, st
     if not attempt_keys:
         attempt_keys = list(raw_attempt_keys)
 
-    started_at = time.monotonic()
     attempted: list[str] = []
     last_error: Exception | None = None
+    if direct_default_attempts:
+        for provider_id, model_name in direct_default_attempts:
+            provider_id = str(provider_id or "").strip().lower()
+            if not provider_id:
+                continue
+            if normalized_allowlist is not None and provider_id not in normalized_allowlist:
+                continue
+            if provider_id not in TEXT_PROVIDER_HANDLERS:
+                logger.warning("Default image model provider '%s' is not configured.", provider_id)
+                continue
+            if provider_id not in provider_availability:
+                provider_availability[provider_id] = check_provider_availability(provider_id)
+            provider_ok, _provider_reason = provider_availability[provider_id]
+            if not provider_ok:
+                skipped_candidates.append(f"{provider_id}:{model_name}(provider_unavailable)")
+                continue
+            for variant_name in build_default_image_model_variants(model_name):
+                attempted.append(f"{provider_id}:{variant_name}")
+                try:
+                    image_data, used_model = generate_image_with_handler(
+                        provider_id,
+                        prompt,
+                        variant_name,
+                        timeout_seconds=IMAGE_MODEL_TIMEOUT_SECONDS,
+                    )
+                    return image_data, used_model, provider_id
+                except Exception as exc:
+                    last_error = exc
+                    error_text = str(exc)
+                    if classify_provider_probe_error(error_text) == "unavailable":
+                        set_cached_provider_availability(
+                            provider_id,
+                            False,
+                            error_text,
+                            PROVIDER_UNAVAILABLE_TTL_SECONDS,
+                        )
+                    logger.warning(
+                        "Default image generation attempt failed for provider=%s model=%s: %s",
+                        provider_id,
+                        variant_name,
+                        exc,
+                    )
+                    continue
     for idx, candidate_key in enumerate(attempt_keys):
         provider_id = MODEL_PROVIDER_BY_KEY.get(candidate_key, "")
         model_name = MODEL_NAME_BY_KEY.get(candidate_key, "")
         if not provider_id or not model_name:
             continue
-        base_timeout = get_timeout_for_model(model_name)
-        elapsed = int(time.monotonic() - started_at)
-        remaining_budget = max(5, base_timeout - elapsed)
-        per_attempt_timeout = remaining_budget if idx == 0 else min(remaining_budget, FALLBACK_ATTEMPT_TIMEOUT_SECONDS)
+        per_attempt_timeout = IMAGE_MODEL_TIMEOUT_SECONDS
 
         logger.info(
             "Image generation attempt %d/%d provider=%s model=%s timeout=%ss",
@@ -2603,6 +3128,28 @@ def parse_int_or_default(value: str, default: int = 0) -> int:
         return default
 
 
+def build_inline_result_id(user_id: int | None, prompt: str) -> str:
+    seed = f"{user_id or 0}:{prompt}:{time.time_ns()}"
+    digest = hashlib.sha1(seed.encode("utf-8")).hexdigest()
+    return digest[:32]
+
+
+def build_inline_result_title(prompt: str) -> str:
+    cleaned = str(prompt or "").strip()
+    if not cleaned:
+        return "Generate response"
+    if len(cleaned) <= 72:
+        return cleaned
+    return f"{cleaned[:69]}..."
+
+
+def build_inline_keyboard() -> InlineKeyboardMarkup | None:
+    if not BOT_USERNAME:
+        return None
+    url = f"https://t.me/{BOT_USERNAME}"
+    return InlineKeyboardMarkup([[InlineKeyboardButton("Open Bot", url=url)]])
+
+
 def build_model_menu_text(model_key: str, page: int) -> str:
     page_count = get_model_page_count()
     return (
@@ -2631,6 +3178,8 @@ async def reply_to_update(update: Update, text: str, **kwargs) -> bool:
 async def ensure_allowed_command(update: Update, *, denied_text: str = "Access denied.") -> bool:
     if is_allowed(update.effective_user):
         return True
+    if is_special_denied_user(update.effective_user):
+        return False
     await reply_to_update(update, denied_text)
     return False
 
@@ -2668,6 +3217,8 @@ async def get_allowed_callback_query(update: Update):
         return None, None
     user = query.from_user
     if not is_allowed(user):
+        if is_special_denied_user(user):
+            return None, None
         await query.answer("Access denied.", show_alert=True)
         return None, None
     return query, user
@@ -2719,8 +3270,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         update,
         f"Ready. Current model: {get_model_label(model_key)}\n"
         f"Current mode: {mode}\n"
-        "Send text/photo/file in text mode, use /api or /provider to browse, /mode text|image to switch, or /modelsearch <text>.\n"
-        f"Inline mode is allowlist-only and uses void priority: {INLINE_MODEL_PRIORITY_TEXT} (memory disabled).",
+        "Send text/photo/file in text mode, use /api or /provider to browse, /mode text|image to switch, or /modelsearch <text>.",
     )
 
 
@@ -2809,6 +3359,8 @@ async def retry_pending_attachment_after_model_selection(
             attachments=list(pending["attachments"]),
             selected_only=True,
             allow_attachment_auto_fallback=False,
+            short_response=is_group_chat_type(query_message.chat),
+            provider_allowlist=GROUP_PROVIDER_ALLOWLIST if is_group_chat_type(query_message.chat) else None,
         )
         clear_pending_attachment_request(context)
     except AttachmentDecisionRequiredError as exc:
@@ -2954,6 +3506,8 @@ async def on_attachment_resolution_callback(update: Update, context: ContextType
         clear_pending_attachment_request(context)
         await query.answer("Pending request expired for this chat.", show_alert=True)
         return
+    short_response = is_group_chat_type(query_message.chat)
+    provider_allowlist = GROUP_PROVIDER_ALLOWLIST if short_response else None
 
     if action == "choose":
         context.user_data["pending_attachment_choose_model"] = True
@@ -2983,6 +3537,8 @@ async def on_attachment_resolution_callback(update: Update, context: ContextType
                 attachments=[],
                 selected_only=True,
                 allow_attachment_auto_fallback=False,
+                short_response=short_response,
+                provider_allowlist=provider_allowlist,
             )
         else:
             has_file_attachment = any(
@@ -2997,7 +3553,9 @@ async def on_attachment_resolution_callback(update: Update, context: ContextType
                 attachments=attachments,
                 selected_only=False,
                 allow_attachment_auto_fallback=True,
-                append_used_model_footer=has_file_attachment,
+                short_response=short_response,
+                provider_allowlist=provider_allowlist,
+                append_used_model_footer=has_file_attachment and not short_response,
             )
         clear_pending_attachment_request(context)
         with contextlib.suppress(Exception):
@@ -3148,7 +3706,15 @@ async def stop_model_capability_recheck_loop() -> None:
 
 
 async def on_app_post_init(application) -> None:
-    global PROVIDER_AVAILABILITY_RECHECK_TASK, MODEL_CAPABILITY_RECHECK_TASK
+    global PROVIDER_AVAILABILITY_RECHECK_TASK, MODEL_CAPABILITY_RECHECK_TASK, BOT_USERNAME
+    if not BOT_USERNAME:
+        with contextlib.suppress(Exception):
+            me = await application.bot.get_me()
+            username = str(getattr(me, "username", "") or "").strip().lstrip("@")
+            if username:
+                BOT_USERNAME = username
+    if not BOT_USERNAME:
+        logger.warning("BOT_USERNAME is not set; inline Open Bot button will be hidden.")
     job_queue = getattr(application, "_job_queue", None)
     if PROVIDER_AVAILABILITY_RECHECK_ENABLED:
         if job_queue is not None:
@@ -3232,7 +3798,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/model - choose text model",
         "/modelsearch <text> - search text models",
         "/mode text|image|status - switch response mode",
-        f"Inline mode: use @botname <prompt> (allowlist only, void priority: {INLINE_MODEL_PRIORITY_TEXT}, memory off).",
         "Send photo/file with optional caption in text mode for attachment-aware models.",
         "/memory on|off|status - toggle memory context for you in this chat",
         "/clear - clear chat memory",
@@ -3426,7 +3991,7 @@ async def deny(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if uid is None:
         await reply_to_update(update, "Invalid user_id.")
         return
-    if uid == OWNER_USER_ID:
+    if uid in OWNER_USER_IDS:
         await reply_to_update(update, "Cannot remove owner.")
         return
     allowed_user_ids.discard(uid)
@@ -3444,14 +4009,33 @@ async def run_text_generation_flow(
     attachments: list[InputAttachment] | None = None,
     selected_only: bool = False,
     allow_attachment_auto_fallback: bool = True,
+    short_response: bool = False,
+    provider_allowlist: set[str] | None = None,
     append_used_model_footer: bool = False,
+    model_key_override: str | None = None,
 ) -> tuple[str, str, dict[str, int]]:
     await message.chat.send_action(action="typing")
-    model_key = get_user_model_key(user_id)
-    memory_on = is_memory_enabled(chat_id, user_id)
-    history = get_recent_history(chat_id, MEMORY_CONTEXT_MESSAGES) if memory_on else []
+    if model_key_override and model_key_override in MODEL_ORDER_SET:
+        model_key = model_key_override
+    else:
+        model_key = get_user_model_key(user_id)
+    group_chat = is_group_chat_type(message.chat)
+    history: list[dict[str, str]] = []
+    if group_chat:
+        clear_chat_history(chat_id)
+        reply = getattr(message, "reply_to_message", None)
+        if reply is not None:
+            reply_text = str(getattr(reply, "text", "") or getattr(reply, "caption", "") or "").strip()
+            if reply_text:
+                reply_user = getattr(reply, "from_user", None)
+                role = "assistant" if reply_user and getattr(reply_user, "is_bot", False) else "user"
+                history = [{"role": role, "content": reply_text}]
+        memory_on = False
+    else:
+        memory_on = is_memory_enabled(chat_id, user_id)
+        history = get_recent_history(chat_id, MEMORY_CONTEXT_MESSAGES) if memory_on else []
     normalized_attachments = attachments or []
-    model_prompt = build_model_prompt(prompt)
+    model_prompt = build_model_prompt(prompt, short=short_response)
     answer, used_model_name, used_provider_id, usage = await asyncio.to_thread(
         generate_text,
         model_prompt,
@@ -3460,6 +4044,7 @@ async def run_text_generation_flow(
         normalized_attachments,
         allow_attachment_auto_fallback=allow_attachment_auto_fallback,
         selected_only=selected_only,
+        provider_allowlist=provider_allowlist,
     )
     logger.info(
         "Model usage: user_id=%s chat_id=%s provider=%s model=%s attachments=%d prompt_tokens=%s completion_tokens=%s total_tokens=%s",
@@ -3495,320 +4080,68 @@ async def run_text_generation_flow(
     return used_provider_id, used_model_name, usage
 
 
-def build_inline_reply_text(question: str, answer: str, model_name: str = "") -> str:
-    normalized_question = truncate_text(question, INLINE_MAX_PROMPT_CHARS)
-    normalized_answer = truncate_text(answer, INLINE_MAX_ANSWER_CHARS) or "Empty response."
-    model_suffix = str(model_name or "").strip()
-    if model_suffix:
-        return f"\"{normalized_question}\"\n\n{normalized_answer.rstrip()}\n\n{model_suffix}"
-    return f"\"{normalized_question}\"\n\n{normalized_answer.rstrip()}"
-
-
-def set_pending_inline_result(result_id: str, *, user_id: int, query_text: str) -> None:
-    normalized_result_id = str(result_id or "").strip()
-    normalized_query = str(query_text or "").strip()
-    if not normalized_result_id or not normalized_query:
-        return
-    now_ts = int(time.time())
-    with INLINE_PENDING_LOCK:
-        expired_keys = [
-            key
-            for key, item in INLINE_PENDING_RESULTS.items()
-            if int(item.get("expires_at", 0) or 0) <= now_ts
-        ]
-        for key in expired_keys:
-            INLINE_PENDING_RESULTS.pop(key, None)
-        INLINE_PENDING_RESULTS[normalized_result_id] = {
-            "user_id": int(user_id),
-            "query_text": normalized_query,
-            "created_at": now_ts,
-            "expires_at": now_ts + INLINE_PENDING_RESULT_TTL_SECONDS,
-        }
-
-
-def pop_pending_inline_result(result_id: str) -> dict[str, Any] | None:
-    normalized_result_id = str(result_id or "").strip()
-    if not normalized_result_id:
-        return None
-    now_ts = int(time.time())
-    with INLINE_PENDING_LOCK:
-        payload = INLINE_PENDING_RESULTS.pop(normalized_result_id, None)
-    if not isinstance(payload, dict):
-        return None
-    if int(payload.get("expires_at", 0) or 0) <= now_ts:
-        return None
-    return payload
-
-
-async def edit_inline_message_text_compat(
-    context: ContextTypes.DEFAULT_TYPE,
-    *,
-    inline_message_id: str,
-    text: str,
-) -> None:
-    html_text = markdown_code_to_telegram_html(text)
-    try:
-        await context.bot.edit_message_text(
-            text=html_text,
-            inline_message_id=inline_message_id,
-            parse_mode=ParseMode.HTML,
-            disable_web_page_preview=True,
-        )
-    except BadRequest as exc:
-        reason = str(exc).strip().lower()
-        ignorable_markers = (
-            "message is not modified",
-            "query is too old",
-            "response timeout expired",
-            "query id is invalid",
-            "message to edit not found",
-            "message can't be edited",
-            "inline message id is invalid",
-        )
-        if any(marker in reason for marker in ignorable_markers):
-            logger.warning("Skipping inline edit due to Telegram restriction: %s", exc)
-            return
-        raise
-
-
-async def complete_chosen_inline_result(
-    context: ContextTypes.DEFAULT_TYPE,
-    *,
-    user_id: int,
-    inline_message_id: str,
-    query_text: str,
-) -> None:
-    try:
-        answer, used_inline_model_name, usage = await run_inline_generation_flow(query_text)
-        logger.info(
-            "Inline chosen-result usage: user_id=%s provider=%s model=%s prompt_tokens=%s completion_tokens=%s total_tokens=%s",
-            user_id,
-            INLINE_PROVIDER_ID,
-            used_inline_model_name,
-            usage.get("prompt_tokens", "n/a"),
-            usage.get("completion_tokens", "n/a"),
-            usage.get("total_tokens", "n/a"),
-        )
-        final_text = build_inline_reply_text(query_text, answer, used_inline_model_name)
-    except Exception as exc:
-        logger.exception(
-            "Inline chosen-result generation failed: user_id=%s provider=%s models=%s",
-            user_id,
-            INLINE_PROVIDER_ID,
-            INLINE_MODEL_PRIORITY_TEXT,
-        )
-        final_text = build_inline_reply_text(query_text, f"Inline generation failed: {exc}")
-    try:
-        await edit_inline_message_text_compat(
-            context,
-            inline_message_id=inline_message_id,
-            text=final_text,
-        )
-    except Exception:
-        logger.exception(
-            "Inline chosen-result edit failed: user_id=%s inline_message_id=%s",
-            user_id,
-            inline_message_id,
-        )
-
-
-async def run_inline_generation_flow(prompt: str) -> tuple[str, str, dict[str, int]]:
-    normalized_prompt = truncate_text(prompt, INLINE_MAX_PROMPT_CHARS)
-    if not normalized_prompt:
-        raise RuntimeError("Empty inline prompt.")
-    inline_model_prompt = f"{INLINE_PROMPT_INSTRUCTION}\n\n{normalized_prompt}"
-    fallback_timeout = max(2, min(INLINE_MODEL_TIMEOUT_SECONDS, 4))
-    last_error: Exception | None = None
-    attempts: list[str] = []
-    started_at = time.monotonic()
-
-    for idx, model_name in enumerate(INLINE_MODEL_PRIORITY):
-        elapsed = time.monotonic() - started_at
-        remaining_budget = max(1.0, float(INLINE_TOTAL_TIMEOUT_SECONDS) - elapsed)
-        if remaining_budget <= 1.0 and idx > 0:
-            attempts.append(f"{model_name} (skipped: budget_exhausted)")
-            break
-        base_timeout = INLINE_MODEL_TIMEOUT_SECONDS if idx == 0 else fallback_timeout
-        timeout_seconds = max(1, min(base_timeout, int(math.ceil(remaining_budget))))
-        try:
-            answer, used_model_name, usage = await asyncio.to_thread(
-                generate_text_with_handler,
-                INLINE_PROVIDER_ID,
-                inline_model_prompt,
-                model_name,
-                [],
-                [],
-                timeout_seconds=timeout_seconds,
-                max_output_tokens=INLINE_MAX_OUTPUT_TOKENS,
-            )
-            return answer, used_model_name, usage
-        except Exception as exc:
-            last_error = exc
-            attempts.append(f"{model_name} (timeout={timeout_seconds}s)")
-            logger.warning(
-                "Inline model attempt failed: user_prompt_len=%d provider=%s model=%s timeout=%ss remaining_budget=%.2fs error=%s",
-                len(normalized_prompt),
-                INLINE_PROVIDER_ID,
-                model_name,
-                timeout_seconds,
-                remaining_budget,
-                exc,
-            )
-            continue
-
-    attempts_text = ", ".join(attempts) if attempts else "no attempts"
-    raise RuntimeError(
-        f"Inline generation failed after trying: {attempts_text}. Last error: {last_error}"
-    ) from last_error
-
-
-async def answer_inline_query_compat(
-    inline_query,
-    results: list[InlineQueryResultArticle],
-    *,
-    cache_time: int,
-    is_personal: bool,
-    switch_pm_text: str | None = None,
-    switch_pm_parameter: str | None = None,
-) -> None:
-    kwargs: dict[str, Any] = {
-        "cache_time": cache_time,
-        "is_personal": is_personal,
-    }
-    if switch_pm_text:
-        kwargs["switch_pm_text"] = switch_pm_text
-    if switch_pm_parameter:
-        kwargs["switch_pm_parameter"] = switch_pm_parameter
-    try:
-        await inline_query.answer(results, **kwargs)
-    except TypeError as exc:
-        # Some python-telegram-bot versions don't accept switch_pm_* on InlineQuery.answer.
-        reason = str(exc).lower()
-        if "switch_pm_text" not in reason and "switch_pm_parameter" not in reason:
-            raise
-        kwargs.pop("switch_pm_text", None)
-        kwargs.pop("switch_pm_parameter", None)
-        await inline_query.answer(results, **kwargs)
-    except BadRequest as exc:
-        reason = str(exc).strip().lower()
-        stale_markers = (
-            "query is too old",
-            "response timeout expired",
-            "query id is invalid",
-        )
-        if any(marker in reason for marker in stale_markers):
-            logger.warning("Skipping expired inline query response: %s", exc)
-            return
-        raise
-
-
-async def handle_inline_query(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
-    inline_query = update.inline_query
-    if inline_query is None:
-        return
-
-    user = inline_query.from_user
-    if not is_allowed(user):
-        await answer_inline_query_compat(
-            inline_query,
-            [],
-            cache_time=0,
-            is_personal=True,
-            switch_pm_text="Access denied. Ask owner to add you.",
-            switch_pm_parameter=sanitize_inline_parameter("access_denied", "access_denied"),
-        )
-        return
-
-    query_text = str(inline_query.query or "").strip()
-    if not query_text:
-        await answer_inline_query_compat(
-            inline_query,
-            [],
-            cache_time=INLINE_QUERY_CACHE_SECONDS,
-            is_personal=True,
-            switch_pm_text="Type a prompt for inline mode.",
-            switch_pm_parameter=sanitize_inline_parameter("inline_help", "inline_help"),
-        )
-        return
-
-    result_id = hashlib.sha1(f"{inline_query.id}:{query_text}".encode("utf-8")).hexdigest()
-    set_pending_inline_result(
-        result_id,
-        user_id=int(getattr(user, "id", 0) or 0),
-        query_text=query_text,
-    )
-    reply_text = build_inline_reply_text(query_text, INLINE_PLACEHOLDER_TEXT, "void")
-    preview_text = truncate_text(INLINE_PLACEHOLDER_TEXT, INLINE_PREVIEW_CHARS)
-    result = InlineQueryResultArticle(
-        id=result_id,
-        title="Void Gemini Inline",
-        description=preview_text or "Inline response",
-        input_message_content=InputTextMessageContent(
-            message_text=markdown_code_to_telegram_html(reply_text),
-            parse_mode=ParseMode.HTML,
-            disable_web_page_preview=True,
-        ),
-    )
-    await answer_inline_query_compat(
-        inline_query,
-        [result],
-        cache_time=INLINE_QUERY_CACHE_SECONDS,
-        is_personal=True,
-    )
-
-
-async def handle_chosen_inline_result(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chosen_result = update.chosen_inline_result
-    if chosen_result is None:
-        return
-
-    user = chosen_result.from_user
-    if not is_allowed(user):
-        return
-
-    inline_message_id = str(getattr(chosen_result, "inline_message_id", "") or "").strip()
-    if not inline_message_id:
-        logger.warning(
-            "Chosen inline result without inline_message_id: user_id=%s result_id=%s",
-            getattr(user, "id", "unknown"),
-            str(getattr(chosen_result, "result_id", "") or "").strip(),
-        )
-        return
-
-    result_id = str(getattr(chosen_result, "result_id", "") or "").strip()
-    pending = pop_pending_inline_result(result_id) if result_id else None
-    query_text = str((pending or {}).get("query_text", "")).strip() or str(chosen_result.query or "").strip()
-    if not query_text:
-        logger.warning(
-            "Chosen inline result missing query text: user_id=%s result_id=%s",
-            getattr(user, "id", "unknown"),
-            result_id,
-        )
-        return
-
-    if isinstance(pending, dict):
-        pending_user_id = int(pending.get("user_id", 0) or 0)
-        if pending_user_id and pending_user_id != int(getattr(user, "id", 0) or 0):
-            logger.warning(
-                "Ignoring pending inline result from different user: result_id=%s owner=%s actual=%s",
-                result_id,
-                pending_user_id,
-                getattr(user, "id", "unknown"),
-            )
-            return
-
-    context.application.create_task(
-        complete_chosen_inline_result(
-            context,
-            user_id=int(getattr(user, "id", 0) or 0),
-            inline_message_id=inline_message_id,
-            query_text=query_text,
-        )
-    )
-
-
 def extract_prompt_from_message(message) -> str:
     return str(message.text or message.caption or "").strip()
+
+
+def is_group_chat_type(chat) -> bool:
+    return chat is not None and chat.type in {"group", "supergroup"}
+
+
+def strip_keyword(text: str, keyword: str) -> str:
+    base = str(text or "")
+    needle = str(keyword or "").strip()
+    if not base or not needle:
+        return base.strip()
+    cleaned = re.sub(re.escape(needle), "", base, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+    return cleaned
+
+
+def is_group_chat(update: Update) -> bool:
+    return is_group_chat_type(update.effective_chat)
+
+
+def should_trigger_group_keyword(update: Update, prompt: str) -> bool:
+    if not GROUP_KEYWORD_TRIGGER:
+        return False
+    if not is_group_chat(update):
+        return False
+    text = str(prompt or "")
+    if not text:
+        return False
+    if GROUP_KEYWORD_TRIGGER.casefold() not in text.casefold():
+        return False
+    if GROUP_KEYWORD_REQUIRE_QUESTION and "?" not in text:
+        return False
+    return True
+
+
+def should_trigger_group_photo_keyword(update: Update, prompt: str) -> bool:
+    if not GROUP_PHOTO_KEYWORD:
+        return False
+    if not is_group_chat(update):
+        return False
+    text = str(prompt or "")
+    if not text:
+        return False
+    return GROUP_PHOTO_KEYWORD.casefold() in text.casefold()
+
+
+def is_reply_to_bot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
+    message = update.effective_message
+    if message is None:
+        return False
+    reply = getattr(message, "reply_to_message", None)
+    if reply is None:
+        return False
+    reply_user = getattr(reply, "from_user", None)
+    if reply_user is None:
+        return False
+    bot_id = getattr(context.bot, "id", None)
+    if bot_id is None:
+        return bool(getattr(reply_user, "is_bot", False))
+    return reply_user.id == bot_id
 
 
 async def maybe_handle_model_search_input(
@@ -3841,6 +4174,7 @@ async def maybe_run_image_mode_flow(
     model_key: str,
     attachments: list[InputAttachment],
     mode: str,
+    provider_allowlist: set[str] | None = None,
 ) -> bool:
     if mode != "image":
         return False
@@ -3848,11 +4182,16 @@ async def maybe_run_image_mode_flow(
         await message.reply_text("Attachment analysis is available in text mode. Use /mode text.")
         return True
 
+    if is_group_chat_type(message.chat):
+        clear_chat_history(chat_id)
     await message.chat.send_action(action="upload_photo")
+    prefer_default_image_model = bool(DEFAULT_IMAGE_MODEL_NAME)
     image_data, used_model_name, used_provider_id = await asyncio.to_thread(
         generate_image,
         prompt,
         model_key,
+        provider_allowlist=provider_allowlist,
+        prefer_default_image_model=prefer_default_image_model,
     )
     logger.info(
         "Image generation usage: user_id=%s chat_id=%s provider=%s model=%s mode=image",
@@ -3874,6 +4213,8 @@ async def maybe_run_attachment_text_flow(
     chat_id: int,
     prompt: str,
     attachments: list[InputAttachment],
+    short_response: bool,
+    provider_allowlist: set[str] | None,
 ) -> bool:
     if not attachments:
         return False
@@ -3886,6 +4227,8 @@ async def maybe_run_attachment_text_flow(
             attachments=attachments,
             selected_only=True,
             allow_attachment_auto_fallback=False,
+            short_response=short_response,
+            provider_allowlist=provider_allowlist,
         )
         return True
     except AttachmentDecisionRequiredError as exc:
@@ -3910,10 +4253,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     message = update.message
     if message is None:
         return
-    if not await ensure_allowed_command(update):
+    if is_special_denied_user(update.effective_user):
         return
 
     prompt = extract_prompt_from_message(message)
+    keyword_trigger = should_trigger_group_keyword(update, prompt)
+    photo_keyword_trigger = should_trigger_group_photo_keyword(update, prompt)
+    reply_trigger = is_reply_to_bot(update, context)
+    group_chat = is_group_chat(update)
+    group_trigger = group_chat and (keyword_trigger or reply_trigger or photo_keyword_trigger)
+    short_response = group_chat
+    provider_allowlist = GROUP_PROVIDER_ALLOWLIST if group_chat else None
+    if group_chat and not group_trigger:
+        return
+    if not group_trigger:
+        if not await ensure_allowed_command(update):
+            return
     attachments, attachment_notices = await extract_message_attachments(message)
     had_media = bool(message.photo or message.document)
     if had_media and attachment_notices:
@@ -3929,14 +4284,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             await message.reply_text("Empty message.")
             return
 
-    if await maybe_handle_model_search_input(
-        update,
-        context,
-        message,
-        prompt=prompt,
-        attachments=attachments,
-    ):
-        return
+    if not group_trigger:
+        if await maybe_handle_model_search_input(
+            update,
+            context,
+            message,
+            prompt=prompt,
+            attachments=attachments,
+        ):
+            return
 
     try:
         user_id = get_effective_user_id(update)
@@ -3947,6 +4303,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
         mode = get_chat_mode(chat_id)
         model_key = get_user_model_key(user_id)
+        group_fast_model_key = get_group_fast_model_key(provider_allowlist) if group_chat else ""
+        if group_chat and photo_keyword_trigger:
+            image_prompt = strip_keyword(prompt, GROUP_PHOTO_KEYWORD)
+            if not image_prompt:
+                image_prompt = "Generate an image."
+            await maybe_run_image_mode_flow(
+                message,
+                user_id=user_id,
+                chat_id=chat_id,
+                prompt=image_prompt,
+                model_key=model_key,
+                attachments=[],
+                mode="image",
+                provider_allowlist=provider_allowlist,
+            )
+            return
+
         if await maybe_run_image_mode_flow(
             message,
             user_id=user_id,
@@ -3955,6 +4328,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             model_key=model_key,
             attachments=attachments,
             mode=mode,
+            provider_allowlist=provider_allowlist,
         ):
             return
 
@@ -3965,6 +4339,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             chat_id=chat_id,
             prompt=prompt,
             attachments=attachments,
+            short_response=short_response,
+            provider_allowlist=provider_allowlist,
         ):
             return
 
@@ -3976,10 +4352,180 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             attachments=[],
             selected_only=False,
             allow_attachment_auto_fallback=True,
+            short_response=short_response,
+            provider_allowlist=provider_allowlist,
+            model_key_override=group_fast_model_key,
         )
     except Exception as exc:
         logger.exception("Message generation failed")
         await message.reply_text(f"Generation error: {exc}")
+
+
+async def inline_query_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    inline_query = update.inline_query
+    if inline_query is None:
+        return
+    user = inline_query.from_user
+    if not is_allowed(user):
+        if is_special_denied_user(user):
+            return
+        denied_text = "Access denied. Ask owner to add you."
+        await inline_query.answer(
+            [],
+            cache_time=1,
+            is_personal=True,
+            switch_pm_text=denied_text,
+            switch_pm_parameter="access_denied",
+        )
+        return
+
+    candidate_keys = build_inline_model_keys()
+    if not candidate_keys:
+        await inline_query.answer(
+            [],
+            cache_time=30,
+            is_personal=True,
+            switch_pm_text="Inline mode unavailable.",
+            switch_pm_parameter="inline_unavailable",
+        )
+        return
+
+    prompt = str(inline_query.query or "").strip()
+    result_id = build_inline_result_id(user.id if user else None, prompt)
+    title = build_inline_result_title(prompt)
+    description = "Generate with Gemini Flash"
+    placeholder = InputTextMessageContent(INLINE_PLACEHOLDER_TEXT)
+    reply_markup = build_inline_keyboard()
+    result = InlineQueryResultArticle(
+        id=result_id,
+        title=title,
+        description=description,
+        input_message_content=placeholder,
+        reply_markup=reply_markup,
+    )
+    await inline_query.answer([result], cache_time=1, is_personal=True)
+
+
+async def run_inline_generation(
+    context: ContextTypes.DEFAULT_TYPE,
+    *,
+    inline_message_id: str,
+    prompt: str,
+    user_id: int | None,
+) -> None:
+    try:
+        model_prompt = build_inline_prompt(prompt)
+        answer, used_model_name, used_provider_id, usage = await asyncio.to_thread(
+            generate_inline_text,
+            model_prompt,
+        )
+        logger.info(
+            "Inline usage: user_id=%s provider=%s model=%s prompt_tokens=%s completion_tokens=%s total_tokens=%s",
+            user_id,
+            used_provider_id,
+            used_model_name,
+            usage.get("prompt_tokens", "n/a"),
+            usage.get("completion_tokens", "n/a"),
+            usage.get("total_tokens", "n/a"),
+        )
+        formatted = format_inline_answer(prompt, answer)
+        await edit_inline_message_text(context.bot, inline_message_id, formatted)
+    except Exception as exc:
+        logger.exception("Inline generation failed")
+        await edit_inline_message_text(context.bot, inline_message_id, f"Generation error: {exc}")
+
+
+async def run_inline_generation_with_delay(
+    context: ContextTypes.DEFAULT_TYPE,
+    *,
+    inline_message_id: str,
+    prompt: str,
+    user_id: int | None,
+    delay_seconds: int,
+) -> None:
+    try:
+        if delay_seconds > 0:
+            await asyncio.sleep(delay_seconds)
+        await run_inline_generation(
+            context,
+            inline_message_id=inline_message_id,
+            prompt=prompt,
+            user_id=user_id,
+        )
+    except asyncio.CancelledError:
+        try:
+            await edit_inline_message_text(context.bot, inline_message_id, "Canceled (superseded).")
+        finally:
+            raise
+    finally:
+        if user_id is not None:
+            current = asyncio.current_task()
+            with INLINE_PENDING_LOCK:
+                entry = INLINE_PENDING_REQUESTS.get(user_id)
+                if entry and entry.get("task") is current:
+                    INLINE_PENDING_REQUESTS.pop(user_id, None)
+
+
+async def chosen_inline_result_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chosen = update.chosen_inline_result
+    if chosen is None:
+        return
+    user = chosen.from_user
+    if not is_allowed(user):
+        if chosen.inline_message_id:
+            if is_special_denied_user(user):
+                return
+            await edit_inline_message_text(context.bot, chosen.inline_message_id, "Access denied.")
+        return
+    inline_message_id = chosen.inline_message_id
+    if not inline_message_id:
+        logger.info(
+            "Inline chosen result missing inline_message_id (user_id=%s).",
+            user.id if user else "unknown",
+        )
+        return
+    prompt = str(chosen.query or "").strip() or "Help the user."
+    user_id = user.id if user else None
+    logger.info(
+        "Inline chosen: user_id=%s inline_message_id=%s query_len=%d debounce=%ss",
+        user_id,
+        inline_message_id,
+        len(prompt),
+        INLINE_DEBOUNCE_SECONDS,
+    )
+    if user_id is None:
+        context.application.create_task(
+            run_inline_generation_with_delay(
+                context,
+                inline_message_id=inline_message_id,
+                prompt=prompt,
+                user_id=None,
+                delay_seconds=INLINE_DEBOUNCE_SECONDS,
+            )
+        )
+        return
+
+    with INLINE_PENDING_LOCK:
+        existing = INLINE_PENDING_REQUESTS.get(user_id)
+        if existing:
+            task = existing.get("task")
+            if isinstance(task, asyncio.Task) and not task.done():
+                task.cancel()
+        new_task = context.application.create_task(
+            run_inline_generation_with_delay(
+                context,
+                inline_message_id=inline_message_id,
+                prompt=prompt,
+                user_id=user_id,
+                delay_seconds=INLINE_DEBOUNCE_SECONDS,
+            )
+        )
+        INLINE_PENDING_REQUESTS[user_id] = {
+            "task": new_task,
+            "inline_message_id": inline_message_id,
+            "prompt": prompt,
+            "created_at": time.time(),
+        }
 
 
 def build_app():
@@ -4013,8 +4559,8 @@ def build_app():
     app.add_handler(CallbackQueryHandler(on_attachment_resolution_callback, pattern=r"^attachresolve:"))
     app.add_handler(CallbackQueryHandler(on_model_page_callback, pattern=r"^modelpage:"))
     app.add_handler(CallbackQueryHandler(on_model_callback, pattern=r"^model:"))
-    app.add_handler(InlineQueryHandler(handle_inline_query))
-    app.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))
+    app.add_handler(InlineQueryHandler(inline_query_handler))
+    app.add_handler(ChosenInlineResultHandler(chosen_inline_result_handler))
     app.add_handler(
         MessageHandler((filters.TEXT | filters.PHOTO | filters.Document.ALL) & ~filters.COMMAND, handle_message)
     )
