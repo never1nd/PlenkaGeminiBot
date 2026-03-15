@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 from pythonjsonlogger.json import JsonFormatter
@@ -28,6 +29,14 @@ async def _main() -> None:
 
     logger = logging.getLogger("bot")
     logger.info("Starting bot...")
+    provider_config_path = Path(settings.provider_config_file).expanduser()
+    if not provider_config_path.exists():
+        logger.warning(
+            "Provider config not found: %s. Waiting for it to appear...",
+            provider_config_path,
+        )
+        while not provider_config_path.exists():
+            await asyncio.sleep(1)
 
     # ── imports ─────────────────────────────────────────────────────
     from telegram.ext import (
