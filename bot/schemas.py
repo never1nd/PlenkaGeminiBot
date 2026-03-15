@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -14,7 +15,7 @@ class InputAttachment(BaseModel):
     kind: str = "file"
     mime_type: str = "application/octet-stream"
     file_name: str = "attachment"
-    bytes: Optional[bytes] = None
+    bytes: Optional[builtins.bytes] = None
     text: str = ""
 
 

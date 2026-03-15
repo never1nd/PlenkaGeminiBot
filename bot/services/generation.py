@@ -96,6 +96,7 @@ class GenerationService:
         providers: set[str] | None = None,
         need_attachments: bool = False,
         need_text: bool = False,
+        attachments: list[InputAttachment] | None = None,
     ) -> list[str]:
         if providers:
             norm = {x.strip().lower() for x in providers if x.strip()}
@@ -129,8 +130,15 @@ class GenerationService:
             if not pid or not name:
                 continue
             handler = self._reg.handlers.get(pid)
-            if need_attachments and (not handler or not handler.supports_attachments()):
-                continue
+            if need_attachments:
+                if not handler or not handler.supports_attachments():
+                    continue
+                if attachments:
+                    unsupported = any(
+                        not handler.supports_attachment_kind(att) for att in attachments
+                    )
+                    if unsupported:
+                        continue
             if need_text and handler and not handler.supports_text():
                 continue
             if not avail.get(pid, (False, ""))[0]:
@@ -233,7 +241,11 @@ class GenerationService:
 
         has_att = bool(attachments)
         keys = await self._filter(
-            raw, providers=provider_allowlist, need_attachments=has_att, need_text=True,
+            raw,
+            providers=provider_allowlist,
+            need_attachments=has_att,
+            need_text=True,
+            attachments=attachments or None,
         )
 
         if not keys:

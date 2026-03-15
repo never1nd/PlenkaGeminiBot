@@ -108,6 +108,13 @@ class OpenAICompatProvider(BaseProvider):
     def supports_attachments(self) -> bool:
         return True
 
+    def supports_attachment_kind(self, attachment: InputAttachment) -> bool:
+        if attachment.kind == "image":
+            return bool(attachment.bytes)
+        if attachment.text:
+            return True
+        return False
+
     # ── internals ───────────────────────────────────────────────────
 
     def _rotated_keys(self) -> list[str]:

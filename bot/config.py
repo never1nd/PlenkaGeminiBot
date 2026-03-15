@@ -62,17 +62,17 @@ class Settings(BaseSettings):
     # default model rotation (round-robin to distribute API load)
     default_model_rotation: tuple[str, ...] = (
         "sosikibot:gemini-flash-lite-latest",
-        "sosikibot:gemini-flash-latest",
         "sosikibot:gpt-5.2",
         "sosikibot:gpt-5.2-chat-latest",
         "sosikibot:gpt-5.3-chat-latest",
         "sosikibot:gpt-5.4",
-        "void:gemini-3-flash-preview",
-        "void:gemini-3.1-flash-lite-preview",
         "void:gpt-5.2",
         "void:gpt-5.2-chat-latest",
         "void:gpt-5.3-chat-latest",
         "void:gpt-5.4",
+        "google:gemini-2.5-flash",
+        "void:gemini-3-flash-preview",
+        "void:gemini-3.1-flash-lite-preview",
     )
     default_rotation_provider: str = ""
 

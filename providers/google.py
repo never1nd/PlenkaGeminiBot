@@ -88,6 +88,9 @@ class GoogleProvider(BaseProvider):
     def supports_attachments(self) -> bool:
         return True
 
+    def supports_attachment_kind(self, attachment: InputAttachment) -> bool:
+        return True
+
     # ── internals ───────────────────────────────────────────────────
 
     def _client(self, key: str):

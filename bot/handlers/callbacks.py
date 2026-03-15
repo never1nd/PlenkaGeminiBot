@@ -14,7 +14,7 @@ from bot.handlers.helpers import (
     find_model_page, search_models,
     is_selectable_model, selectable_provider_ids, selectable_provider_model_keys,
     selectable_or_default_model_key, display_model_label,
-    edit_inline, inline_placeholder_keyboard,
+    edit_inline, inline_placeholder_keyboard, format_user_label,
 )
 from bot.handlers.inline_utils import fetch_inline_prompt
 from bot.model_utils import is_default_model_key
@@ -279,7 +279,10 @@ async def on_inline_generate(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await query.answer("Generating...")
     inline_id = query.inline_message_id
     try:
-        full = f"{prompt}\n\n{d.settings.reply_instruction_short}".strip()
+        user_label = format_user_label(user)
+        full_base = f"User: {user_label}\nUser message:\n{prompt}".strip()
+        instruction = d.settings.reply_instruction_short
+        full = f"{full_base}\n\n{instruction}".strip() if instruction else full_base
         answer, used_model, used_provider, usage = await d.generation.generate_inline_text(full)
         logger.info(
             "Inline (button): user=%s provider=%s model=%s tokens=%s",

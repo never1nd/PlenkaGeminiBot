@@ -45,6 +45,9 @@ class BaseProvider(abc.ABC):
     def supports_attachments(self) -> bool:
         return False
 
+    def supports_attachment_kind(self, attachment: InputAttachment) -> bool:
+        return self.supports_attachments()
+
     def supports_text(self) -> bool:
         return True
 

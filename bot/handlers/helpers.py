@@ -31,6 +31,23 @@ logger = logging.getLogger("bot")
 MAX_REPLY_DEPTH = 4
 
 
+# ── user label helpers ─────────────────────────────────────────────
+
+def format_user_label(user: Any) -> str:
+    if not user:
+        return "unknown"
+    first = str(getattr(user, "first_name", "") or "").strip()
+    last = str(getattr(user, "last_name", "") or "").strip()
+    full = " ".join(part for part in (first, last) if part)
+    if full:
+        return full
+    username = str(getattr(user, "username", "") or "").strip()
+    if username:
+        return f"@{username}"
+    uid = getattr(user, "id", None)
+    return f"user_id:{uid}" if uid is not None else "unknown"
+
+
 # ── sending replies ────────────────────────────────────────────────
 
 async def _send_chunk(msg: Message, text: str, *, html_mode: bool = True, depth: int = 0) -> None:

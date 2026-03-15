@@ -14,6 +14,7 @@ from bot.handlers.guards import is_group
 from bot.handlers.helpers import (
     edit_inline, inline_placeholder_keyboard,
     extract_attachments, search_models, send_text, display_model_label,
+    format_user_label,
 )
 from bot.model_utils import DEFAULT_MODEL_KEY
 from bot.formatting import trim_text
@@ -156,6 +157,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # attachments
     attachments, notices = await extract_attachments(message, s)
     had_media = bool(message.photo or message.document)
+    had_photo = bool(message.photo)
     if had_media and notices:
         logger.info("Attachment notices: %s", "; ".join(notices))
     if had_media and not attachments:
@@ -202,9 +204,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         short = group
         instruction = s.reply_instruction_short if short else s.reply_instruction_default
         summary = d.db.get_summary(chat.id)
-        base_prompt = prompt
+        user_label = format_user_label(user)
+        group_context = "Context: Group chat\n" if group else ""
+        base_prompt = f"{group_context}User: {user_label}\nUser message:\n{prompt}"
         if summary:
-            base_prompt = f"Conversation summary:\n{summary}\n\nUser message:\n{prompt}"
+            base_prompt = (
+                f"Conversation summary:\n{summary}\n\n"
+                f"{group_context}User: {user_label}\nUser message:\n{prompt}"
+            )
         full_prompt = _build_prompt(base_prompt, instruction)
         allowlist = s.group_providers if group else None
 
@@ -235,8 +242,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
 
         if d.db.is_memory_enabled(chat.id, user.id):
-            d.db.save_messages(chat.id, user.id, [("user", prompt), ("assistant", answer)])
-            context.application.create_task(_maybe_compact_history(d, chat.id))
+            if not had_photo:
+                d.db.save_messages(chat.id, user.id, [("user", prompt), ("assistant", answer)])
+                context.application.create_task(_maybe_compact_history(d, chat.id))
 
         await send_text(message, answer, s.telegram_reply_chunk_chars)
     except Exception as exc:
@@ -292,7 +300,9 @@ async def chosen_inline_handler(update: Update, context: ContextTypes.DEFAULT_TY
 
     async def _run() -> None:
         try:
-            full = _build_prompt(prompt, d.settings.reply_instruction_short)
+            user_label = format_user_label(user)
+            full_base = f"User: {user_label}\nUser message:\n{prompt}"
+            full = _build_prompt(full_base, d.settings.reply_instruction_short)
             answer, used_model, used_provider, usage = await d.generation.generate_inline_text(full)
             logger.info(
                 "Inline: user=%s provider=%s model=%s tokens=%s",
