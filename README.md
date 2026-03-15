@@ -63,8 +63,11 @@ Each provider entry supports:
 - `models_path`, `chat_path`
 - `auth_header`, `auth_prefix`
 - `api_keys` (or `api_key`)
+- `api_key_env` (load a single key from env)
+- `api_keys_env` (load keys from one or more env vars)
 - `discover_models`
 - `fallback_models`
+
 
 Sidekick-specific fields:
 
